@@ -6,17 +6,20 @@ import com.linecorp.bot.model.action.MessageAction;
 import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.TextMessage;
+import com.linecorp.bot.model.message.template.ButtonsTemplate;
 import com.linecorp.bot.model.message.template.CarouselColumn;
 import com.linecorp.bot.model.message.template.CarouselTemplate;
 import com.linecorp.bot.model.profile.UserProfileResponse;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.ramusthastudio.infomovies.controller.TheMovieDbService;
 import com.ramusthastudio.infomovies.model.DiscoverMovies;
+import com.ramusthastudio.infomovies.model.ResultMovieDetail;
 import com.ramusthastudio.infomovies.model.ResultMovies;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,6 +115,25 @@ public final class BotHelper {
         .execute();
   }
 
+  public static Response<BotApiResponse> buildButtonDetailMovie(String aChannelAccessToken,
+      String aBaseImgUrl, String aUserId, ResultMovieDetail aMovieDetail) throws IOException {
+    String filterTitle = filterTitle(aMovieDetail.getTitle());
+    String filterOverview = filterOverview(aMovieDetail.getOverview());
+
+    ButtonsTemplate buttonsTemplate = new ButtonsTemplate(
+        aBaseImgUrl + aMovieDetail.getPosterPath(),
+        filterTitle,
+        filterOverview,
+        Collections.singletonList(new URIAction("Homepage", aMovieDetail.getHomepage())));
+    TemplateMessage templateMessage = new TemplateMessage(filterTitle, buttonsTemplate);
+    PushMessage pushMessage = new PushMessage(aUserId, templateMessage);
+    return LineMessagingServiceBuilder
+        .create(aChannelAccessToken)
+        .build()
+        .pushMessage(pushMessage)
+        .execute();
+  }
+
   public static String createGenres(List<Integer> aGenreIds) {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < aGenreIds.size(); i++) {
@@ -140,8 +162,15 @@ public final class BotHelper {
         .addConverterFactory(GsonConverterFactory.create()).build();
     TheMovieDbService service = retrofit.create(TheMovieDbService.class);
 
-    LocalDate now = LocalDate.now();
     return service.nowPlayingMovies(aApiKey).execute();
+  }
+
+  public static Response<ResultMovieDetail> getDetailMovie(String aBaseUrl, int aMovieId, String aApiKey) throws IOException {
+    Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
+        .addConverterFactory(GsonConverterFactory.create()).build();
+    TheMovieDbService service = retrofit.create(TheMovieDbService.class);
+
+    return service.detailMovies(aMovieId, aApiKey).execute();
   }
 
   public static List<CarouselColumn> buildCarouselResultMovies(String aBaseImgUrl, List<ResultMovies> discoverMovies) {
@@ -153,19 +182,14 @@ public final class BotHelper {
           createGenres(resultMovies.getGenreIds()),
           resultMovies.getOverview());
 
-      String overview = resultMovies.getOverview();
-      String filterOverview;
-      if (overview.length() > 300) {
-        filterOverview = overview.substring(0, 250) + "...";
-      } else {
-        filterOverview = overview;
-      }
+      String filterTitle = filterTitle(resultMovies.getTitle());
+      String filterOverview = filterOverview(resultMovies.getOverview());
 
       if (carouselColumn.size() < 5) {
         carouselColumn.add(
             new CarouselColumn(
                 aBaseImgUrl + resultMovies.getBackdropPath(),
-                resultMovies.getTitle(),
+                filterTitle + " (" + resultMovies.getVoteAverage() + ")",
                 createGenres(resultMovies.getGenreIds()),
                 Arrays.asList(
                     new URIAction("Poster", aBaseImgUrl + resultMovies.getPosterPath()),
@@ -175,5 +199,25 @@ public final class BotHelper {
     }
 
     return carouselColumn;
+  }
+
+  public static String filterTitle(String aTitle) {
+    String filterTitle;
+    if (aTitle.length() > 40) {
+      filterTitle = aTitle.substring(0, 32) + "...";
+    } else {
+      filterTitle = aTitle;
+    }
+    return filterTitle;
+  }
+
+  public static String filterOverview(String aOverview) {
+    String filterOverview;
+    if (aOverview.length() > 300) {
+      filterOverview = aOverview.substring(0, 250) + "...";
+    } else {
+      filterOverview = aOverview;
+    }
+    return filterOverview;
   }
 }

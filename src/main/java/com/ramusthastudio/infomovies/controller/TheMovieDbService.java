@@ -22,7 +22,7 @@ public interface TheMovieDbService {
   Call<DiscoverTvs> discoverTvs(@Query("api_key") String aApi, @Query("primary_release_date.gte") int aGte, @Query("primary_release_date.lte") int alte);
 
   @GET("movie/{id}")
-  Call<ResultMovieDetail> detailMovies(@Path("id") int groupId, @Query("api_key") String aApi);
+  Call<ResultMovieDetail> detailMovies(@Path("id") int aMovieId, @Query("api_key") String aApi);
 
   // @GET("tv/{id}")
   // Call<DiscoverTvs> detailTv(@Path("id") int groupId, @Query("api_key") String aApi);
