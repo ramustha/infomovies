@@ -138,8 +138,9 @@ public class LineBotController {
             } else if (text.toLowerCase().contains(KW_SERIES_BULAN_INI.toLowerCase())) {
 
             } else if (text.toLowerCase().contains(KW_DETAIL.toLowerCase())) {
-              int id = Integer.parseInt(text);
-              LOG.info("Movie id {}", id);
+              String strId = text.replace("D", "");
+              LOG.info("Movie id {}", strId.trim());
+              int id = Integer.parseInt(strId.trim());
               Response<ResultMovieDetail> detailMovieResp = getDetailMovie(fChannelAccessToken, id, fApiKey);
               LOG.info("ResultMovieDetail code {} message {}", detailMovieResp.code(), detailMovieResp.message());
 

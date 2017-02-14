@@ -194,7 +194,7 @@ public final class BotHelper {
                 Arrays.asList(
                     new URIAction("Poster", aBaseImgUrl + resultMovies.getPosterPath()),
                     new MessageAction("Overview", filterOverview),
-                    new MessageAction("Detail", "" + resultMovies.getId()))));
+                    new MessageAction("Detail", "D" + resultMovies.getId()))));
       }
     }
 
