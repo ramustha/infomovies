@@ -20,8 +20,11 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import retrofit2.Response;
 
+import static com.ramusthastudio.infomovies.util.BotHelper.FOLLOW;
 import static com.ramusthastudio.infomovies.util.BotHelper.getUserProfile;
+import static com.ramusthastudio.infomovies.util.BotHelper.greetingMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.pushMessage;
 
 @RestController
@@ -62,14 +65,22 @@ public class LineBotController {
 
       try {
         String userId = source.userId();
-        UserProfileResponse userProfile = getUserProfile(fChannelAccessToken, userId);
-        LOG.info("UserProfileResponse: {} ", userProfile);
-
-        BotApiResponse pushResult = pushMessage(fChannelAccessToken, userId, "Hi " + userProfile.getDisplayName());
-        LOG.info("BotApiResponse: Message {} Details {} ", pushResult.getMessage(), pushResult.getDetails());
+        Response<UserProfileResponse> profileResp = getUserProfile(fChannelAccessToken, userId);
+        UserProfileResponse profile = profileResp.body();
+        LOG.info("profileResp code {} message {}", profileResp.code(), profileResp.message());
       } catch (IOException aE) {
         LOG.error("Failed GET UserProfileResponse: {} ", aE);
       }
+
+      try {
+        String userId = source.userId();
+        if (eventType.equals(FOLLOW)) {
+          greetingMessage(fChannelAccessToken, userId);
+        }
+      } catch (IOException aE) {
+        LOG.error("Failed show greeting message: {} ", aE.fillInStackTrace());
+      }
+
     }
 
     return new ResponseEntity<>(HttpStatus.OK);

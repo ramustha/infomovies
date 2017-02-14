@@ -28,25 +28,36 @@ public final class BotHelper {
   public static final String MESSAGE_LOCATION = "location";
   public static final String MESSAGE_STICKER = "sticker";
 
-  public static UserProfileResponse getUserProfile(String aChannelAccessToken, String aUserId) throws IOException {
-    Response<UserProfileResponse> response = LineMessagingServiceBuilder
+  public static Response<UserProfileResponse> getUserProfile(String aChannelAccessToken, String aUserId) throws IOException {
+    return LineMessagingServiceBuilder
         .create(aChannelAccessToken)
         .build()
         .getProfile(aUserId)
         .execute();
-
-    return response.body();
   }
 
-  public static BotApiResponse pushMessage(String aChannelAccessToken, String aSourceId, String aMsg) throws IOException {
+  public static Response<BotApiResponse> pushMessage(String aChannelAccessToken, String aUserId, String aMsg) throws IOException {
     TextMessage textMessage = new TextMessage(aMsg);
-    PushMessage pushMessage = new PushMessage(aSourceId, textMessage);
-    Response<BotApiResponse> response = LineMessagingServiceBuilder
+    PushMessage pushMessage = new PushMessage(aUserId, textMessage);
+    return LineMessagingServiceBuilder
         .create(aChannelAccessToken)
         .build()
         .pushMessage(pushMessage)
         .execute();
+  }
 
-    return response.body();
+  public static void greetingMessage(String aChannelAccessToken, String aUserId) throws IOException {
+    UserProfileResponse userProfile = getUserProfile(aChannelAccessToken, aUserId).body();
+    String greeting = "Hi " + userProfile.getDisplayName() + "Selamat Datang di Info Movies\n";
+    greeting += "Terima kasih telah menambahkan saya sebagai teman! (happy)\n\n";
+    greeting += "Jika kamu menerima terlalu banyak pemberitahuan, ";
+    greeting += "Silahkan buka pengaturan dari ruang obrolan ini dan matikan Pemberitahuan. ";
+    TextMessage textMessage = new TextMessage(greeting);
+    PushMessage pushMessage = new PushMessage(aUserId, textMessage);
+    LineMessagingServiceBuilder
+        .create(aChannelAccessToken)
+        .build()
+        .pushMessage(pushMessage)
+        .execute();
   }
 }
