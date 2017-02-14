@@ -7,6 +7,12 @@ public class Events {
   private long timestamp;
   private Message message;
 
+  public String type() { return type; }
+  public String replyToken() { return replyToken; }
+  public Source source() { return source; }
+  public long timestamp() { return timestamp; }
+  public Message message() { return message; }
+
   @Override public String toString() {
     return "Events{" +
         "type='" + type + '\'' +

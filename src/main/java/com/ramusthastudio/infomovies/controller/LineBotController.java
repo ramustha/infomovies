@@ -2,7 +2,12 @@ package com.ramusthastudio.infomovies.controller;
 
 import com.google.gson.Gson;
 import com.linecorp.bot.client.LineSignatureValidator;
+import com.ramusthastudio.infomovies.model.Events;
+import com.ramusthastudio.infomovies.model.Message;
 import com.ramusthastudio.infomovies.model.Payload;
+import com.ramusthastudio.infomovies.model.Source;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -16,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value = "/linebot")
 public class LineBotController {
+  private Logger LOG = LoggerFactory.getLogger(LineBotController.class);
+
   @Autowired
   @Qualifier("com.linecorp.channel_secret")
   String fChannelSecret;
@@ -29,15 +36,23 @@ public class LineBotController {
       @RequestHeader("X-Line-Signature") String aXLineSignature,
       @RequestBody String aPayload) {
 
-    System.out.printf("The Signature is: %s", (aXLineSignature != null && aXLineSignature.length() > 0) ? aXLineSignature : "N/A");
+    LOG.info("The Signature is: {} ", (aXLineSignature != null && aXLineSignature.length() > 0) ? aXLineSignature : "N/A");
     final boolean valid = new LineSignatureValidator(fChannelSecret.getBytes()).validateSignature(aPayload.getBytes(), aXLineSignature);
-    System.out.println("The signature is: " + (valid ? "valid" : "tidak valid"));
+    LOG.info("The Signature is: {} ", valid ? "valid" : "tidak valid");
 
     Gson gson = new Gson();
 
     if (aPayload != null && aPayload.length() > 0) {
       Payload payload = gson.fromJson(aPayload, Payload.class);
-      System.out.println("payload: " + payload);
+      LOG.info("payload: {} ", payload);
+
+      Events event = payload.events()[0];
+
+      String eventType = event.type();
+      String replayToken = event.replyToken();
+      Source source = event.source();
+      long timestamp = event.timestamp();
+      Message message = event.message();
     }
 
     return new ResponseEntity<>(HttpStatus.OK);

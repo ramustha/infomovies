@@ -6,6 +6,11 @@ public class Source {
   private String roomId;
   private String type;
 
+  public String userId() { return userId; }
+  public String groupId() { return groupId; }
+  public String roomId() { return roomId; }
+  public String type() { return type; }
+
   @Override public String toString() {
     return "Source{" +
         "userId='" + userId + '\'' +
