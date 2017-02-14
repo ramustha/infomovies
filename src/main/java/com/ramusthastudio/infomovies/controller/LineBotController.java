@@ -136,7 +136,7 @@ public class LineBotController {
                   fBaseImgUrl + resultMovies.getPosterPath(),
                   createGenres(resultMovies.getGenreIds()));
 
-              if (carouselColumn.size() <= 5) {
+              if (carouselColumn.size() < 5) {
                 carouselColumn.add(
                     new CarouselColumn(
                         fBaseImgUrl + resultMovies.getPosterPath(),
