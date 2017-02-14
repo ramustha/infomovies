@@ -118,12 +118,12 @@ public final class BotHelper {
   public static Response<BotApiResponse> buildButtonDetailMovie(String aChannelAccessToken,
       String aBaseImgUrl, String aUserId, ResultMovieDetail aMovieDetail) throws IOException {
     String filterTitle = filterTitle(aMovieDetail.getTitle());
-    String filterOverview = filterOverview(aMovieDetail.getOverview());
+    String filterTagLine = filterTagLine(aMovieDetail.getTagline());
 
     ButtonsTemplate buttonsTemplate = new ButtonsTemplate(
         aBaseImgUrl + aMovieDetail.getPosterPath(),
         filterTitle,
-        filterOverview,
+        filterTagLine,
         Collections.singletonList(new URIAction("Homepage", aMovieDetail.getHomepage())));
     TemplateMessage templateMessage = new TemplateMessage(filterTitle, buttonsTemplate);
     PushMessage pushMessage = new PushMessage(aUserId, templateMessage);
@@ -205,6 +205,16 @@ public final class BotHelper {
     String filterTitle;
     if (aTitle.length() > 40) {
       filterTitle = aTitle.substring(0, 30) + "...";
+    } else {
+      filterTitle = aTitle;
+    }
+    return filterTitle;
+  }
+
+  public static String filterTagLine(String aTitle) {
+    String filterTitle;
+    if (aTitle.length() > 60) {
+      filterTitle = aTitle.substring(0, 55) + "...";
     } else {
       filterTitle = aTitle;
     }
