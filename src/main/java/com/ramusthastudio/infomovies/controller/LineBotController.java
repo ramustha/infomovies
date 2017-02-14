@@ -126,7 +126,7 @@ public class LineBotController {
             for (ResultMovies resultMovies : discoverMovies.getDiscoverresults()) {
 
               String desc = "Rating : " + resultMovies.getVoteAverage() + "(" + resultMovies.getVoteCount() + ")\n";
-              // desc += "Genre : " + createGenres(resultMovies.getGenreIds());
+              desc += "Genre : " + createGenres(resultMovies.getGenreIds());
 
               String overview = "Release date : " + resultMovies.getReleaseDate() + "\n\n";
               overview += resultMovies.getOverview();
@@ -136,15 +136,17 @@ public class LineBotController {
                   fBaseImgUrl + resultMovies.getPosterPath(),
                   createGenres(resultMovies.getGenreIds()));
 
-              carouselColumn.add(
-                  new CarouselColumn(
-                      fBaseImgUrl + resultMovies.getPosterPath(),
-                      resultMovies.getTitle(),
-                      desc,
-                      Arrays.asList(
-                          new MessageAction("Overview", overview),
-                          new URIAction("Poster", fBaseImgUrl + resultMovies.getPosterPath()),
-                          new MessageAction("Detail", String.valueOf(resultMovies.getId())))));
+              if (carouselColumn.size() <= 5) {
+                carouselColumn.add(
+                    new CarouselColumn(
+                        fBaseImgUrl + resultMovies.getPosterPath(),
+                        resultMovies.getTitle(),
+                        desc,
+                        Arrays.asList(
+                            new MessageAction("Overview", overview),
+                            new URIAction("Poster", fBaseImgUrl + resultMovies.getPosterPath()),
+                            new MessageAction("Detail", String.valueOf(resultMovies.getId())))));
+              }
             }
 
             Response<BotApiResponse> carouselResult = createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
