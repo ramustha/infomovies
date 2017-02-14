@@ -35,6 +35,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.ramusthastudio.infomovies.util.BotHelper.FOLLOW;
+import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_MOVIE_BULAN_INI;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_SERIES_BULAN_INI;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE;
@@ -42,6 +43,7 @@ import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE_TEXT;
 import static com.ramusthastudio.infomovies.util.BotHelper.createCarouselMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.createGenres;
 import static com.ramusthastudio.infomovies.util.BotHelper.createMessage;
+import static com.ramusthastudio.infomovies.util.BotHelper.getDiscoverMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getUserProfile;
 import static com.ramusthastudio.infomovies.util.BotHelper.greetingMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.unrecognizedMessage;
@@ -109,27 +111,14 @@ public class LineBotController {
           greetingMessage(fChannelAccessToken, userId);
           createMessage(fChannelAccessToken, userId, "Daftar Movies release tahun ini");
 
-          Retrofit retrofit = new Retrofit.Builder().baseUrl(fBaseUrl)
-              .addConverterFactory(GsonConverterFactory.create()).build();
-          TheMovieDbService service = retrofit.create(TheMovieDbService.class);
-
-          LocalDate now = LocalDate.now();
-          Response<DiscoverMovies> discoverMoviesResp = service.discoverMovies(fApiKey, now.getYear()).execute();
-          // Response<DiscoverTvs> discoverTvsResp = service.discoverTvs(fApiKey, now.getYear()).execute();
-          // DiscoverTvs discoverTvs = discoverTvsResp.body();
-
+          Response<DiscoverMovies> discoverMoviesResp = getDiscoverMovies(fBaseUrl, fApiKey);
           LOG.info("DiscoverMovies code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
+
           if (discoverMoviesResp.isSuccessful()) {
             DiscoverMovies discoverMovies = discoverMoviesResp.body();
 
             List<CarouselColumn> carouselColumn = new ArrayList<>();
             for (ResultMovies resultMovies : discoverMovies.getDiscoverresults()) {
-
-              String desc = "Rating : " + resultMovies.getVoteAverage() + "(" + resultMovies.getVoteCount() + ")\n";
-              desc += "Genre : " + createGenres(resultMovies.getGenreIds());
-
-              String overview = "Release date : " + resultMovies.getReleaseDate() + "\n\n";
-              overview += resultMovies.getOverview();
 
               LOG.info("ResultMovies title {} poster {} genre {}",
                   resultMovies.getTitle(),
@@ -139,13 +128,13 @@ public class LineBotController {
               if (carouselColumn.size() < 5) {
                 carouselColumn.add(
                     new CarouselColumn(
-                        fBaseImgUrl + resultMovies.getPosterPath(),
+                        fBaseImgUrl + resultMovies.getBackdropPath(),
                         resultMovies.getTitle(),
-                        resultMovies.getOriginalTitle(),
+                        createGenres(resultMovies.getGenreIds()),
                         Arrays.asList(
-                            new MessageAction("Overview", resultMovies.getTitle()),
                             new URIAction("Poster", fBaseImgUrl + resultMovies.getPosterPath()),
-                            new MessageAction("Detail", String.valueOf(resultMovies.getId())))));
+                            new MessageAction("Overview", resultMovies.getOverview()),
+                            new MessageAction("Detail", "Detail " + resultMovies.getId()))));
               }
             }
 
@@ -159,6 +148,10 @@ public class LineBotController {
             if (text.contains(KW_MOVIE_BULAN_INI)) {
               createMessage(fChannelAccessToken, userId, text);
             } else if (text.contains(KW_SERIES_BULAN_INI)) {
+              createMessage(fChannelAccessToken, userId, text);
+            } else if (text.contains(KW_DETAIL)) {
+              text.replace("Detail", "").trim();
+              int id = Integer.parseInt(text);
               createMessage(fChannelAccessToken, userId, text);
             } else {
               unrecognizedMessage(fChannelAccessToken, userId);

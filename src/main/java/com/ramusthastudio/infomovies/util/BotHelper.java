@@ -8,9 +8,13 @@ import com.linecorp.bot.model.message.template.CarouselColumn;
 import com.linecorp.bot.model.message.template.CarouselTemplate;
 import com.linecorp.bot.model.profile.UserProfileResponse;
 import com.linecorp.bot.model.response.BotApiResponse;
+import com.ramusthastudio.infomovies.model.DiscoverMovies;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public final class BotHelper {
   public static final String SOURCE_USER = "user";
@@ -32,6 +36,7 @@ public final class BotHelper {
   public static final String MESSAGE_LOCATION = "location";
   public static final String MESSAGE_STICKER = "sticker";
 
+  public static final String KW_DETAIL = "Detail";
   public static final String KW_MOVIE_BULAN_INI = "movie bulan ini";
   public static final String KW_SERIES_BULAN_INI = "series bulan ini";
 
@@ -65,8 +70,8 @@ public final class BotHelper {
   public static void unrecognizedMessage(String aChannelAccessToken, String aUserId) throws IOException {
     UserProfileResponse userProfile = getUserProfile(aChannelAccessToken, aUserId).body();
     String greeting = "Hi " + userProfile.getDisplayName() + ", apakah kamu kesulitan ?\n\n";
-    greeting += "Jika kamu ingin tahu daftar movie yang realese bulan ini, tulis 'movie bulan ini'! \n";
-    greeting += "Jika kamu ingin tahu daftar series yang realese bulan ini, tulis 'series bulan ini! \n";
+    greeting += "Daftar movie yang realese bulan ini, tulis 'movie bulan ini'! \n";
+    greeting += "Daftar series yang realese bulan ini, tulis 'series bulan ini! \n";
     createMessage(aChannelAccessToken, aUserId, greeting);
   }
 
@@ -104,7 +109,15 @@ public final class BotHelper {
       }
     }
 
-    sb.toString().replaceFirst(",", "");
-    return sb.toString();
+    return sb.toString().replaceFirst(",", "");
+  }
+
+  public static Response<DiscoverMovies> getDiscoverMovies(String aBaseUrl, String aApiKey) throws IOException{
+    Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
+        .addConverterFactory(GsonConverterFactory.create()).build();
+    TheMovieDbService service = retrofit.create(TheMovieDbService.class);
+
+    LocalDate now = LocalDate.now();
+    return service.discoverMovies(aApiKey, now.getYear()).execute();
   }
 }
