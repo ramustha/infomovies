@@ -118,32 +118,39 @@ public class LineBotController {
           // Response<DiscoverTvs> discoverTvsResp = service.discoverTvs(fApiKey, now.getYear()).execute();
           // DiscoverTvs discoverTvs = discoverTvsResp.body();
 
-          LOG.info("headers {}", discoverMoviesResp.headers());
-          LOG.info("code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
+          LOG.info("DiscoverMovies code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
+          if (discoverMoviesResp.isSuccessful()) {
+            DiscoverMovies discoverMovies = discoverMoviesResp.body();
 
-          DiscoverMovies discoverMovies = discoverMoviesResp.body();
+            List<CarouselColumn> carouselColumn = new ArrayList<>();
+            for (ResultMovies resultMovies : discoverMovies.getDiscoverresults()) {
 
-          List<CarouselColumn> carouselColumn = new ArrayList<>();
-          for (ResultMovies resultMovies : discoverMovies.getDiscoverresults()) {
+              String desc = "Rating : " + resultMovies.getVoteAverage() + "(" + resultMovies.getVoteCount() + ")\n";
+              // desc += "Genre : " + createGenres(resultMovies.getGenreIds());
 
-            String desc = "Rating : " + resultMovies.getVoteAverage() + "(" + resultMovies.getVoteCount() + ")\n";
-            desc += "Genre : " + createGenres(resultMovies.getGenreIds());
+              String overview = "Release date : " + resultMovies.getReleaseDate() + "\n\n";
+              overview += resultMovies.getOverview();
 
-            String overview = "Release date : " + resultMovies.getReleaseDate() + "\n\n";
-            overview += resultMovies.getOverview();
-            carouselColumn.add(
-                new CarouselColumn(
-                    fBaseImgUrl + resultMovies.getPosterPath(),
-                    resultMovies.getTitle(),
-                    desc,
-                    Arrays.asList(
-                        new MessageAction("Overview", overview),
-                        new URIAction("Poster", fBaseImgUrl + resultMovies.getPosterPath()),
-                        new MessageAction("Detail", String.valueOf(resultMovies.getId())))));
+              LOG.info("ResultMovies title {} poster {} genre {}",
+                  resultMovies.getTitle(),
+                  fBaseImgUrl + resultMovies.getPosterPath(),
+                  createGenres(resultMovies.getGenreIds()));
+
+              carouselColumn.add(
+                  new CarouselColumn(
+                      fBaseImgUrl + resultMovies.getPosterPath(),
+                      resultMovies.getTitle(),
+                      desc,
+                      Arrays.asList(
+                          new MessageAction("Overview", overview),
+                          new URIAction("Poster", fBaseImgUrl + resultMovies.getPosterPath()),
+                          new MessageAction("Detail", String.valueOf(resultMovies.getId())))));
+            }
+
+            Response<BotApiResponse> carouselResult = createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
+            LOG.info("Carousel Message : code {} message {}", carouselResult.code(), carouselResult.message());
           }
 
-          Response<BotApiResponse> carouselResult = createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
-          LOG.info("Carousel Message : code {} message {}", carouselResult.code(), carouselResult.message());
         } else if (eventType.equals(MESSAGE)) {
           if (message.type().equals(MESSAGE_TEXT)) {
             String text = message.text();
