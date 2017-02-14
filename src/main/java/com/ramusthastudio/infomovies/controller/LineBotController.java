@@ -36,6 +36,7 @@ import retrofit2.Retrofit;
 
 import static com.ramusthastudio.infomovies.util.BotHelper.FOLLOW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_MOVIE_BULAN_INI;
+import static com.ramusthastudio.infomovies.util.BotHelper.KW_SERIES_BULAN_INI;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE_TEXT;
 import static com.ramusthastudio.infomovies.util.BotHelper.createCarouselMessage;
@@ -143,7 +144,7 @@ public class LineBotController {
             String text = message.text();
             if (text.contains(KW_MOVIE_BULAN_INI)) {
               createMessage(fChannelAccessToken, userId, text);
-            } else if (text.contains(KW_MOVIE_BULAN_INI)) {
+            } else if (text.contains(KW_SERIES_BULAN_INI)) {
               createMessage(fChannelAccessToken, userId, text);
             } else {
               unrecognizedMessage(fChannelAccessToken, userId);
