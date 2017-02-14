@@ -194,7 +194,7 @@ public final class BotHelper {
                 Arrays.asList(
                     new URIAction("Poster", aBaseImgUrl + resultMovies.getPosterPath()),
                     new MessageAction("Overview", filterOverview),
-                    new MessageAction("Detail", "Detail " + resultMovies.getId()))));
+                    new MessageAction("Detail", "" + resultMovies.getId()))));
       }
     }
 
@@ -204,7 +204,7 @@ public final class BotHelper {
   public static String filterTitle(String aTitle) {
     String filterTitle;
     if (aTitle.length() > 40) {
-      filterTitle = aTitle.substring(0, 32) + "...";
+      filterTitle = aTitle.substring(0, 30) + "...";
     } else {
       filterTitle = aTitle;
     }
