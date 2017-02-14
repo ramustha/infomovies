@@ -2,21 +2,31 @@ package com.ramusthastudio.infomovies.util;
 
 import com.linecorp.bot.client.LineMessagingServiceBuilder;
 import com.linecorp.bot.model.PushMessage;
+import com.linecorp.bot.model.action.MessageAction;
+import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.message.template.CarouselColumn;
 import com.linecorp.bot.model.message.template.CarouselTemplate;
 import com.linecorp.bot.model.profile.UserProfileResponse;
 import com.linecorp.bot.model.response.BotApiResponse;
+import com.ramusthastudio.infomovies.controller.TheMovieDbService;
 import com.ramusthastudio.infomovies.model.DiscoverMovies;
+import com.ramusthastudio.infomovies.model.ResultMovies;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public final class BotHelper {
+  private static final Logger LOG = LoggerFactory.getLogger(BotHelper.class);
+
   public static final String SOURCE_USER = "user";
   public static final String SOURCE_GROUP = "group";
   public static final String SOURCE_ROOM = "room";
@@ -37,8 +47,10 @@ public final class BotHelper {
   public static final String MESSAGE_STICKER = "sticker";
 
   public static final String KW_DETAIL = "Detail";
-  public static final String KW_MOVIE_BULAN_INI = "movie bulan ini";
-  public static final String KW_SERIES_BULAN_INI = "series bulan ini";
+  public static final String KW_MOVIE_BULAN_INI = "Movie bulan ini";
+  public static final String KW_SERIES_BULAN_INI = "Series bulan ini";
+  public static final String KW_NOW_PLAYING = "Now playing";
+  public static final String KW_ON_THE_AIR = "On air";
 
   public static Response<UserProfileResponse> getUserProfile(String aChannelAccessToken, String aUserId) throws IOException {
     return LineMessagingServiceBuilder
@@ -70,8 +82,10 @@ public final class BotHelper {
   public static void unrecognizedMessage(String aChannelAccessToken, String aUserId) throws IOException {
     UserProfileResponse userProfile = getUserProfile(aChannelAccessToken, aUserId).body();
     String greeting = "Hi " + userProfile.getDisplayName() + ", apakah kamu kesulitan ?\n\n";
-    greeting += "Daftar movie yang realese bulan ini, tulis 'movie bulan ini'! \n";
-    greeting += "Daftar series yang realese bulan ini, tulis 'series bulan ini! \n";
+    greeting += "Now Playing : '" + KW_NOW_PLAYING + "'! \n";
+    greeting += "On Air Series : '" + KW_ON_THE_AIR + "'! \n";
+    greeting += "Daftar Movie bulan ini : '" + KW_MOVIE_BULAN_INI + "'! \n";
+    greeting += "Daftar Series bulan ini : '" + KW_SERIES_BULAN_INI + "! \n";
     createMessage(aChannelAccessToken, aUserId, greeting);
   }
 
@@ -112,12 +126,54 @@ public final class BotHelper {
     return sb.toString().replaceFirst(",", "");
   }
 
-  public static Response<DiscoverMovies> getDiscoverMovies(String aBaseUrl, String aApiKey) throws IOException{
+  public static Response<DiscoverMovies> getDiscoverMovies(String aBaseUrl, String aApiKey) throws IOException {
     Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
         .addConverterFactory(GsonConverterFactory.create()).build();
     TheMovieDbService service = retrofit.create(TheMovieDbService.class);
 
     LocalDate now = LocalDate.now();
     return service.discoverMovies(aApiKey, now.getYear()).execute();
+  }
+
+  public static Response<DiscoverMovies> getNowPlayingMovies(String aBaseUrl, String aApiKey) throws IOException {
+    Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
+        .addConverterFactory(GsonConverterFactory.create()).build();
+    TheMovieDbService service = retrofit.create(TheMovieDbService.class);
+
+    LocalDate now = LocalDate.now();
+    return service.nowPlayingMovies(aApiKey).execute();
+  }
+
+  public static List<CarouselColumn> buildCarouselResultMovies(String aBaseImgUrl, List<ResultMovies> discoverMovies) {
+    List<CarouselColumn> carouselColumn = new ArrayList<>();
+    for (ResultMovies resultMovies : discoverMovies) {
+
+      LOG.info("ResultMovies title {}\n genre {}\n overview {}\n",
+          resultMovies.getTitle(),
+          createGenres(resultMovies.getGenreIds()),
+          resultMovies.getOverview());
+
+      String overview = resultMovies.getOverview();
+      String filterOverview;
+      if (overview.length() > 300) {
+        filterOverview = overview.substring(0, 250) + "...";
+      } else {
+        filterOverview = overview;
+      }
+
+      if (carouselColumn.size() < 5) {
+        carouselColumn.add(
+            new CarouselColumn(
+                aBaseImgUrl + resultMovies.getBackdropPath(),
+                resultMovies.getTitle(),
+                createGenres(resultMovies.getGenreIds()),
+                Arrays.asList(
+                    new URIAction("Poster", aBaseImgUrl + resultMovies.getPosterPath()),
+                    new MessageAction("Overview", filterOverview),
+                    new MessageAction("Detail", "Detail " + resultMovies.getId()))));
+      }
+    }
+
+    return carouselColumn;
   }
 }

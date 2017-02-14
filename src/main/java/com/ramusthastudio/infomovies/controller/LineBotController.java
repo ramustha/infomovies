@@ -2,8 +2,6 @@ package com.ramusthastudio.infomovies.controller;
 
 import com.google.gson.Gson;
 import com.linecorp.bot.client.LineSignatureValidator;
-import com.linecorp.bot.model.action.MessageAction;
-import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.message.template.CarouselColumn;
 import com.linecorp.bot.model.profile.UserProfileResponse;
 import com.linecorp.bot.model.response.BotApiResponse;
@@ -11,13 +9,8 @@ import com.ramusthastudio.infomovies.model.DiscoverMovies;
 import com.ramusthastudio.infomovies.model.Events;
 import com.ramusthastudio.infomovies.model.Message;
 import com.ramusthastudio.infomovies.model.Payload;
-import com.ramusthastudio.infomovies.model.ResultMovies;
 import com.ramusthastudio.infomovies.model.Source;
-import com.ramusthastudio.infomovies.util.TheMovieDbService;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,19 +24,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.ramusthastudio.infomovies.util.BotHelper.FOLLOW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_MOVIE_BULAN_INI;
+import static com.ramusthastudio.infomovies.util.BotHelper.KW_NOW_PLAYING;
+import static com.ramusthastudio.infomovies.util.BotHelper.KW_ON_THE_AIR;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_SERIES_BULAN_INI;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE_TEXT;
+import static com.ramusthastudio.infomovies.util.BotHelper.buildCarouselResultMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.createCarouselMessage;
-import static com.ramusthastudio.infomovies.util.BotHelper.createGenres;
 import static com.ramusthastudio.infomovies.util.BotHelper.createMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.getDiscoverMovies;
+import static com.ramusthastudio.infomovies.util.BotHelper.getNowPlayingMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getUserProfile;
 import static com.ramusthastudio.infomovies.util.BotHelper.greetingMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.unrecognizedMessage;
@@ -116,30 +110,7 @@ public class LineBotController {
 
           if (discoverMoviesResp.isSuccessful()) {
             DiscoverMovies discoverMovies = discoverMoviesResp.body();
-
-            List<CarouselColumn> carouselColumn = new ArrayList<>();
-            for (ResultMovies resultMovies : discoverMovies.getDiscoverresults()) {
-
-              LOG.info("ResultMovies title {}\n genre {}\n overview {}\n",
-                  resultMovies.getTitle(),
-                  createGenres(resultMovies.getGenreIds()),
-                  resultMovies.getOverview());
-
-              String overview = resultMovies.getOverview();
-              String filterOverview = overview.substring(0, 250) + "...";
-
-              if (carouselColumn.size() < 5) {
-                carouselColumn.add(
-                    new CarouselColumn(
-                        fBaseImgUrl + resultMovies.getBackdropPath(),
-                        resultMovies.getTitle(),
-                        createGenres(resultMovies.getGenreIds()),
-                        Arrays.asList(
-                            new URIAction("Poster", fBaseImgUrl + resultMovies.getPosterPath()),
-                            new MessageAction("Overview", filterOverview),
-                            new MessageAction("Detail", "Detail " + resultMovies.getId()))));
-              }
-            }
+            List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getDiscoverresults());
 
             Response<BotApiResponse> carouselResult = createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
             LOG.info("Carousel Message : code {} message {}", carouselResult.code(), carouselResult.message());
@@ -148,10 +119,25 @@ public class LineBotController {
         } else if (eventType.equals(MESSAGE)) {
           if (message.type().equals(MESSAGE_TEXT)) {
             String text = message.text();
-            if (text.contains(KW_MOVIE_BULAN_INI)) {
-              createMessage(fChannelAccessToken, userId, text);
+            if (text.contains(KW_NOW_PLAYING)) {
+
+              Response<DiscoverMovies> discoverMoviesResp = getNowPlayingMovies(fBaseUrl, fApiKey);
+              LOG.info("DiscoverMovies code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
+
+              if (discoverMoviesResp.isSuccessful()) {
+                DiscoverMovies discoverMovies = discoverMoviesResp.body();
+                List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getDiscoverresults());
+
+                Response<BotApiResponse> carouselResult = createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
+                LOG.info("Carousel Message : code {} message {}", carouselResult.code(), carouselResult.message());
+              }
+
+            } else if (text.contains(KW_ON_THE_AIR)) {
+
+            } else if (text.contains(KW_MOVIE_BULAN_INI)) {
+
             } else if (text.contains(KW_SERIES_BULAN_INI)) {
-              createMessage(fChannelAccessToken, userId, text);
+
             } else if (text.contains(KW_DETAIL)) {
               text.replace("Detail", "").trim();
               int id = Integer.parseInt(text);
