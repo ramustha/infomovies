@@ -21,4 +21,19 @@ public class Config {
   public String getChannelAccessToken() {
     return mEnv.getProperty("com.linecorp.channel_access_token");
   }
+
+  @Bean(name = "com.themoviedb.api_key")
+  public String getApiKey() {
+    return mEnv.getProperty("com.themoviedb.api_key");
+  }
+
+  @Bean(name = "com.themoviedb.base_url")
+  public String getBaseUrl() {
+    return mEnv.getProperty("com.themoviedb.base_url");
+  }
+
+  @Bean(name = "com.themoviedb.base_img_url")
+  public String getBaseImgUrl() {
+    return mEnv.getProperty("com.themoviedb.base_img_url");
+  }
 }

@@ -2,13 +2,24 @@ package com.ramusthastudio.infomovies.controller;
 
 import com.google.gson.Gson;
 import com.linecorp.bot.client.LineSignatureValidator;
+import com.linecorp.bot.model.action.MessageAction;
+import com.linecorp.bot.model.action.URIAction;
+import com.linecorp.bot.model.message.template.CarouselColumn;
 import com.linecorp.bot.model.profile.UserProfileResponse;
 import com.linecorp.bot.model.response.BotApiResponse;
+import com.ramusthastudio.infomovies.model.DiscoverMovies;
+import com.ramusthastudio.infomovies.model.DiscoverTvs;
 import com.ramusthastudio.infomovies.model.Events;
 import com.ramusthastudio.infomovies.model.Message;
 import com.ramusthastudio.infomovies.model.Payload;
+import com.ramusthastudio.infomovies.model.ResultMovies;
 import com.ramusthastudio.infomovies.model.Source;
+import com.ramusthastudio.infomovies.util.TheMovieDbService;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,16 +32,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import retrofit2.Response;
+import retrofit2.Retrofit;
 
 import static com.ramusthastudio.infomovies.util.BotHelper.FOLLOW;
+import static com.ramusthastudio.infomovies.util.BotHelper.KW_MOVIE_BULAN_INI;
+import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE;
+import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE_TEXT;
+import static com.ramusthastudio.infomovies.util.BotHelper.createCarouselMessage;
+import static com.ramusthastudio.infomovies.util.BotHelper.createGenres;
+import static com.ramusthastudio.infomovies.util.BotHelper.createMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.getUserProfile;
 import static com.ramusthastudio.infomovies.util.BotHelper.greetingMessage;
-import static com.ramusthastudio.infomovies.util.BotHelper.pushMessage;
+import static com.ramusthastudio.infomovies.util.BotHelper.unrecognizedMessage;
 
 @RestController
 @RequestMapping(value = "/linebot")
 public class LineBotController {
-  private Logger LOG = LoggerFactory.getLogger(LineBotController.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LineBotController.class);
 
   @Autowired
   @Qualifier("com.linecorp.channel_secret")
@@ -39,6 +57,18 @@ public class LineBotController {
   @Autowired
   @Qualifier("com.linecorp.channel_access_token")
   String fChannelAccessToken;
+
+  @Autowired
+  @Qualifier("com.themoviedb.api_key")
+  String fApiKey;
+
+  @Autowired
+  @Qualifier("com.themoviedb.base_url")
+  String fBaseUrl;
+
+  @Autowired
+  @Qualifier("com.themoviedb.base_img_url")
+  String fBaseImgUrl;
 
   @RequestMapping(value = "/callback", method = RequestMethod.POST)
   public ResponseEntity<String> callback(
@@ -76,6 +106,51 @@ public class LineBotController {
         String userId = source.userId();
         if (eventType.equals(FOLLOW)) {
           greetingMessage(fChannelAccessToken, userId);
+          createMessage(fChannelAccessToken, userId, "Daftar Movies release tahun ini");
+
+          Retrofit retrofit = new Retrofit.Builder().baseUrl(fBaseUrl).build();
+          TheMovieDbService service = retrofit.create(TheMovieDbService.class);
+
+          LocalDate now = LocalDate.now();
+          Response<DiscoverMovies> discoverMoviesResp = service.discoverMovies(fApiKey, now.getYear()).execute();
+          Response<DiscoverTvs> discoverTvsResp = service.discoverTvs(fApiKey, now.getYear()).execute();
+          DiscoverMovies discoverMovies = discoverMoviesResp.body();
+          DiscoverTvs discoverTvs = discoverTvsResp.body();
+
+          List<CarouselColumn> carouselColumn = new ArrayList<>();
+          for (ResultMovies resultMovies : discoverMovies.getDiscoverresults()) {
+
+            String desc = "Rating : " + resultMovies.getVoteAverage() + "(" + resultMovies.getVoteCount() + ")\n";
+            desc += "Genre : " + createGenres(resultMovies.getGenreIds());
+
+            String overview = "Release date : " + resultMovies.getReleaseDate() + "\n\n";
+            overview += resultMovies.getOverview();
+            carouselColumn.add(
+                new CarouselColumn(
+                    fBaseImgUrl + resultMovies.getPosterPath(),
+                    resultMovies.getTitle(),
+                    desc,
+                    Arrays.asList(
+                        new MessageAction("Overview", overview),
+                        new URIAction("Poster", fBaseImgUrl + resultMovies.getPosterPath()),
+                        new MessageAction("Detail", String.valueOf(resultMovies.getId())))));
+          }
+
+          Response<BotApiResponse> carouselResult = createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
+          LOG.info("Carousel Message : code {} message {}", carouselResult.code(), carouselResult.message());
+        } else if (eventType.equals(MESSAGE)) {
+          if (message.type().equals(MESSAGE_TEXT)) {
+            String text = message.text();
+            if (text.contains(KW_MOVIE_BULAN_INI)) {
+              createMessage(fChannelAccessToken, userId, text);
+            } else if (text.contains(KW_MOVIE_BULAN_INI)) {
+              createMessage(fChannelAccessToken, userId, text);
+            } else {
+              unrecognizedMessage(fChannelAccessToken, userId);
+            }
+          } else {
+            unrecognizedMessage(fChannelAccessToken, userId);
+          }
         }
       } catch (IOException aE) {
         LOG.error("Failed show greeting message: {} ", aE.fillInStackTrace());
