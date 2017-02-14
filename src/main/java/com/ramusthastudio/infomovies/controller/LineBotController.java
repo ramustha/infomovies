@@ -8,7 +8,6 @@ import com.linecorp.bot.model.message.template.CarouselColumn;
 import com.linecorp.bot.model.profile.UserProfileResponse;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.ramusthastudio.infomovies.model.DiscoverMovies;
-import com.ramusthastudio.infomovies.model.DiscoverTvs;
 import com.ramusthastudio.infomovies.model.Events;
 import com.ramusthastudio.infomovies.model.Message;
 import com.ramusthastudio.infomovies.model.Payload;
@@ -33,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.ramusthastudio.infomovies.util.BotHelper.FOLLOW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_MOVIE_BULAN_INI;
@@ -109,18 +109,19 @@ public class LineBotController {
           greetingMessage(fChannelAccessToken, userId);
           createMessage(fChannelAccessToken, userId, "Daftar Movies release tahun ini");
 
-          Retrofit retrofit = new Retrofit.Builder().baseUrl(fBaseUrl).build();
+          Retrofit retrofit = new Retrofit.Builder().baseUrl(fBaseUrl)
+              .addConverterFactory(GsonConverterFactory.create()).build();
           TheMovieDbService service = retrofit.create(TheMovieDbService.class);
 
           LocalDate now = LocalDate.now();
           Response<DiscoverMovies> discoverMoviesResp = service.discoverMovies(fApiKey, now.getYear()).execute();
-          Response<DiscoverTvs> discoverTvsResp = service.discoverTvs(fApiKey, now.getYear()).execute();
+          // Response<DiscoverTvs> discoverTvsResp = service.discoverTvs(fApiKey, now.getYear()).execute();
+          // DiscoverTvs discoverTvs = discoverTvsResp.body();
 
           LOG.info("headers {}", discoverMoviesResp.headers());
           LOG.info("code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
 
           DiscoverMovies discoverMovies = discoverMoviesResp.body();
-          DiscoverTvs discoverTvs = discoverTvsResp.body();
 
           List<CarouselColumn> carouselColumn = new ArrayList<>();
           for (ResultMovies resultMovies : discoverMovies.getDiscoverresults()) {
