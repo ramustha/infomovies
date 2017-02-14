@@ -112,11 +112,15 @@ public class LineBotController {
           Retrofit retrofit = new Retrofit.Builder().baseUrl(fBaseUrl).build();
           TheMovieDbService service = retrofit.create(TheMovieDbService.class);
 
+          LOG.info("BaseUrl {}", fBaseUrl);
+
           LocalDate now = LocalDate.now();
           Response<DiscoverMovies> discoverMoviesResp = service.discoverMovies(fApiKey, now.getYear()).execute();
           Response<DiscoverTvs> discoverTvsResp = service.discoverTvs(fApiKey, now.getYear()).execute();
           DiscoverMovies discoverMovies = discoverMoviesResp.body();
           DiscoverTvs discoverTvs = discoverTvsResp.body();
+
+          LOG.info("DiscoverMovies {}", discoverMovies);
 
           List<CarouselColumn> carouselColumn = new ArrayList<>();
           for (ResultMovies resultMovies : discoverMovies.getDiscoverresults()) {
