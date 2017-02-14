@@ -87,8 +87,8 @@ public final class BotHelper {
     String greeting = "Hi " + userProfile.getDisplayName() + ", apakah kamu kesulitan ?\n\n";
     greeting += "Now Playing : '" + KW_NOW_PLAYING + "'! \n";
     greeting += "On Air Series : '" + KW_ON_THE_AIR + "'! \n";
-    greeting += "Daftar Movie bulan ini : '" + KW_MOVIE_BULAN_INI + "'! \n";
-    greeting += "Daftar Series bulan ini : '" + KW_SERIES_BULAN_INI + "! \n";
+    // greeting += "Daftar Movie bulan ini : '" + KW_MOVIE_BULAN_INI + "'! \n";
+    // greeting += "Daftar Series bulan ini : '" + KW_SERIES_BULAN_INI + "! \n";
     createMessage(aChannelAccessToken, aUserId, greeting);
   }
 

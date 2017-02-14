@@ -141,7 +141,7 @@ public class LineBotController {
               String strId = text.substring(1, text.length());
               LOG.info("Movie id {}", strId.trim());
               int id = Integer.parseInt(strId.trim());
-              Response<ResultMovieDetail> detailMovieResp = getDetailMovie(fChannelAccessToken, id, fApiKey);
+              Response<ResultMovieDetail> detailMovieResp = getDetailMovie(fBaseUrl, id, fApiKey);
               LOG.info("ResultMovieDetail code {} message {}", detailMovieResp.code(), detailMovieResp.message());
 
               if (detailMovieResp.isSuccessful()) {
