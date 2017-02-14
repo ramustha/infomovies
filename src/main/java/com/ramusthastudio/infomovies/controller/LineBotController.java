@@ -120,10 +120,13 @@ public class LineBotController {
             List<CarouselColumn> carouselColumn = new ArrayList<>();
             for (ResultMovies resultMovies : discoverMovies.getDiscoverresults()) {
 
-              LOG.info("ResultMovies title {} poster {} genre {}",
+              LOG.info("ResultMovies title {}\n genre {}\n overview {}\n",
                   resultMovies.getTitle(),
-                  fBaseImgUrl + resultMovies.getPosterPath(),
-                  createGenres(resultMovies.getGenreIds()));
+                  createGenres(resultMovies.getGenreIds()),
+                  resultMovies.getOverview());
+
+              String overview = resultMovies.getOverview();
+              String filterOverview = overview.substring(0, 250) + "...";
 
               if (carouselColumn.size() < 5) {
                 carouselColumn.add(
@@ -133,7 +136,7 @@ public class LineBotController {
                         createGenres(resultMovies.getGenreIds()),
                         Arrays.asList(
                             new URIAction("Poster", fBaseImgUrl + resultMovies.getPosterPath()),
-                            new MessageAction("Overview", resultMovies.getOverview()),
+                            new MessageAction("Overview", filterOverview),
                             new MessageAction("Detail", "Detail " + resultMovies.getId()))));
               }
             }
