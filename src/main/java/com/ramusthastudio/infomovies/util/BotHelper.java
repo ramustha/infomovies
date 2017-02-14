@@ -49,7 +49,7 @@ public final class BotHelper {
   public static final String MESSAGE_LOCATION = "location";
   public static final String MESSAGE_STICKER = "sticker";
 
-  public static final String KW_DETAIL = "Detail";
+  public static final String KW_DETAIL = "D";
   public static final String KW_MOVIE_BULAN_INI = "Movie bulan ini";
   public static final String KW_SERIES_BULAN_INI = "Series bulan ini";
   public static final String KW_NOW_PLAYING = "Now playing";
