@@ -141,9 +141,9 @@ public class LineBotController {
                     new CarouselColumn(
                         fBaseImgUrl + resultMovies.getPosterPath(),
                         resultMovies.getTitle(),
-                        desc,
+                        resultMovies.getOriginalTitle(),
                         Arrays.asList(
-                            new MessageAction("Overview", overview),
+                            new MessageAction("Overview", resultMovies.getTitle()),
                             new URIAction("Poster", fBaseImgUrl + resultMovies.getPosterPath()),
                             new MessageAction("Detail", String.valueOf(resultMovies.getId())))));
               }
