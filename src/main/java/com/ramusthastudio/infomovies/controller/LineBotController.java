@@ -109,8 +109,8 @@ public class LineBotController {
       Message message = event.message();
       Postback postback = event.postback();
 
+      String userId = source.userId();
       try {
-        String userId = source.userId();
         Response<UserProfileResponse> profileResp = getUserProfile(fChannelAccessToken, userId);
         UserProfileResponse profile = profileResp.body();
         LOG.info("profileResp code {} message {}", profileResp.code(), profileResp.message());
@@ -119,7 +119,6 @@ public class LineBotController {
       }
 
       try {
-        String userId = source.userId();
         switch (eventType) {
           case FOLLOW:
             greetingMessage(fChannelAccessToken, userId);
@@ -212,7 +211,7 @@ public class LineBotController {
                 LOG.info("Postback code {} message {}", detail.code(), detail.message());
               }
 
-            }else if (text.toLowerCase().startsWith(KW_NEXT_POPULAR.toLowerCase())) {
+            } else if (text.toLowerCase().startsWith(KW_NEXT_POPULAR.toLowerCase())) {
               String strPage = text.substring(KW_NEXT_POPULAR.length(), text.length());
               LOG.info("page id {}", strPage.trim());
               int page = Integer.parseInt(strPage.trim());
@@ -227,11 +226,19 @@ public class LineBotController {
               }
 
               createConfirmMessage(fChannelAccessToken, userId, "Lihat Popular movie lainnya ?", page);
+            } else {
+              createSticker(fChannelAccessToken, userId, "1", "407");
+              unrecognizedMessage(fChannelAccessToken, userId);
             }
             break;
         }
       } catch (IOException aE) {
-        LOG.error("Failed show greeting message: {} ", aE.fillInStackTrace());
+        try {
+          createSticker(fChannelAccessToken, userId, "1", "422");
+          createMessage(fChannelAccessToken, userId, "Gagal menampilkan pesan...");
+        } catch (IOException ignored) {}
+
+        LOG.error("Failed show message: {} ", aE.fillInStackTrace());
       }
 
     }
