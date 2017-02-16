@@ -125,17 +125,28 @@ public final class BotHelper {
   public static Response<BotApiResponse> buildButtonDetailMovie(String aChannelAccessToken,
       String aBaseImdbUrl, String aBaseImgUrl, String aUserId, ResultMovieDetail aMovieDetail) throws IOException {
     String filterTitle = filterTitle(aMovieDetail.getTitle());
-    String filterTagLine = filterTagLine(aMovieDetail.getTagline());
+    String filterTagLine = filterTagLine(createFromGenre(aMovieDetail.getGenres()));
     String hp = aMovieDetail.getHomepage() == null ? "" : aMovieDetail.getHomepage();
     String homepage = hp.length() == 0 ? aBaseImdbUrl + aMovieDetail.getImdbId() : aMovieDetail.getHomepage();
 
-    String img = aMovieDetail.getBackdropPath() == null ?
+    String backdropImg = aMovieDetail.getBackdropPath() == null ?
         (aMovieDetail.getPosterPath() == null ? IMG_HOLDER : aBaseImgUrl + aMovieDetail.getPosterPath()) :
         aBaseImgUrl + aMovieDetail.getBackdropPath();
 
+    String posterImg = aMovieDetail.getPosterPath() == null ?
+        (aMovieDetail.getBackdropPath() == null ? IMG_HOLDER : aBaseImgUrl + aMovieDetail.getBackdropPath()) :
+        aBaseImgUrl + aMovieDetail.getPosterPath();
+
+    LOG.info("ResultMovies poster {}\n backdrop {}\n title {}\n genre {}\n homepage {}\n",
+        posterImg,
+        backdropImg,
+        filterTitle + " (" + aMovieDetail.getVoteAverage() + ")",
+        filterTagLine,
+        homepage);
+
     ButtonsTemplate buttonsTemplate = new ButtonsTemplate(
-        img,
-        filterTitle,
+        backdropImg,
+        filterTitle + " (" + aMovieDetail.getVoteAverage() + ")",
         filterTagLine,
         Arrays.asList(
             new PostbackAction("Overview", KW_DETAIL_OVERVIEW + " " + aMovieDetail.getId()),
@@ -226,28 +237,32 @@ public final class BotHelper {
     List<CarouselColumn> carouselColumn = new ArrayList<>();
     for (ResultMovies resultMovies : discoverMovies) {
 
-      LOG.info("ResultMovies title {}\n genre {}\n overview {}\n",
-          resultMovies.getTitle(),
-          createFromGenreId(resultMovies.getGenreIds()),
-          resultMovies.getOverview());
-
       String filterTitle = filterTitle(resultMovies.getTitle());
       String filterTagLine = filterTagLine(createFromGenreId(resultMovies.getGenreIds()));
-      // String ps = resultMovies.getPosterPath() == null ? "" : resultMovies.getPosterPath();
-      // String poster = ps.length() == 0 ? resultMovies.getBackdropPath() : resultMovies.getPosterPath();
 
-      String img = resultMovies.getBackdropPath() == null ?
+      String backdropImg = resultMovies.getBackdropPath() == null ?
           (resultMovies.getPosterPath() == null ? IMG_HOLDER : aBaseImgUrl + resultMovies.getPosterPath()) :
           aBaseImgUrl + resultMovies.getBackdropPath();
+
+      String posterImg = resultMovies.getPosterPath() == null ?
+          (resultMovies.getBackdropPath() == null ? IMG_HOLDER : aBaseImgUrl + resultMovies.getBackdropPath()) :
+          aBaseImgUrl + resultMovies.getPosterPath();
+
+      LOG.info("ResultMovies poster {}\n backdrop {}\n title {}\n genre {}\n id {}\n",
+          posterImg,
+          backdropImg,
+          filterTitle + " (" + resultMovies.getVoteAverage() + ")",
+          filterTagLine,
+          KW_DETAIL + " " + resultMovies.getId());
 
       if (carouselColumn.size() < 5) {
         carouselColumn.add(
             new CarouselColumn(
-                aBaseImgUrl + resultMovies.getBackdropPath(),
+                backdropImg,
                 filterTitle + " (" + resultMovies.getVoteAverage() + ")",
                 filterTagLine,
                 Arrays.asList(
-                    new URIAction("Poster", img),
+                    new URIAction("Poster", posterImg),
                     new PostbackAction("Detail", KW_DETAIL + " " + resultMovies.getId()))));
       }
     }
