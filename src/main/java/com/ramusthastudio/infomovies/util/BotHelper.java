@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import retrofit2.Response;
@@ -145,9 +144,9 @@ public final class BotHelper {
   }
 
   public static Response<BotApiResponse> createConfirmMessage(String aChannelAccessToken,
-      String aUserId, String aMsg, int page) throws IOException {
+      String aUserId, String aMsg, int aPage, int aMax) throws IOException {
     ConfirmTemplate confirmTemplate = new ConfirmTemplate(aMsg, Arrays.asList(
-        new PostbackAction("Ya", KW_NEXT_POPULAR + " " + ++page),
+        new PostbackAction("Ya", KW_NEXT_POPULAR + aPage + "," + aMax + 5),
         new PostbackAction("Panduan", KW_PANDUAN)));
 
     TemplateMessage templateMessage = new TemplateMessage("Confirm ?", confirmTemplate);
@@ -317,10 +316,11 @@ public final class BotHelper {
     return service.detailMovies(aMovieId, aApiKey).execute();
   }
 
-  public static List<CarouselColumn> buildCarouselResultMovies(String aBaseImgUrl, List<ResultMovies> aResultMovies) {
+  public static List<CarouselColumn> buildCarouselResultMovies(String aBaseImgUrl, List<ResultMovies> aResultMovies,
+      int aMin) {
     List<CarouselColumn> carouselColumn = new ArrayList<>();
-    int min = ThreadLocalRandom.current().nextInt(1, 15 + 1);
-    List<ResultMovies> resultMovies = aResultMovies.subList(min, min + 5);
+    aMin = aMin == 15 ? 0 : aMin == 0 ? 0 : aMin + 5;
+    List<ResultMovies> resultMovies = aResultMovies.subList(aMin, aMin + 5);
     for (ResultMovies movies : resultMovies) {
 
       String filterTitle = filterTitle(movies.getTitle());

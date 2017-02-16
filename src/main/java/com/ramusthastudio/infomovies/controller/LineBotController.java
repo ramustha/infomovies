@@ -131,11 +131,11 @@ public class LineBotController {
 
             if (discoverMoviesResp.isSuccessful()) {
               DiscoverMovies discoverMovies = discoverMoviesResp.body();
-              List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getResultMovies());
+              List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getResultMovies(), 0);
               createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
             }
 
-            createConfirmMessage(fChannelAccessToken, userId, "Lihat Popular movie lainnya ?", 1);
+            createConfirmMessage(fChannelAccessToken, userId, "Lihat Popular movie lainnya ?", 1, 5);
 
             break;
           case MESSAGE:
@@ -148,11 +148,11 @@ public class LineBotController {
 
                 if (discoverMoviesResp.isSuccessful()) {
                   DiscoverMovies discoverMovies = discoverMoviesResp.body();
-                  List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getResultMovies());
+                  List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getResultMovies(), 0);
                   createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
                 }
 
-                createConfirmMessage(fChannelAccessToken, userId, "Lihat Now Playing movie lainnya ?", 1);
+                createConfirmMessage(fChannelAccessToken, userId, "Lihat Now Playing movie lainnya ?", 1, 0);
 
               } else if (text.toLowerCase().startsWith(KW_SEARCH.toLowerCase())) {
                 String keyword = text.substring(KW_SEARCH.length(), text.length());
@@ -173,11 +173,11 @@ public class LineBotController {
 
                 if (searchMovies.isSuccessful()) {
                   DiscoverMovies discoverMovies = searchMovies.body();
-                  List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getResultMovies());
+                  List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getResultMovies(), 0);
                   createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
                 }
 
-                createConfirmMessage(fChannelAccessToken, userId, "Lihat movie lainnya ?", 1);
+                createConfirmMessage(fChannelAccessToken, userId, "Lihat movie lainnya ?", 1, 0);
 
               } else if (text.toLowerCase().contains(KW_PANDUAN.toLowerCase())) {
                 unrecognizedMessage(fChannelAccessToken, userId);
@@ -218,20 +218,22 @@ public class LineBotController {
               }
 
             } else if (text.toLowerCase().startsWith(KW_NEXT_POPULAR.toLowerCase())) {
-              String strPage = text.substring(KW_NEXT_POPULAR.length(), text.length());
-              LOG.info("page id {}", strPage.trim());
-              int page = Integer.parseInt(strPage.trim());
+              String strPageMax = text.substring(KW_NEXT_POPULAR.length(), text.length());
+              String[] pageMax = strPageMax.split(",");
+              LOG.info("page page {} max {}", pageMax[0].trim(), pageMax[1].trim());
+              int page = Integer.parseInt(pageMax[0].trim());
+              int max = Integer.parseInt(pageMax[1].trim());
 
-              discoverMoviesResp = getPopularMovies(fBaseUrl, fApiKey, page);
+              discoverMoviesResp = getPopularMovies(fBaseUrl, fApiKey, max == 20 ? page++ : page);
               LOG.info("Popular movies code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
 
               if (discoverMoviesResp.isSuccessful()) {
                 DiscoverMovies discoverMovies = discoverMoviesResp.body();
-                List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getResultMovies());
+                List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getResultMovies(), max);
                 createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
               }
 
-              createConfirmMessage(fChannelAccessToken, userId, "Lihat Popular movie lainnya ?", page);
+              createConfirmMessage(fChannelAccessToken, userId, "Lihat Popular movie lainnya ?", page, max);
             } else {
               createSticker(fChannelAccessToken, userId, "1", "407");
               unrecognizedMessage(fChannelAccessToken, userId);
