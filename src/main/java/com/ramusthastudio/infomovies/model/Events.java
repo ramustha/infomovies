@@ -6,12 +6,14 @@ public class Events {
   private Source source;
   private long timestamp;
   private Message message;
+  private Postback postback;
 
   public String type() { return type; }
   public String replyToken() { return replyToken; }
   public Source source() { return source; }
   public long timestamp() { return timestamp; }
   public Message message() { return message; }
+  public Postback postback() { return postback; }
 
   @Override public String toString() {
     return "Events{" +
@@ -20,6 +22,7 @@ public class Events {
         ", source=" + source +
         ", timestamp=" + timestamp +
         ", message=" + message +
+        ", postback=" + postback +
         '}';
   }
 }

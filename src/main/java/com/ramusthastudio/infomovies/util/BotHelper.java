@@ -51,7 +51,7 @@ public final class BotHelper {
 
   public static final String KW_DETAIL = "#D";
   public static final String KW_DETAIL_OVERVIEW = "#DO";
-  public static final String KW_MOVIE_BULAN_INI = "Movie bulan ini";
+  public static final String KW_MOVIE_BULAN_INI = "#MTM";
   public static final String KW_SERIES_BULAN_INI = "Series bulan ini";
   public static final String KW_NOW_PLAYING = "#NP";
   public static final String KW_ON_THE_AIR = "#OA";
