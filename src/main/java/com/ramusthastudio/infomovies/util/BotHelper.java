@@ -79,8 +79,9 @@ public final class BotHelper {
     UserProfileResponse userProfile = getUserProfile(aChannelAccessToken, aUserId).body();
     String greeting = "Hi " + userProfile.getDisplayName() + ", selamat datang di Info Movies\n";
     greeting += "Terima kasih telah menambahkan saya sebagai teman! \n\n";
-    greeting += "Jika kamu menerima terlalu banyak pemberitahuan, ";
-    greeting += "silahkan buka pengaturan dari ruang obrolan ini dan matikan Pemberitahuan. ";
+    greeting += "Panduan di Info Movies:\n";
+    greeting += "Now Playing : '" + KW_NOW_PLAYING + "' \n";
+    greeting += "Cari Movie : '" + KW_SEARCH + " Judul, Tahun(Opsional)'";
     createMessage(aChannelAccessToken, aUserId, greeting);
   }
 

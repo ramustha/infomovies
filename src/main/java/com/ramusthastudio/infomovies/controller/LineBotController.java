@@ -149,7 +149,7 @@ public class LineBotController {
               if (keyword.contains(",")) {
                 String[] keySplit = keyword.split(",");
                 title = keySplit[0];
-                year = keySplit[1].length() != 4 ? 0 : Integer.parseInt(keySplit[1]);
+                year = Integer.parseInt(keySplit[1]);
               } else {
                 title = keyword;
               }
