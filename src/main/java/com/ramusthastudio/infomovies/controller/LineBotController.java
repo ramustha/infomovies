@@ -232,14 +232,7 @@ public class LineBotController {
             }
             break;
         }
-      } catch (IOException aE) {
-        try {
-          createSticker(fChannelAccessToken, userId, "1", "422");
-          createMessage(fChannelAccessToken, userId, "Gagal menampilkan pesan...");
-        } catch (IOException ignored) {}
-
-        LOG.error("Failed show message: {} ", aE.fillInStackTrace());
-      }
+      } catch (IOException ignored) {}
 
     }
 

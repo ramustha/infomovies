@@ -113,14 +113,14 @@
     </system>
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.5575397">
+    <splitter split-orientation="horizontal" split-proportion="0.38492063">
       <split-first>
         <leaf>
           <file leaf-file-name="LineBotController.java" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/controller/LineBotController.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="423">
-                  <caret line="238" column="40" lean-forward="false" selection-start-line="238" selection-start-column="40" selection-end-line="238" selection-end-column="40" />
+                <state relative-caret-position="321">
+                  <caret line="235" column="13" lean-forward="true" selection-start-line="235" selection-start-column="13" selection-end-line="235" selection-end-column="13" />
                   <folding />
                 </state>
               </provider>
@@ -133,8 +133,8 @@
           <file leaf-file-name="BotHelper.java" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/util/BotHelper.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="2631">
-                  <caret line="290" column="76" lean-forward="false" selection-start-line="290" selection-start-column="76" selection-end-line="290" selection-end-column="76" />
+                <state relative-caret-position="234">
+                  <caret line="144" column="6" lean-forward="false" selection-start-line="144" selection-start-column="6" selection-end-line="144" selection-end-column="27" />
                   <folding />
                 </state>
               </provider>
@@ -581,8 +581,8 @@
         <option value="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/model/DiscoverMovies.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/model/DiscoverVideosMovies.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/controller/TheMovieDbService.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/util/BotHelper.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/controller/LineBotController.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/util/BotHelper.java" />
       </list>
     </option>
   </component>
@@ -1287,12 +1287,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1487042337271</updated>
-      <workItem from="1487042340156" duration="51557000" />
+      <workItem from="1487042340156" duration="52353000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="51557000" />
+    <option name="totallyTimeSpent" value="52353000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1616" height="916" extended-state="6" />
@@ -1773,18 +1773,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/util/BotHelper.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/controller/LineBotController.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2631">
-          <caret line="290" column="76" lean-forward="false" selection-start-line="290" selection-start-column="76" selection-end-line="290" selection-end-column="76" />
+        <state relative-caret-position="321">
+          <caret line="235" column="13" lean-forward="true" selection-start-line="235" selection-start-column="13" selection-end-line="235" selection-end-column="13" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/controller/LineBotController.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/util/BotHelper.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="423">
-          <caret line="238" column="40" lean-forward="false" selection-start-line="238" selection-start-column="40" selection-end-line="238" selection-end-column="40" />
+        <state relative-caret-position="234">
+          <caret line="144" column="6" lean-forward="false" selection-start-line="144" selection-start-column="6" selection-end-line="144" selection-end-column="27" />
           <folding />
         </state>
       </provider>

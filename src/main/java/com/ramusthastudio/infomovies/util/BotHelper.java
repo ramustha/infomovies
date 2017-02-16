@@ -131,15 +131,24 @@ public final class BotHelper {
   }
 
   public static Response<BotApiResponse> createCarouselMessage(String aChannelAccessToken,
-      String aUserId, List<CarouselColumn> aCarouselColumns) throws IOException {
+      String aUserId, List<CarouselColumn> aCarouselColumns){
     CarouselTemplate carouselTemplate = new CarouselTemplate(aCarouselColumns);
     TemplateMessage templateMessage = new TemplateMessage("Your search result", carouselTemplate);
     PushMessage pushMessage = new PushMessage(aUserId, templateMessage);
-    return LineMessagingServiceBuilder
-        .create(aChannelAccessToken)
-        .build()
-        .pushMessage(pushMessage)
-        .execute();
+    try {
+      return LineMessagingServiceBuilder
+          .create(aChannelAccessToken)
+          .build()
+          .pushMessage(pushMessage)
+          .execute();
+    } catch (IOException aE) {
+      try {
+        createSticker(aChannelAccessToken, aUserId, "1", "422");
+        createMessage(aChannelAccessToken, aUserId, "Gagal menampilkan pesan...");
+      } catch (IOException ignored) {}
+
+    }
+    return null;
   }
 
   public static Response<BotApiResponse> createConfirmMessage(String aChannelAccessToken,
