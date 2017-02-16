@@ -31,6 +31,7 @@ import retrofit2.Response;
 import static com.ramusthastudio.infomovies.util.BotHelper.FOLLOW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL_OVERVIEW;
+import static com.ramusthastudio.infomovies.util.BotHelper.KW_NEXT_POPULAR;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_NOW_PLAYING;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_SEARCH;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE;
@@ -39,10 +40,13 @@ import static com.ramusthastudio.infomovies.util.BotHelper.POSTBACK;
 import static com.ramusthastudio.infomovies.util.BotHelper.buildButtonDetailMovie;
 import static com.ramusthastudio.infomovies.util.BotHelper.buildCarouselResultMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.createCarouselMessage;
+import static com.ramusthastudio.infomovies.util.BotHelper.createConfirmMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.createDetailOverview;
 import static com.ramusthastudio.infomovies.util.BotHelper.createMessage;
+import static com.ramusthastudio.infomovies.util.BotHelper.createSticker;
 import static com.ramusthastudio.infomovies.util.BotHelper.getDetailMovie;
 import static com.ramusthastudio.infomovies.util.BotHelper.getNowPlayingMovies;
+import static com.ramusthastudio.infomovies.util.BotHelper.getPopularMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getSearchMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getUserProfile;
 import static com.ramusthastudio.infomovies.util.BotHelper.greetingMessage;
@@ -72,6 +76,10 @@ public class LineBotController {
   @Autowired
   @Qualifier("com.themoviedb.base_imdb_url")
   String fBaseImdbUrl;
+
+  @Autowired
+  @Qualifier("com.themoviedb.base_video_url")
+  String fBaseVideoUrl;
 
   @Autowired
   @Qualifier("com.themoviedb.base_img_url")
@@ -112,95 +120,115 @@ public class LineBotController {
 
       try {
         String userId = source.userId();
-        if (eventType.equals(FOLLOW)) {
-          greetingMessage(fChannelAccessToken, userId);
-          createMessage(fChannelAccessToken, userId, "Now Playing movies..");
+        switch (eventType) {
+          case FOLLOW:
+            greetingMessage(fChannelAccessToken, userId);
+            createMessage(fChannelAccessToken, userId, "Popular movies..");
+            createSticker(fChannelAccessToken, userId, "1", "125");
 
-          //random 1-10 page
-          int page = ThreadLocalRandom.current().nextInt(1, 10 + 1);
-          Response<DiscoverMovies> discoverMoviesResp = getNowPlayingMovies(fBaseUrl, fApiKey, page);
-          LOG.info("Now Playing code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
+            Response<DiscoverMovies> discoverMoviesResp = getPopularMovies(fBaseUrl, fApiKey, 1);
+            LOG.info("Popular movies code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
 
-          if (discoverMoviesResp.isSuccessful()) {
-            DiscoverMovies discoverMovies = discoverMoviesResp.body();
-            List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getDiscoverresults());
-            createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
-          }
+            if (discoverMoviesResp.isSuccessful()) {
+              DiscoverMovies discoverMovies = discoverMoviesResp.body();
+              List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getResultMovies());
+              createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
+            }
 
-        } else if (eventType.equals(MESSAGE)) {
-          if (message.type().equals(MESSAGE_TEXT)) {
-            String text = message.text();
-            if (text.toLowerCase().contains(KW_NOW_PLAYING.toLowerCase())) {
-              //random 1-10 page
-              int page = ThreadLocalRandom.current().nextInt(1, 10 + 1);
-              Response<DiscoverMovies> discoverMoviesResp = getNowPlayingMovies(fBaseUrl, fApiKey, page);
-              LOG.info("Now Playing code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
+            createConfirmMessage(fChannelAccessToken, userId, "Lihat Popular movie lainnya ?", 1);
 
-              if (discoverMoviesResp.isSuccessful()) {
-                DiscoverMovies discoverMovies = discoverMoviesResp.body();
-                List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getDiscoverresults());
-                createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
-              }
+            break;
+          case MESSAGE:
+            if (message.type().equals(MESSAGE_TEXT)) {
+              String text = message.text();
+              if (text.toLowerCase().contains(KW_NOW_PLAYING.toLowerCase())) {
+                //random 1-10 page
+                int page = ThreadLocalRandom.current().nextInt(1, 10 + 1);
+                discoverMoviesResp = getNowPlayingMovies(fBaseUrl, fApiKey, page);
+                LOG.info("Now Playing code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
 
-            } else if (text.toLowerCase().startsWith(KW_SEARCH.toLowerCase())) {
-              String keyword = text.substring(KW_SEARCH.length(), text.length());
-              String title;
-              int year = 0;
-              if (keyword.contains(",")) {
-                String[] keySplit = keyword.split(",");
-                title = keySplit[0];
-                year = Integer.parseInt(keySplit[1].trim());
+                if (discoverMoviesResp.isSuccessful()) {
+                  DiscoverMovies discoverMovies = discoverMoviesResp.body();
+                  List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getResultMovies());
+                  createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
+                }
+
+              } else if (text.toLowerCase().startsWith(KW_SEARCH.toLowerCase())) {
+                String keyword = text.substring(KW_SEARCH.length(), text.length());
+                String title;
+                int year = 0;
+                if (keyword.contains(",")) {
+                  String[] keySplit = keyword.split(",");
+                  title = keySplit[0];
+                  year = Integer.parseInt(keySplit[1].trim());
+                } else {
+                  title = keyword;
+                }
+
+                LOG.info("Keyword title {} year {}", title, year);
+
+                Response<DiscoverMovies> searchMovies = getSearchMovies(fBaseUrl, fApiKey, title, year);
+                LOG.info("SearchMovies code {} message {}", searchMovies.code(), searchMovies.message());
+
+                if (searchMovies.isSuccessful()) {
+                  DiscoverMovies discoverMovies = searchMovies.body();
+                  List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getResultMovies());
+                  createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
+                }
+
               } else {
-                title = keyword;
+                unrecognizedMessage(fChannelAccessToken, userId);
               }
-
-              LOG.info("Keyword title {} year {}", title, year);
-
-              Response<DiscoverMovies> searchMovies = getSearchMovies(fBaseUrl, fApiKey, title, year);
-              LOG.info("SearchMovies code {} message {}", searchMovies.code(), searchMovies.message());
-
-              if (searchMovies.isSuccessful()) {
-                DiscoverMovies discoverMovies = searchMovies.body();
-                List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getDiscoverresults());
-                createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
-              }
-
             } else {
               unrecognizedMessage(fChannelAccessToken, userId);
             }
-          } else {
-            unrecognizedMessage(fChannelAccessToken, userId);
-          }
-        } else if (eventType.equals(POSTBACK)) {
-          String text = postback.data();
-          if (text.toLowerCase().startsWith(KW_DETAIL.toLowerCase())) {
-            String strId = text.substring(KW_DETAIL.length(), text.length());
-            LOG.info("Movie id {}", strId.trim());
-            int id = Integer.parseInt(strId.trim());
-            Response<ResultMovieDetail> detailMovieResp = getDetailMovie(fBaseUrl, id, fApiKey);
-            LOG.info("Message code {} message {}", detailMovieResp.code(), detailMovieResp.message());
+            break;
+          case POSTBACK:
+            String text = postback.data();
+            if (text.toLowerCase().startsWith(KW_DETAIL.toLowerCase())) {
+              String strId = text.substring(KW_DETAIL.length(), text.length());
+              LOG.info("Movie id {}", strId.trim());
+              int id = Integer.parseInt(strId.trim());
+              Response<ResultMovieDetail> detailMovieResp = getDetailMovie(fBaseUrl, id, fApiKey);
+              LOG.info("Message code {} message {}", detailMovieResp.code(), detailMovieResp.message());
 
-            if (detailMovieResp.isSuccessful()) {
-              ResultMovieDetail movie = detailMovieResp.body();
-              Response<BotApiResponse> detail = buildButtonDetailMovie(fChannelAccessToken, fBaseImdbUrl, fBaseImgUrl, userId, movie);
-              LOG.info("Message code {} message {}", detail.code(), detail.message());
+              if (detailMovieResp.isSuccessful()) {
+                ResultMovieDetail movie = detailMovieResp.body();
+                Response<BotApiResponse> detail = buildButtonDetailMovie(fChannelAccessToken, fBaseImdbUrl, fBaseImgUrl, userId, movie);
+                LOG.info("Message code {} message {}", detail.code(), detail.message());
+              }
+
+            } else if (text.toLowerCase().startsWith(KW_DETAIL_OVERVIEW.toLowerCase())) {
+              String strId = text.substring(KW_DETAIL_OVERVIEW.length(), text.length());
+              LOG.info("Movie id {}", strId.trim());
+              int id = Integer.parseInt(strId.trim());
+              Response<ResultMovieDetail> detailMovieResp = getDetailMovie(fBaseUrl, id, fApiKey);
+              LOG.info("Postback code {} message {}", detailMovieResp.code(), detailMovieResp.message());
+
+              if (detailMovieResp.isSuccessful()) {
+                ResultMovieDetail movie = detailMovieResp.body();
+                String overview = createDetailOverview(movie, fBaseImdbUrl);
+                Response<BotApiResponse> detail = createMessage(fChannelAccessToken, userId, overview);
+                LOG.info("Postback code {} message {}", detail.code(), detail.message());
+              }
+
+            }else if (text.toLowerCase().startsWith(KW_NEXT_POPULAR.toLowerCase())) {
+              String strPage = text.substring(KW_NEXT_POPULAR.length(), text.length());
+              LOG.info("page id {}", strPage.trim());
+              int page = Integer.parseInt(strPage.trim());
+
+              discoverMoviesResp = getPopularMovies(fBaseUrl, fApiKey, page);
+              LOG.info("Popular movies code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
+
+              if (discoverMoviesResp.isSuccessful()) {
+                DiscoverMovies discoverMovies = discoverMoviesResp.body();
+                List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getResultMovies());
+                createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
+              }
+
+              createConfirmMessage(fChannelAccessToken, userId, "Lihat Popular movie lainnya ?", page);
             }
-
-          } else if (text.toLowerCase().startsWith(KW_DETAIL_OVERVIEW.toLowerCase())) {
-            String strId = text.substring(KW_DETAIL_OVERVIEW.length(), text.length());
-            LOG.info("Movie id {}", strId.trim());
-            int id = Integer.parseInt(strId.trim());
-            Response<ResultMovieDetail> detailMovieResp = getDetailMovie(fBaseUrl, id, fApiKey);
-            LOG.info("Postback code {} message {}", detailMovieResp.code(), detailMovieResp.message());
-
-            if (detailMovieResp.isSuccessful()) {
-              ResultMovieDetail movie = detailMovieResp.body();
-              String overview = createDetailOverview(movie, fBaseImdbUrl);
-              Response<BotApiResponse> detail = createMessage(fChannelAccessToken, userId, overview);
-              LOG.info("Postback code {} message {}", detail.code(), detail.message());
-            }
-
-          }
+            break;
         }
       } catch (IOException aE) {
         LOG.error("Failed show greeting message: {} ", aE.fillInStackTrace());

@@ -8,21 +8,21 @@ public class DiscoverTvs {
   @SerializedName("page")
   private int page;
   @SerializedName("results")
-  private final List<ResultTvs> fResultTvs = null;
+  private final List<ResultTvs> resultTvs = null;
   @SerializedName("total_results")
   private int totalResults;
   @SerializedName("total_pages")
   private int totalPages;
 
   public int getPage() { return page; }
-  public List<ResultTvs> getDiscoverresults() { return fResultTvs; }
+  public List<ResultTvs> getDiscoverresults() { return resultTvs; }
   public int getTotalResults() { return totalResults; }
   public int getTotalPages() { return totalPages; }
 
   @Override public String toString() {
     return "Discover{" +
         "page=" + page +
-        ", Discoverresults=" + fResultTvs +
+        ", Discoverresults=" + resultTvs +
         ", totalResults=" + totalResults +
         ", totalPages=" + totalPages +
         '}';

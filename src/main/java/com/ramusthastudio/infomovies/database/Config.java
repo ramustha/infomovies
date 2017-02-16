@@ -33,8 +33,11 @@ public class Config {
   }
 
   @Bean(name = "com.themoviedb.base_imdb_url")
-  public String getBaseImdbUrl() {
-    return mEnv.getProperty("com.themoviedb.base_imdb_url");
+  public String getBaseImdbUrl() {    return mEnv.getProperty("com.themoviedb.base_imdb_url");  }
+
+  @Bean(name = "com.themoviedb.base_video_url")
+  public String getBaseVideoUrl() {
+    return mEnv.getProperty("com.themoviedb.base_video_url");
   }
 
   @Bean(name = "com.themoviedb.base_img_url")

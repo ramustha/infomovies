@@ -4,11 +4,13 @@ import com.linecorp.bot.client.LineMessagingServiceBuilder;
 import com.linecorp.bot.model.PushMessage;
 import com.linecorp.bot.model.action.PostbackAction;
 import com.linecorp.bot.model.action.URIAction;
+import com.linecorp.bot.model.message.StickerMessage;
 import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.message.template.ButtonsTemplate;
 import com.linecorp.bot.model.message.template.CarouselColumn;
 import com.linecorp.bot.model.message.template.CarouselTemplate;
+import com.linecorp.bot.model.message.template.ConfirmTemplate;
 import com.linecorp.bot.model.profile.UserProfileResponse;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.ramusthastudio.infomovies.controller.TheMovieDbService;
@@ -29,6 +31,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public final class BotHelper {
   private static final Logger LOG = LoggerFactory.getLogger(BotHelper.class);
+  private static final String DFL_LANGUAGE = "en-US";
+  private static final String DFL_REGION = "ID";
 
   public static final String SOURCE_USER = "user";
   public static final String SOURCE_GROUP = "group";
@@ -49,13 +53,18 @@ public final class BotHelper {
   public static final String MESSAGE_LOCATION = "location";
   public static final String MESSAGE_STICKER = "sticker";
 
-  public static final String KW_SEARCH = "#S";
-  public static final String KW_DETAIL = "#D";
-  public static final String KW_DETAIL_OVERVIEW = "#O";
-  public static final String KW_MOVIE_BULAN_INI = "#MTM";
-  public static final String KW_SERIES_BULAN_INI = "#STM";
-  public static final String KW_NOW_PLAYING = "#NP";
-  public static final String KW_ON_THE_AIR = "#OA";
+  public static final String KW_SEARCH = "Find";
+  public static final String KW_DETAIL = "Detail";
+  public static final String KW_DETAIL_OVERVIEW = "Overview";
+  public static final String KW_NOW_PLAYING = "Now Playing";
+  public static final String KW_LATEST = "Latest";
+  public static final String KW_POPULAR = "Popular";
+  public static final String KW_TOP_RATED = "Top Rated";
+  public static final String KW_UPCOMING = "Comming Soon";
+  public static final String KW_RECOMMEND = "Recommend";
+  public static final String KW_SIMILAR = "Similar";
+  public static final String KW_VIDEOS = "Video";
+  public static final String KW_NEXT_POPULAR = "NP";
 
   public static final String IMG_HOLDER = "https://www.themoviedb.org/assets/static_cache/41bdcf10bbf6f84c0fc73f27b2180b95/images/v4/logos/91x81.png";
 
@@ -110,10 +119,36 @@ public final class BotHelper {
         .execute();
   }
 
+  public static Response<BotApiResponse> createSticker(String aChannelAccessToken, String aUserId,
+      String aPackageId, String stickerId) throws IOException {
+    StickerMessage stickerMessage = new StickerMessage(aPackageId, stickerId);
+    PushMessage pushMessage = new PushMessage(aUserId, stickerMessage);
+    return LineMessagingServiceBuilder
+        .create(aChannelAccessToken)
+        .build()
+        .pushMessage(pushMessage)
+        .execute();
+  }
+
   public static Response<BotApiResponse> createCarouselMessage(String aChannelAccessToken,
       String aUserId, List<CarouselColumn> aCarouselColumns) throws IOException {
     CarouselTemplate carouselTemplate = new CarouselTemplate(aCarouselColumns);
     TemplateMessage templateMessage = new TemplateMessage("Your search result", carouselTemplate);
+    PushMessage pushMessage = new PushMessage(aUserId, templateMessage);
+    return LineMessagingServiceBuilder
+        .create(aChannelAccessToken)
+        .build()
+        .pushMessage(pushMessage)
+        .execute();
+  }
+
+  public static Response<BotApiResponse> createConfirmMessage(String aChannelAccessToken,
+      String aUserId, String aMsg, int page) throws IOException {
+    ConfirmTemplate confirmTemplate = new ConfirmTemplate(aMsg, Arrays.asList(
+        new PostbackAction("Ya", KW_NEXT_POPULAR + " " + ++page),
+        new PostbackAction("Tidak", "tidak")));
+
+    TemplateMessage templateMessage = new TemplateMessage("Confirm ?", confirmTemplate);
     PushMessage pushMessage = new PushMessage(aUserId, templateMessage);
     return LineMessagingServiceBuilder
         .create(aChannelAccessToken)
@@ -189,6 +224,52 @@ public final class BotHelper {
       genre = "N/A";
     }
     return genre;
+  }
+
+  public static TheMovieDbService createdService(String aBaseUrl) {
+    Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
+        .addConverterFactory(GsonConverterFactory.create()).build();
+    return retrofit.create(TheMovieDbService.class);
+  }
+
+  public static Response<DiscoverMovies> getTopRatedMovies(String aBaseUrl, String aApiKey, int aPage) throws IOException {
+    return getTopRatedMovies(aBaseUrl, aApiKey, DFL_LANGUAGE, aPage, DFL_REGION);
+  }
+
+  public static Response<DiscoverMovies> getTopRatedMovies(String aBaseUrl, String aApiKey, int aPage, String aRegion) throws IOException {
+    String region = aRegion != null ? aRegion : DFL_REGION;
+    int page = aPage != 0 ? aPage : 0;
+    return getTopRatedMovies(aBaseUrl, aApiKey, DFL_LANGUAGE, page, region);
+  }
+
+  public static Response<DiscoverMovies> getTopRatedMovies(String aBaseUrl, String aApiKey, String aLanguage, int aPage, String aRegion) throws IOException {
+    TheMovieDbService service = createdService(aBaseUrl);
+
+    String language = aLanguage != null ? aLanguage : DFL_LANGUAGE;
+    int page = aPage != 0 ? aPage : 0;
+    String region = aRegion != null ? aRegion : DFL_REGION;
+
+    return service.topRatedMovies(aApiKey, language, page, region).execute();
+  }
+
+  public static Response<DiscoverMovies> getPopularMovies(String aBaseUrl, String aApiKey, int aPage) throws IOException {
+    return getPopularMovies(aBaseUrl, aApiKey, DFL_LANGUAGE, aPage, DFL_REGION);
+  }
+
+  public static Response<DiscoverMovies> getPopularMovies(String aBaseUrl, String aApiKey, int aPage, String aRegion) throws IOException {
+    String region = aRegion != null ? aRegion : DFL_REGION;
+    int page = aPage != 0 ? aPage : 0;
+    return getPopularMovies(aBaseUrl, aApiKey, DFL_LANGUAGE, page, region);
+  }
+
+  public static Response<DiscoverMovies> getPopularMovies(String aBaseUrl, String aApiKey, String aLanguage, int aPage, String aRegion) throws IOException {
+    TheMovieDbService service = createdService(aBaseUrl);
+
+    String language = aLanguage != null ? aLanguage : DFL_LANGUAGE;
+    int page = aPage != 0 ? aPage : 0;
+    String region = aRegion != null ? aRegion : DFL_REGION;
+
+    return service.popularMovies(aApiKey, language, page, region).execute();
   }
 
   public static Response<DiscoverMovies> getSearchMovies(String aBaseUrl, String aApiKey, String aTitle, int aYear) throws IOException {
