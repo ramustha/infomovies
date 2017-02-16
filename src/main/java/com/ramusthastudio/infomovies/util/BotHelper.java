@@ -319,7 +319,7 @@ public final class BotHelper {
   public static List<CarouselColumn> buildCarouselResultMovies(String aBaseImgUrl, List<ResultMovies> aResultMovies,
       int aMin) {
     List<CarouselColumn> carouselColumn = new ArrayList<>();
-    aMin = aMin == 15 ? 0 : aMin == 0 ? 0 : aMin + 5;
+    aMin = aMin == 15 ? 0 : aMin == 0 ? 0 : 5 + aMin;
     List<ResultMovies> resultMovies = aResultMovies.subList(aMin, aMin + 5);
     for (ResultMovies movies : resultMovies) {
 

@@ -220,7 +220,7 @@ public class LineBotController {
             } else if (text.toLowerCase().startsWith(KW_NEXT_POPULAR.toLowerCase())) {
               String strPageMax = text.substring(KW_NEXT_POPULAR.length(), text.length());
               String[] pageMax = strPageMax.split(",");
-              LOG.info("page page {} max {}", pageMax[0].trim(), pageMax[1].trim());
+              LOG.info("page popular {} max {}", pageMax[0].trim(), pageMax[1].trim());
               int page = Integer.parseInt(pageMax[0].trim());
               int max = Integer.parseInt(pageMax[1].trim());
 
