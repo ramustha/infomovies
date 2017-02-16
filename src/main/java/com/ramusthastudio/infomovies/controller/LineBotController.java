@@ -174,7 +174,7 @@ public class LineBotController {
         } else if (eventType.equals(POSTBACK)) {
           String text = postback.data();
           if (text.toLowerCase().startsWith(KW_DETAIL.toLowerCase())) {
-            String strId = text.substring(KW_DETAIL.length() + 1, text.length());
+            String strId = text.substring(KW_DETAIL.length(), text.length());
             LOG.info("Movie id {}", strId.trim());
             int id = Integer.parseInt(strId.trim());
             Response<ResultMovieDetail> detailMovieResp = getDetailMovie(fBaseUrl, id, fApiKey);
@@ -187,7 +187,7 @@ public class LineBotController {
             }
 
           } else if (text.toLowerCase().startsWith(KW_DETAIL_OVERVIEW.toLowerCase())) {
-            String strId = text.substring(KW_DETAIL_OVERVIEW.length() + 1, text.length());
+            String strId = text.substring(KW_DETAIL_OVERVIEW.length(), text.length());
             LOG.info("Movie id {}", strId.trim());
             int id = Integer.parseInt(strId.trim());
             Response<ResultMovieDetail> detailMovieResp = getDetailMovie(fBaseUrl, id, fApiKey);

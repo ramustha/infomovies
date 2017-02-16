@@ -51,7 +51,7 @@ public final class BotHelper {
 
   public static final String KW_SEARCH = "#S";
   public static final String KW_DETAIL = "#D";
-  public static final String KW_DETAIL_OVERVIEW = "#DO";
+  public static final String KW_DETAIL_OVERVIEW = "#O";
   public static final String KW_MOVIE_BULAN_INI = "#MTM";
   public static final String KW_SERIES_BULAN_INI = "#STM";
   public static final String KW_NOW_PLAYING = "#NP";
@@ -123,8 +123,8 @@ public final class BotHelper {
       String aBaseImdbUrl, String aBaseImgUrl, String aUserId, ResultMovieDetail aMovieDetail) throws IOException {
     String filterTitle = filterTitle(aMovieDetail.getTitle());
     String filterTagLine = filterTagLine(aMovieDetail.getTagline());
-    String homepage = aMovieDetail.getHomepage().length() == 0 ?
-        aBaseImdbUrl + aMovieDetail.getImdbId() : aMovieDetail.getHomepage();
+    String hp = aMovieDetail.getHomepage() == null ? "" : aMovieDetail.getHomepage();
+    String homepage = hp.length() == 0 ? aBaseImdbUrl + aMovieDetail.getImdbId() : aMovieDetail.getHomepage();
 
     ButtonsTemplate buttonsTemplate = new ButtonsTemplate(
         aBaseImgUrl + aMovieDetail.getBackdropPath(),
@@ -227,7 +227,8 @@ public final class BotHelper {
 
       String filterTitle = filterTitle(resultMovies.getTitle());
       String filterTagLine = filterTagLine(createFromGenreId(resultMovies.getGenreIds()));
-      String poster = resultMovies.getPosterPath().length() == 0 ? resultMovies.getBackdropPath() : resultMovies.getPosterPath();
+      String ps = resultMovies.getPosterPath() == null ? "" : resultMovies.getPosterPath();
+      String poster = ps.length() == 0 ? resultMovies.getBackdropPath() : resultMovies.getPosterPath();
       if (carouselColumn.size() < 5) {
         carouselColumn.add(
             new CarouselColumn(
