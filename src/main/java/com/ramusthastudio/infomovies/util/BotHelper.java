@@ -87,8 +87,8 @@ public final class BotHelper {
     UserProfileResponse userProfile = getUserProfile(aChannelAccessToken, aUserId).body();
     String greeting = "Hi " + userProfile.getDisplayName() + ", apakah kamu kesulitan ?\n\n";
     greeting += "Panduan di Info Movies:\n";
-    greeting += "Now Playing : '" + KW_NOW_PLAYING + "'! \n";
-    greeting += "Daftar Movie bulan ini : '" + KW_MOVIE_BULAN_INI + "'! \n";
+    greeting += "Now Playing : '" + KW_NOW_PLAYING + "' \n";
+    greeting += "Daftar Movie bulan ini : '" + KW_MOVIE_BULAN_INI + "' \n";
     // greeting += "On Air Series : '" + KW_ON_THE_AIR + "'! \n";
     // greeting += "Daftar Series bulan ini : '" + KW_SERIES_BULAN_INI + "! \n";
     createMessage(aChannelAccessToken, aUserId, greeting);

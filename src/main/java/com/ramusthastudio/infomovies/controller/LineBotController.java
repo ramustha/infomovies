@@ -113,7 +113,19 @@ public class LineBotController {
         String userId = source.userId();
         if (eventType.equals(FOLLOW)) {
           greetingMessage(fChannelAccessToken, userId);
-          unrecognizedMessage(fChannelAccessToken, userId);
+          createMessage(fChannelAccessToken, userId, "Now Playing movies..");
+
+          //random 1-10 page
+          int page = ThreadLocalRandom.current().nextInt(1, 10 + 1);
+          Response<DiscoverMovies> discoverMoviesResp = getNowPlayingMovies(fBaseUrl, fApiKey, page);
+          LOG.info("Now Playing code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
+
+          if (discoverMoviesResp.isSuccessful()) {
+            DiscoverMovies discoverMovies = discoverMoviesResp.body();
+            List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getDiscoverresults());
+            createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
+          }
+
         } else if (eventType.equals(MESSAGE)) {
           if (message.type().equals(MESSAGE_TEXT)) {
             String text = message.text();
@@ -151,23 +163,21 @@ public class LineBotController {
             unrecognizedMessage(fChannelAccessToken, userId);
           }
         } else if (eventType.equals(POSTBACK)) {
-          if (message.type().equals(MESSAGE_TEXT)) {
-            String text = message.text();
-            if (text.toLowerCase().startsWith(KW_DETAIL_OVERVIEW.toLowerCase())) {
-              String strId = text.substring(KW_DETAIL_OVERVIEW.length(), text.length());
-              LOG.info("Movie id {}", strId.trim());
-              int id = Integer.parseInt(strId.trim());
-              Response<ResultMovieDetail> detailMovieResp = getDetailMovie(fBaseUrl, id, fApiKey);
-              LOG.info("Postback code {} message {}", detailMovieResp.code(), detailMovieResp.message());
+          String text = postback.data();
+          if (text.toLowerCase().startsWith(KW_DETAIL_OVERVIEW.toLowerCase())) {
+            String strId = text.substring(KW_DETAIL_OVERVIEW.length(), text.length());
+            LOG.info("Movie id {}", strId.trim());
+            int id = Integer.parseInt(strId.trim());
+            Response<ResultMovieDetail> detailMovieResp = getDetailMovie(fBaseUrl, id, fApiKey);
+            LOG.info("Postback code {} message {}", detailMovieResp.code(), detailMovieResp.message());
 
-              if (detailMovieResp.isSuccessful()) {
-                ResultMovieDetail movie = detailMovieResp.body();
-                String overview = createDetailOverview(movie, fBaseImdbUrl);
-                Response<BotApiResponse> detail = createMessage(fChannelAccessToken, userId, overview);
-                LOG.info("Postback code {} message {}", detail.code(), detail.message());
-              }
-
+            if (detailMovieResp.isSuccessful()) {
+              ResultMovieDetail movie = detailMovieResp.body();
+              String overview = createDetailOverview(movie, fBaseImdbUrl);
+              Response<BotApiResponse> detail = createMessage(fChannelAccessToken, userId, overview);
+              LOG.info("Postback code {} message {}", detail.code(), detail.message());
             }
+
           }
         }
       } catch (IOException aE) {
