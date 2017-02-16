@@ -49,10 +49,11 @@ public final class BotHelper {
   public static final String MESSAGE_LOCATION = "location";
   public static final String MESSAGE_STICKER = "sticker";
 
+  public static final String KW_SEARCH = "#S";
   public static final String KW_DETAIL = "#D";
   public static final String KW_DETAIL_OVERVIEW = "#DO";
   public static final String KW_MOVIE_BULAN_INI = "#MTM";
-  public static final String KW_SERIES_BULAN_INI = "Series bulan ini";
+  public static final String KW_SERIES_BULAN_INI = "#STM";
   public static final String KW_NOW_PLAYING = "#NP";
   public static final String KW_ON_THE_AIR = "#OA";
 
@@ -88,7 +89,8 @@ public final class BotHelper {
     String greeting = "Hi " + userProfile.getDisplayName() + ", apakah kamu kesulitan ?\n\n";
     greeting += "Panduan di Info Movies:\n";
     greeting += "Now Playing : '" + KW_NOW_PLAYING + "' \n";
-    greeting += "Daftar Movie bulan ini : '" + KW_MOVIE_BULAN_INI + "' \n";
+    greeting += "Cari Movie : '" + KW_SEARCH + " Judul, Tahun(Opsional)' \n";
+    // greeting += "Daftar Movie bulan ini : '" + KW_MOVIE_BULAN_INI + "' \n";
     // greeting += "On Air Series : '" + KW_ON_THE_AIR + "'! \n";
     // greeting += "Daftar Series bulan ini : '" + KW_SERIES_BULAN_INI + "! \n";
     createMessage(aChannelAccessToken, aUserId, greeting);
@@ -161,6 +163,22 @@ public final class BotHelper {
     }
 
     return sb.toString().replaceFirst(",", "");
+  }
+
+  public static Response<DiscoverMovies> getSearchMovies(String aBaseUrl, String aApiKey, String aTitle, int aYear) throws IOException {
+    if (aYear == 0) {
+      Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
+          .addConverterFactory(GsonConverterFactory.create()).build();
+      TheMovieDbService service = retrofit.create(TheMovieDbService.class);
+
+      LocalDate now = LocalDate.now();
+      return service.searchMovies(aApiKey, aTitle).execute();
+    }
+    Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
+        .addConverterFactory(GsonConverterFactory.create()).build();
+    TheMovieDbService service = retrofit.create(TheMovieDbService.class);
+
+    return service.searchMovies(aApiKey, aTitle, aYear).execute();
   }
 
   public static Response<DiscoverMovies> getDiscoverMovies(String aBaseUrl, String aApiKey) throws IOException {

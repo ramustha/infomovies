@@ -31,8 +31,8 @@ import retrofit2.Response;
 import static com.ramusthastudio.infomovies.util.BotHelper.FOLLOW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL_OVERVIEW;
-import static com.ramusthastudio.infomovies.util.BotHelper.KW_MOVIE_BULAN_INI;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_NOW_PLAYING;
+import static com.ramusthastudio.infomovies.util.BotHelper.KW_SEARCH;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE_TEXT;
 import static com.ramusthastudio.infomovies.util.BotHelper.POSTBACK;
@@ -43,6 +43,7 @@ import static com.ramusthastudio.infomovies.util.BotHelper.createDetailOverview;
 import static com.ramusthastudio.infomovies.util.BotHelper.createMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.getDetailMovie;
 import static com.ramusthastudio.infomovies.util.BotHelper.getNowPlayingMovies;
+import static com.ramusthastudio.infomovies.util.BotHelper.getSearchMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getUserProfile;
 import static com.ramusthastudio.infomovies.util.BotHelper.greetingMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.unrecognizedMessage;
@@ -141,19 +142,27 @@ public class LineBotController {
                 createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
               }
 
-            } else if (text.toLowerCase().startsWith(KW_MOVIE_BULAN_INI.toLowerCase())) {
+            } else if (text.toLowerCase().startsWith(KW_SEARCH.toLowerCase())) {
+              String keyword = text.substring(KW_SEARCH.length(), text.length());
+              String title;
+              int year = 0;
+              if (keyword.contains(",")) {
+                String[] keySplit = keyword.split(",");
+                title = keySplit[0];
+                year = keySplit[1].length() != 4 ? 0 : Integer.parseInt(keySplit[1]);
+              } else {
+                title = keyword;
+              }
 
-            } else if (text.toLowerCase().startsWith(KW_DETAIL.toLowerCase())) {
-              String strId = text.substring(KW_DETAIL.length(), text.length());
-              LOG.info("Movie id {}", strId.trim());
-              int id = Integer.parseInt(strId.trim());
-              Response<ResultMovieDetail> detailMovieResp = getDetailMovie(fBaseUrl, id, fApiKey);
-              LOG.info("Message code {} message {}", detailMovieResp.code(), detailMovieResp.message());
+              LOG.info("Keyword title {} year {}", title, year);
 
-              if (detailMovieResp.isSuccessful()) {
-                ResultMovieDetail movie = detailMovieResp.body();
-                Response<BotApiResponse> detail = buildButtonDetailMovie(fChannelAccessToken, fBaseImgUrl, userId, movie);
-                LOG.info("Message code {} message {}", detail.code(), detail.message());
+              Response<DiscoverMovies> searchMovies = getSearchMovies(fBaseUrl, fApiKey, title, year);
+              LOG.info("SearchMovies code {} message {}", searchMovies.code(), searchMovies.message());
+
+              if (searchMovies.isSuccessful()) {
+                DiscoverMovies discoverMovies = searchMovies.body();
+                List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getDiscoverresults());
+                createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
               }
 
             } else {
@@ -164,7 +173,20 @@ public class LineBotController {
           }
         } else if (eventType.equals(POSTBACK)) {
           String text = postback.data();
-          if (text.toLowerCase().startsWith(KW_DETAIL_OVERVIEW.toLowerCase())) {
+          if (text.toLowerCase().startsWith(KW_DETAIL.toLowerCase())) {
+            String strId = text.substring(KW_DETAIL.length(), text.length());
+            LOG.info("Movie id {}", strId.trim());
+            int id = Integer.parseInt(strId.trim());
+            Response<ResultMovieDetail> detailMovieResp = getDetailMovie(fBaseUrl, id, fApiKey);
+            LOG.info("Message code {} message {}", detailMovieResp.code(), detailMovieResp.message());
+
+            if (detailMovieResp.isSuccessful()) {
+              ResultMovieDetail movie = detailMovieResp.body();
+              Response<BotApiResponse> detail = buildButtonDetailMovie(fChannelAccessToken, fBaseImgUrl, userId, movie);
+              LOG.info("Message code {} message {}", detail.code(), detail.message());
+            }
+
+          } else if (text.toLowerCase().startsWith(KW_DETAIL_OVERVIEW.toLowerCase())) {
             String strId = text.substring(KW_DETAIL_OVERVIEW.length(), text.length());
             LOG.info("Movie id {}", strId.trim());
             int id = Integer.parseInt(strId.trim());

@@ -33,6 +33,12 @@ public interface TheMovieDbService {
   @GET("movie/now_playing")
   Call<DiscoverMovies> nowPlayingMovies(@Query("api_key") String aApi, @Query("page") int aPage);
 
+  @GET("search/movie")
+  Call<DiscoverMovies> searchMovies(@Query("api_key") String aApi, @Query("query") String aQuery);
+
+  @GET("search/movie")
+  Call<DiscoverMovies> searchMovies(@Query("api_key") String aApi, @Query("query") String aQuery, @Query("primary_release_year") int aReleaseYear);
+
   @GET("tv/on_the_air")
   Call<DiscoverTvs> onTheAirTv(@Query("api_key") String aApi);
 }
