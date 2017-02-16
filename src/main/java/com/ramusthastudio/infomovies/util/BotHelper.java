@@ -172,8 +172,11 @@ public final class BotHelper {
         }
       }
     }
-
-    return sb.toString().replaceFirst(",", "");
+    String genre = sb.toString().replaceFirst(",", "");
+    if (genre.isEmpty() || genre.length() < 3) {
+      genre = "N/A";
+    }
+    return genre;
   }
 
   public static String createFromGenre(List<Genre> aGenres) {
@@ -181,8 +184,11 @@ public final class BotHelper {
     for (Genre genre : aGenres) {
       sb.append(",").append(genre.getName());
     }
-
-    return sb.toString().replaceFirst(",", "");
+    String genre = sb.toString().replaceFirst(",", "");
+    if (genre.isEmpty() || genre.length() < 3) {
+      genre = "N/A";
+    }
+    return genre;
   }
 
   public static Response<DiscoverMovies> getSearchMovies(String aBaseUrl, String aApiKey, String aTitle, int aYear) throws IOException {
@@ -248,14 +254,15 @@ public final class BotHelper {
           (resultMovies.getBackdropPath() == null ? IMG_HOLDER : aBaseImgUrl + resultMovies.getBackdropPath()) :
           aBaseImgUrl + resultMovies.getPosterPath();
 
-      LOG.info("ResultMovies poster {}\n backdrop {}\n title {}\n genre {}\n id {}\n",
-          posterImg,
-          backdropImg,
-          filterTitle + " (" + resultMovies.getVoteAverage() + ")",
-          filterTagLine,
-          KW_DETAIL + " " + resultMovies.getId());
-
       if (carouselColumn.size() < 5) {
+
+        LOG.info("ResultMovies poster {}\n backdrop {}\n title {}\n genre {}\n id {}\n",
+            posterImg,
+            backdropImg,
+            filterTitle + " (" + resultMovies.getVoteAverage() + ")",
+            filterTagLine,
+            KW_DETAIL + " " + resultMovies.getId());
+
         carouselColumn.add(
             new CarouselColumn(
                 backdropImg,
