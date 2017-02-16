@@ -8,8 +8,6 @@ public class ResultMovieDetail {
   private boolean adult;
   @SerializedName("backdrop_path")
   private String backdropPath;
-  // @SerializedName("belongs_to_collection")
-  // private String belongsToCollection;
   @SerializedName("budget")
   private int budget;
   @SerializedName("genres")
@@ -57,7 +55,6 @@ public class ResultMovieDetail {
 
   public boolean isAdult() { return adult; }
   public String getBackdropPath() { return backdropPath; }
-  // public String getBelongsToCollection() { return belongsToCollection; }
   public int getBudget() { return budget; }
   public List<Genre> getGenres() { return genres; }
   public String getHomepage() { return homepage; }
@@ -85,7 +82,6 @@ public class ResultMovieDetail {
     return "Result{" +
         "adult=" + adult +
         ", backdropPath='" + backdropPath + '\'' +
-        // ", belongsToCollection='" + belongsToCollection + '\'' +
         ", budget=" + budget +
         ", genres=" + genres +
         ", homepage='" + homepage + '\'' +

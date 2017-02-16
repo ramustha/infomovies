@@ -13,6 +13,7 @@ import com.ramusthastudio.infomovies.model.ResultMovieDetail;
 import com.ramusthastudio.infomovies.model.Source;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,18 +29,17 @@ import retrofit2.Response;
 
 import static com.ramusthastudio.infomovies.util.BotHelper.FOLLOW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL;
+import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL_OVERVIEW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_MOVIE_BULAN_INI;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_NOW_PLAYING;
-import static com.ramusthastudio.infomovies.util.BotHelper.KW_ON_THE_AIR;
-import static com.ramusthastudio.infomovies.util.BotHelper.KW_SERIES_BULAN_INI;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE_TEXT;
 import static com.ramusthastudio.infomovies.util.BotHelper.buildButtonDetailMovie;
 import static com.ramusthastudio.infomovies.util.BotHelper.buildCarouselResultMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.createCarouselMessage;
+import static com.ramusthastudio.infomovies.util.BotHelper.createDetailOverview;
 import static com.ramusthastudio.infomovies.util.BotHelper.createMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.getDetailMovie;
-import static com.ramusthastudio.infomovies.util.BotHelper.getDiscoverMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getNowPlayingMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getUserProfile;
 import static com.ramusthastudio.infomovies.util.BotHelper.greetingMessage;
@@ -65,6 +65,10 @@ public class LineBotController {
   @Autowired
   @Qualifier("com.themoviedb.base_url")
   String fBaseUrl;
+
+  @Autowired
+  @Qualifier("com.themoviedb.base_imdb_url")
+  String fBaseImdbUrl;
 
   @Autowired
   @Qualifier("com.themoviedb.base_img_url")
@@ -106,23 +110,14 @@ public class LineBotController {
         String userId = source.userId();
         if (eventType.equals(FOLLOW)) {
           greetingMessage(fChannelAccessToken, userId);
-          createMessage(fChannelAccessToken, userId, "Daftar Movies release tahun ini");
-
-          Response<DiscoverMovies> discoverMoviesResp = getDiscoverMovies(fBaseUrl, fApiKey);
-          LOG.info("DiscoverMovies code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
-
-          if (discoverMoviesResp.isSuccessful()) {
-            DiscoverMovies discoverMovies = discoverMoviesResp.body();
-            List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getDiscoverresults());
-            createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
-          }
-
+          unrecognizedMessage(fChannelAccessToken, userId);
         } else if (eventType.equals(MESSAGE)) {
           if (message.type().equals(MESSAGE_TEXT)) {
             String text = message.text();
             if (text.toLowerCase().contains(KW_NOW_PLAYING.toLowerCase())) {
-
-              Response<DiscoverMovies> discoverMoviesResp = getNowPlayingMovies(fBaseUrl, fApiKey);
+              //random 1-10 page
+              int page = ThreadLocalRandom.current().nextInt(1, 10 + 1);
+              Response<DiscoverMovies> discoverMoviesResp = getNowPlayingMovies(fBaseUrl, fApiKey, page);
               LOG.info("DiscoverMovies code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
 
               if (discoverMoviesResp.isSuccessful()) {
@@ -131,14 +126,10 @@ public class LineBotController {
                 createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
               }
 
-            } else if (text.toLowerCase().contains(KW_ON_THE_AIR.toLowerCase())) {
-
-            } else if (text.toLowerCase().contains(KW_MOVIE_BULAN_INI.toLowerCase())) {
-
-            } else if (text.toLowerCase().contains(KW_SERIES_BULAN_INI.toLowerCase())) {
+            } else if (text.toLowerCase().startsWith(KW_MOVIE_BULAN_INI.toLowerCase())) {
 
             } else if (text.toLowerCase().startsWith(KW_DETAIL.toLowerCase())) {
-              String strId = text.substring(1, text.length());
+              String strId = text.substring(KW_DETAIL.length(), text.length());
               LOG.info("Movie id {}", strId.trim());
               int id = Integer.parseInt(strId.trim());
               Response<ResultMovieDetail> detailMovieResp = getDetailMovie(fBaseUrl, id, fApiKey);
@@ -147,6 +138,20 @@ public class LineBotController {
               if (detailMovieResp.isSuccessful()) {
                 ResultMovieDetail movie = detailMovieResp.body();
                 Response<BotApiResponse> detail = buildButtonDetailMovie(fChannelAccessToken, fBaseImgUrl, userId, movie);
+                LOG.info("ResultMovieDetail code {} message {}", detail.code(), detail.message());
+              }
+
+            } else if (text.toLowerCase().startsWith(KW_DETAIL_OVERVIEW.toLowerCase())) {
+              String strId = text.substring(KW_DETAIL_OVERVIEW.length(), text.length());
+              LOG.info("Movie id {}", strId.trim());
+              int id = Integer.parseInt(strId.trim());
+              Response<ResultMovieDetail> detailMovieResp = getDetailMovie(fBaseUrl, id, fApiKey);
+              LOG.info("ResultMovieDetail code {} message {}", detailMovieResp.code(), detailMovieResp.message());
+
+              if (detailMovieResp.isSuccessful()) {
+                ResultMovieDetail movie = detailMovieResp.body();
+                String overview = createDetailOverview(movie, fBaseImdbUrl);
+                Response<BotApiResponse> detail = createMessage(fChannelAccessToken, userId, overview);
                 LOG.info("ResultMovieDetail code {} message {}", detail.code(), detail.message());
               }
 

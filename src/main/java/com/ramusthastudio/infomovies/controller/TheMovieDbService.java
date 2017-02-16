@@ -30,6 +30,9 @@ public interface TheMovieDbService {
   @GET("movie/now_playing")
   Call<DiscoverMovies> nowPlayingMovies(@Query("api_key") String aApi);
 
+  @GET("movie/now_playing")
+  Call<DiscoverMovies> nowPlayingMovies(@Query("api_key") String aApi, @Query("page") int aPage);
+
   @GET("tv/on_the_air")
   Call<DiscoverTvs> onTheAirTv(@Query("api_key") String aApi);
 }
