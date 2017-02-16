@@ -33,6 +33,7 @@ import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL_OVERVIEW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_NEXT_POPULAR;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_NOW_PLAYING;
+import static com.ramusthastudio.infomovies.util.BotHelper.KW_PANDUAN;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_SEARCH;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE_TEXT;
@@ -141,9 +142,8 @@ public class LineBotController {
             if (message.type().equals(MESSAGE_TEXT)) {
               String text = message.text();
               if (text.toLowerCase().contains(KW_NOW_PLAYING.toLowerCase())) {
-                //random 1-10 page
-                int page = ThreadLocalRandom.current().nextInt(1, 10 + 1);
-                discoverMoviesResp = getNowPlayingMovies(fBaseUrl, fApiKey, page);
+
+                discoverMoviesResp = getNowPlayingMovies(fBaseUrl, fApiKey, 1);
                 LOG.info("Now Playing code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
 
                 if (discoverMoviesResp.isSuccessful()) {
@@ -151,6 +151,8 @@ public class LineBotController {
                   List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getResultMovies());
                   createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
                 }
+
+                createConfirmMessage(fChannelAccessToken, userId, "Lihat Now Playing movie lainnya ?", 1);
 
               } else if (text.toLowerCase().startsWith(KW_SEARCH.toLowerCase())) {
                 String keyword = text.substring(KW_SEARCH.length(), text.length());
@@ -175,6 +177,10 @@ public class LineBotController {
                   createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
                 }
 
+                createConfirmMessage(fChannelAccessToken, userId, "Lihat movie lainnya ?", 1);
+
+              } else if (text.toLowerCase().contains(KW_PANDUAN.toLowerCase())) {
+                unrecognizedMessage(fChannelAccessToken, userId);
               } else {
                 unrecognizedMessage(fChannelAccessToken, userId);
               }

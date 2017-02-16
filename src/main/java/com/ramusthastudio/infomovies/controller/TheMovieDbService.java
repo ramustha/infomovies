@@ -38,6 +38,9 @@ public interface TheMovieDbService {
   Call<ResultMovieDetail> detailMovies(@Path("movie_id") int aMovieId, @Query("api_key") String aApi);
 
   @GET("search/movie")
+  Call<DiscoverMovies> searchMovies(@Query("api_key") String aApi, @Query("language") String aLanguage, @Query("query") String aQuery, @Query("page") int aPage, @Query("region") String aRegion);
+
+  @GET("search/movie")
   Call<DiscoverMovies> searchMovies(@Query("api_key") String aApi, @Query("language") String aLanguage, @Query("query") String aQuery, @Query("page") int aPage, @Query("region") String aRegion, @Query("primary_release_year") int aReleaseYear);
 
   // @GET("discover/movie")

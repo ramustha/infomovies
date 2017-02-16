@@ -19,10 +19,10 @@ import com.ramusthastudio.infomovies.model.Genre;
 import com.ramusthastudio.infomovies.model.ResultMovieDetail;
 import com.ramusthastudio.infomovies.model.ResultMovies;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import retrofit2.Response;
@@ -64,6 +64,7 @@ public final class BotHelper {
   public static final String KW_RECOMMEND = "Recommend";
   public static final String KW_SIMILAR = "Similar";
   public static final String KW_VIDEOS = "Video";
+  public static final String KW_PANDUAN = "Panduan";
   public static final String KW_NEXT_POPULAR = "NP";
 
   public static final String IMG_HOLDER = "https://www.themoviedb.org/assets/static_cache/41bdcf10bbf6f84c0fc73f27b2180b95/images/v4/logos/91x81.png";
@@ -99,7 +100,8 @@ public final class BotHelper {
   public static void unrecognizedMessage(String aChannelAccessToken, String aUserId) throws IOException {
     UserProfileResponse userProfile = getUserProfile(aChannelAccessToken, aUserId).body();
     String greeting = "Hi " + userProfile.getDisplayName() + ", apakah kamu kesulitan ?\n\n";
-    greeting += "Panduan di Info Movies:\n";
+    greeting += "Panduan Info Movies:\n";
+    greeting += "Panduan : '" + KW_PANDUAN + "' \n";
     greeting += "Now Playing : '" + KW_NOW_PLAYING + "' \n";
     greeting += "Cari Movie : '" + KW_SEARCH + " Judul, Tahun(Opsional)' \n";
     // greeting += "Daftar Movie bulan ini : '" + KW_MOVIE_BULAN_INI + "' \n";
@@ -131,31 +133,22 @@ public final class BotHelper {
   }
 
   public static Response<BotApiResponse> createCarouselMessage(String aChannelAccessToken,
-      String aUserId, List<CarouselColumn> aCarouselColumns){
+      String aUserId, List<CarouselColumn> aCarouselColumns) throws IOException {
     CarouselTemplate carouselTemplate = new CarouselTemplate(aCarouselColumns);
     TemplateMessage templateMessage = new TemplateMessage("Your search result", carouselTemplate);
     PushMessage pushMessage = new PushMessage(aUserId, templateMessage);
-    try {
-      return LineMessagingServiceBuilder
-          .create(aChannelAccessToken)
-          .build()
-          .pushMessage(pushMessage)
-          .execute();
-    } catch (IOException aE) {
-      try {
-        createSticker(aChannelAccessToken, aUserId, "1", "422");
-        createMessage(aChannelAccessToken, aUserId, "Gagal menampilkan pesan...");
-      } catch (IOException ignored) {}
-
-    }
-    return null;
+    return LineMessagingServiceBuilder
+        .create(aChannelAccessToken)
+        .build()
+        .pushMessage(pushMessage)
+        .execute();
   }
 
   public static Response<BotApiResponse> createConfirmMessage(String aChannelAccessToken,
       String aUserId, String aMsg, int page) throws IOException {
     ConfirmTemplate confirmTemplate = new ConfirmTemplate(aMsg, Arrays.asList(
         new PostbackAction("Ya", KW_NEXT_POPULAR + " " + ++page),
-        new PostbackAction("Tidak", "tidak")));
+        new PostbackAction("Panduan", KW_PANDUAN)));
 
     TemplateMessage templateMessage = new TemplateMessage("Confirm ?", confirmTemplate);
     PushMessage pushMessage = new PushMessage(aUserId, templateMessage);
@@ -281,10 +274,32 @@ public final class BotHelper {
     return service.popularMovies(aApiKey, language, page, region).execute();
   }
 
-  public static Response<DiscoverMovies> getSearchMovies(String aBaseUrl, String aApiKey, String aTitle, int aYear) throws IOException {
+  public static Response<DiscoverMovies> getNowPlayingMovies(String aBaseUrl, String aApiKey, int aPage) throws IOException {
+    return getNowPlayingMovies(aBaseUrl, aApiKey, DFL_LANGUAGE, aPage, DFL_REGION);
+  }
+
+  public static Response<DiscoverMovies> getNowPlayingMovies(String aBaseUrl, String aApiKey, int aPage, String aRegion) throws IOException {
+    String region = aRegion != null ? aRegion : DFL_REGION;
+    int page = aPage != 0 ? aPage : 0;
+    return getNowPlayingMovies(aBaseUrl, aApiKey, DFL_LANGUAGE, page, region);
+  }
+
+  public static Response<DiscoverMovies> getNowPlayingMovies(String aBaseUrl, String aApiKey, String aLanguage, int aPage, String aRegion) throws IOException {
     TheMovieDbService service = createdService(aBaseUrl);
 
-    return service.searchMovies(aApiKey, DFL_LANGUAGE, aTitle, 0, DFL_REGION, 2016).execute();
+    String language = aLanguage != null ? aLanguage : DFL_LANGUAGE;
+    int page = aPage != 0 ? aPage : 0;
+    String region = aRegion != null ? aRegion : DFL_REGION;
+
+    return service.nowPlayingMovies(aApiKey, language, page, region).execute();
+  }
+
+  public static Response<DiscoverMovies> getSearchMovies(String aBaseUrl, String aApiKey, String aTitle, int aYear) throws IOException {
+    TheMovieDbService service = createdService(aBaseUrl);
+    if (aYear == 0) {
+      return service.searchMovies(aApiKey, DFL_LANGUAGE, aTitle, 1, DFL_REGION).execute();
+    }
+    return service.searchMovies(aApiKey, DFL_LANGUAGE, aTitle, 1, DFL_REGION, aYear).execute();
   }
 
   // public static Response<DiscoverMovies> getDiscoverMovies(String aBaseUrl, String aApiKey) throws IOException {
@@ -294,12 +309,6 @@ public final class BotHelper {
   //   return service.discoverMovies(aApiKey, now.getYear()).execute();
   // }
 
-  public static Response<DiscoverMovies> getNowPlayingMovies(String aBaseUrl, String aApiKey, int aPage) throws IOException {
-    TheMovieDbService service = createdService(aBaseUrl);
-
-    return service.nowPlayingMovies(aApiKey, DFL_LANGUAGE, aPage, DFL_REGION).execute();
-  }
-
   public static Response<ResultMovieDetail> getDetailMovie(String aBaseUrl, int aMovieId, String aApiKey) throws IOException {
     Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
         .addConverterFactory(GsonConverterFactory.create()).build();
@@ -308,38 +317,40 @@ public final class BotHelper {
     return service.detailMovies(aMovieId, aApiKey).execute();
   }
 
-  public static List<CarouselColumn> buildCarouselResultMovies(String aBaseImgUrl, List<ResultMovies> discoverMovies) {
+  public static List<CarouselColumn> buildCarouselResultMovies(String aBaseImgUrl, List<ResultMovies> aResultMovies) {
     List<CarouselColumn> carouselColumn = new ArrayList<>();
-    for (ResultMovies resultMovies : discoverMovies) {
+    int min = ThreadLocalRandom.current().nextInt(1, 15 + 1);
+    List<ResultMovies> resultMovies = aResultMovies.subList(min, min + 5);
+    for (ResultMovies movies : resultMovies) {
 
-      String filterTitle = filterTitle(resultMovies.getTitle());
-      String filterTagLine = filterTagLine(createFromGenreId(resultMovies.getGenreIds()));
+      String filterTitle = filterTitle(movies.getTitle());
+      String filterTagLine = filterTagLine(createFromGenreId(movies.getGenreIds()));
 
-      String backdropImg = resultMovies.getBackdropPath() == null ?
-          (resultMovies.getPosterPath() == null ? IMG_HOLDER : aBaseImgUrl + resultMovies.getPosterPath()) :
-          aBaseImgUrl + resultMovies.getBackdropPath();
+      String backdropImg = movies.getBackdropPath() == null ?
+          (movies.getPosterPath() == null ? IMG_HOLDER : aBaseImgUrl + movies.getPosterPath()) :
+          aBaseImgUrl + movies.getBackdropPath();
 
-      String posterImg = resultMovies.getPosterPath() == null ?
-          (resultMovies.getBackdropPath() == null ? IMG_HOLDER : aBaseImgUrl + resultMovies.getBackdropPath()) :
-          aBaseImgUrl + resultMovies.getPosterPath();
+      String posterImg = movies.getPosterPath() == null ?
+          (movies.getBackdropPath() == null ? IMG_HOLDER : aBaseImgUrl + movies.getBackdropPath()) :
+          aBaseImgUrl + movies.getPosterPath();
 
       if (carouselColumn.size() < 5) {
 
         LOG.info("ResultMovies poster {}\n backdrop {}\n title {}\n genre {}\n id {}\n",
             posterImg,
             backdropImg,
-            filterTitle + " (" + resultMovies.getVoteAverage() + ")",
+            filterTitle + " (" + movies.getVoteAverage() + ")",
             filterTagLine,
-            KW_DETAIL + " " + resultMovies.getId());
+            KW_DETAIL + " " + movies.getId());
 
         carouselColumn.add(
             new CarouselColumn(
                 backdropImg,
-                filterTitle + " (" + resultMovies.getVoteAverage() + ")",
+                filterTitle + " (" + movies.getVoteAverage() + ")",
                 filterTagLine,
                 Arrays.asList(
                     new URIAction("Poster", posterImg),
-                    new PostbackAction("Detail", KW_DETAIL + " " + resultMovies.getId()))));
+                    new PostbackAction("Detail", KW_DETAIL + " " + movies.getId()))));
       }
     }
 

@@ -15,7 +15,7 @@ public enum EGenre {
   MUSIC(10402, "Music"),
   MYSTERY(9648, "Mystery"),
   ROMANCE(10749, "Romance"),
-  SCI_FI(878, "Sci-Fi"),
+  SCI_FI(878, "Science Fiction"),
   TV_MOVIE(10770, "Tv Movie"),
   THRILLER(53, "Thriller"),
   WAR(10752, "War"),
