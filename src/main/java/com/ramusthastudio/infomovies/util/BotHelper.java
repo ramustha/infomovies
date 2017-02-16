@@ -120,9 +120,11 @@ public final class BotHelper {
   }
 
   public static Response<BotApiResponse> buildButtonDetailMovie(String aChannelAccessToken,
-      String aBaseImgUrl, String aUserId, ResultMovieDetail aMovieDetail) throws IOException {
+      String aBaseImdbUrl, String aBaseImgUrl, String aUserId, ResultMovieDetail aMovieDetail) throws IOException {
     String filterTitle = filterTitle(aMovieDetail.getTitle());
     String filterTagLine = filterTagLine(aMovieDetail.getTagline());
+    String homepage = aMovieDetail.getHomepage().length() == 0 ?
+        aBaseImdbUrl + aMovieDetail.getImdbId() : aMovieDetail.getHomepage();
 
     ButtonsTemplate buttonsTemplate = new ButtonsTemplate(
         aBaseImgUrl + aMovieDetail.getBackdropPath(),
@@ -130,7 +132,7 @@ public final class BotHelper {
         filterTagLine,
         Arrays.asList(
             new PostbackAction("Overview", KW_DETAIL_OVERVIEW + " " + aMovieDetail.getId()),
-            new URIAction("Homepage", aMovieDetail.getHomepage())
+            new URIAction("Homepage", homepage)
         ));
 
     TemplateMessage templateMessage = new TemplateMessage(filterTitle, buttonsTemplate);
@@ -225,7 +227,7 @@ public final class BotHelper {
 
       String filterTitle = filterTitle(resultMovies.getTitle());
       String filterTagLine = filterTagLine(createFromGenreId(resultMovies.getGenreIds()));
-
+      String poster = resultMovies.getPosterPath().length() == 0 ? resultMovies.getBackdropPath() : resultMovies.getPosterPath();
       if (carouselColumn.size() < 5) {
         carouselColumn.add(
             new CarouselColumn(
@@ -233,7 +235,7 @@ public final class BotHelper {
                 filterTitle + " (" + resultMovies.getVoteAverage() + ")",
                 filterTagLine,
                 Arrays.asList(
-                    new URIAction("Poster", aBaseImgUrl + resultMovies.getPosterPath()),
+                    new URIAction("Poster", aBaseImgUrl + poster),
                     new PostbackAction("Detail", KW_DETAIL + " " + resultMovies.getId()))));
       }
     }

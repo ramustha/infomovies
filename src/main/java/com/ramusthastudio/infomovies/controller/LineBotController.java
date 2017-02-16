@@ -174,7 +174,7 @@ public class LineBotController {
         } else if (eventType.equals(POSTBACK)) {
           String text = postback.data();
           if (text.toLowerCase().startsWith(KW_DETAIL.toLowerCase())) {
-            String strId = text.substring(KW_DETAIL.length(), text.length());
+            String strId = text.substring(KW_DETAIL.length() + 1, text.length());
             LOG.info("Movie id {}", strId.trim());
             int id = Integer.parseInt(strId.trim());
             Response<ResultMovieDetail> detailMovieResp = getDetailMovie(fBaseUrl, id, fApiKey);
@@ -182,12 +182,12 @@ public class LineBotController {
 
             if (detailMovieResp.isSuccessful()) {
               ResultMovieDetail movie = detailMovieResp.body();
-              Response<BotApiResponse> detail = buildButtonDetailMovie(fChannelAccessToken, fBaseImgUrl, userId, movie);
+              Response<BotApiResponse> detail = buildButtonDetailMovie(fChannelAccessToken, fBaseImdbUrl, fBaseImgUrl, userId, movie);
               LOG.info("Message code {} message {}", detail.code(), detail.message());
             }
 
           } else if (text.toLowerCase().startsWith(KW_DETAIL_OVERVIEW.toLowerCase())) {
-            String strId = text.substring(KW_DETAIL_OVERVIEW.length(), text.length());
+            String strId = text.substring(KW_DETAIL_OVERVIEW.length() + 1, text.length());
             LOG.info("Movie id {}", strId.trim());
             int id = Integer.parseInt(strId.trim());
             Response<ResultMovieDetail> detailMovieResp = getDetailMovie(fBaseUrl, id, fApiKey);
