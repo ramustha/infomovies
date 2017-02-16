@@ -273,43 +273,22 @@ public final class BotHelper {
   }
 
   public static Response<DiscoverMovies> getSearchMovies(String aBaseUrl, String aApiKey, String aTitle, int aYear) throws IOException {
-    if (aYear == 0) {
-      Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
-          .addConverterFactory(GsonConverterFactory.create()).build();
-      TheMovieDbService service = retrofit.create(TheMovieDbService.class);
+    TheMovieDbService service = createdService(aBaseUrl);
 
-      return service.searchMovies(aApiKey, aTitle).execute();
-    }
-    Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
-        .addConverterFactory(GsonConverterFactory.create()).build();
-    TheMovieDbService service = retrofit.create(TheMovieDbService.class);
-
-    return service.searchMovies(aApiKey, aTitle, aYear).execute();
+    return service.searchMovies(aApiKey, DFL_LANGUAGE, aTitle, 0, DFL_REGION, 2016).execute();
   }
 
-  public static Response<DiscoverMovies> getDiscoverMovies(String aBaseUrl, String aApiKey) throws IOException {
-    Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
-        .addConverterFactory(GsonConverterFactory.create()).build();
-    TheMovieDbService service = retrofit.create(TheMovieDbService.class);
-
-    LocalDate now = LocalDate.now();
-    return service.discoverMovies(aApiKey, now.getYear()).execute();
-  }
+  // public static Response<DiscoverMovies> getDiscoverMovies(String aBaseUrl, String aApiKey) throws IOException {
+  //   TheMovieDbService service = createdService(aBaseUrl);
+  //
+  //   LocalDate now = LocalDate.now();
+  //   return service.discoverMovies(aApiKey, now.getYear()).execute();
+  // }
 
   public static Response<DiscoverMovies> getNowPlayingMovies(String aBaseUrl, String aApiKey, int aPage) throws IOException {
-    if (aPage == 0) {
-      Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
-          .addConverterFactory(GsonConverterFactory.create()).build();
-      TheMovieDbService service = retrofit.create(TheMovieDbService.class);
+    TheMovieDbService service = createdService(aBaseUrl);
 
-      return service.nowPlayingMovies(aApiKey).execute();
-    }
-
-    Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
-        .addConverterFactory(GsonConverterFactory.create()).build();
-    TheMovieDbService service = retrofit.create(TheMovieDbService.class);
-
-    return service.nowPlayingMovies(aApiKey, aPage).execute();
+    return service.nowPlayingMovies(aApiKey, DFL_LANGUAGE, aPage, DFL_REGION).execute();
   }
 
   public static Response<ResultMovieDetail> getDetailMovie(String aBaseUrl, int aMovieId, String aApiKey) throws IOException {
