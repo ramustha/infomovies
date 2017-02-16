@@ -57,6 +57,8 @@ public final class BotHelper {
   public static final String KW_NOW_PLAYING = "#NP";
   public static final String KW_ON_THE_AIR = "#OA";
 
+  public static final String IMG_HOLDER = "https://www.themoviedb.org/assets/static_cache/41bdcf10bbf6f84c0fc73f27b2180b95/images/v4/logos/91x81.png";
+
   public static Response<UserProfileResponse> getUserProfile(String aChannelAccessToken, String aUserId) throws IOException {
     return LineMessagingServiceBuilder
         .create(aChannelAccessToken)
@@ -127,8 +129,12 @@ public final class BotHelper {
     String hp = aMovieDetail.getHomepage() == null ? "" : aMovieDetail.getHomepage();
     String homepage = hp.length() == 0 ? aBaseImdbUrl + aMovieDetail.getImdbId() : aMovieDetail.getHomepage();
 
+    String img = aMovieDetail.getBackdropPath() == null ?
+        (aMovieDetail.getPosterPath() == null ? IMG_HOLDER : aBaseImgUrl + aMovieDetail.getPosterPath()) :
+        aBaseImgUrl + aMovieDetail.getBackdropPath();
+
     ButtonsTemplate buttonsTemplate = new ButtonsTemplate(
-        aBaseImgUrl + aMovieDetail.getBackdropPath(),
+        img,
         filterTitle,
         filterTagLine,
         Arrays.asList(
@@ -174,7 +180,6 @@ public final class BotHelper {
           .addConverterFactory(GsonConverterFactory.create()).build();
       TheMovieDbService service = retrofit.create(TheMovieDbService.class);
 
-      LocalDate now = LocalDate.now();
       return service.searchMovies(aApiKey, aTitle).execute();
     }
     Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
@@ -228,8 +233,13 @@ public final class BotHelper {
 
       String filterTitle = filterTitle(resultMovies.getTitle());
       String filterTagLine = filterTagLine(createFromGenreId(resultMovies.getGenreIds()));
-      String ps = resultMovies.getPosterPath() == null ? "" : resultMovies.getPosterPath();
-      String poster = ps.length() == 0 ? resultMovies.getBackdropPath() : resultMovies.getPosterPath();
+      // String ps = resultMovies.getPosterPath() == null ? "" : resultMovies.getPosterPath();
+      // String poster = ps.length() == 0 ? resultMovies.getBackdropPath() : resultMovies.getPosterPath();
+
+      String img = resultMovies.getBackdropPath() == null ?
+          (resultMovies.getPosterPath() == null ? IMG_HOLDER : aBaseImgUrl + resultMovies.getPosterPath()) :
+          aBaseImgUrl + resultMovies.getBackdropPath();
+
       if (carouselColumn.size() < 5) {
         carouselColumn.add(
             new CarouselColumn(
@@ -237,7 +247,7 @@ public final class BotHelper {
                 filterTitle + " (" + resultMovies.getVoteAverage() + ")",
                 filterTagLine,
                 Arrays.asList(
-                    new URIAction("Poster", aBaseImgUrl + poster),
+                    new URIAction("Poster", img),
                     new PostbackAction("Detail", KW_DETAIL + " " + resultMovies.getId()))));
       }
     }
