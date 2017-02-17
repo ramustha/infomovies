@@ -266,7 +266,7 @@ public class LineBotController {
       FindMovies aFindMovies) throws IOException {
     if (aDiscoverMovies.isSuccessful()) {
       int size = aDiscoverMovies.body().getTotalResults();
-      int max = aFindMovies.getMax() - 5;
+      int max = aFindMovies.getMax();
       List<ResultMovies> movies = aDiscoverMovies.body().getResultMovies();
       carouselMessage(fChannelAccessToken, aUserId, fBaseImgUrl, movies, aFindMovies.getMax());
 
