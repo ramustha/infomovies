@@ -132,10 +132,15 @@ public class LineBotController {
             if (discoverMoviesResp.isSuccessful()) {
               DiscoverMovies discoverMovies = discoverMoviesResp.body();
               List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getResultMovies(), 0);
-              createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
+              try {
+                createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
+              }catch (IOException aE){
+                createMessage(fChannelAccessToken, userId, "Gagal menampilkan pesan...");
+                createSticker(fChannelAccessToken, userId, "1", "422");
+              }
             }
 
-            createConfirmMessage(fChannelAccessToken, userId, "Lihat Popular movie lainnya ?", 1, 5);
+            createConfirmMessage(fChannelAccessToken, userId, "Lihat Popular movie lainnya ?", 1, 0);
 
             break;
           case MESSAGE:
@@ -177,7 +182,7 @@ public class LineBotController {
                   createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
                 }
 
-                createConfirmMessage(fChannelAccessToken, userId, "Lihat movie lainnya ?", 1, 0);
+                createConfirmMessage(fChannelAccessToken, userId, "Lihat movie lainnya ?", 1, 5);
 
               } else if (text.toLowerCase().contains(KW_PANDUAN.toLowerCase())) {
                 unrecognizedMessage(fChannelAccessToken, userId);
@@ -224,7 +229,7 @@ public class LineBotController {
               int page = Integer.parseInt(pageMax[0].trim());
               int max = Integer.parseInt(pageMax[1].trim());
 
-              discoverMoviesResp = getPopularMovies(fBaseUrl, fApiKey, max == 20 ? page++ : page);
+              discoverMoviesResp = getPopularMovies(fBaseUrl, fApiKey, page);
               LOG.info("Popular movies code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
 
               if (discoverMoviesResp.isSuccessful()) {

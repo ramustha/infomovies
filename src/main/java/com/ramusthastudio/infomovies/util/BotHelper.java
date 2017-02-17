@@ -145,7 +145,8 @@ public final class BotHelper {
 
   public static Response<BotApiResponse> createConfirmMessage(String aChannelAccessToken,
       String aUserId, String aMsg, int aPage, int aMax) throws IOException {
-    aMax += 5;
+    aPage = aMax == 20 ? ++aPage : aPage;
+    aMax = aMax == 20 ? 0 : aMax;
     ConfirmTemplate confirmTemplate = new ConfirmTemplate(aMsg, Arrays.asList(
         new PostbackAction("Ya", KW_NEXT_POPULAR + aPage + "," + aMax),
         new PostbackAction("Panduan", KW_PANDUAN)));
@@ -320,7 +321,6 @@ public final class BotHelper {
   public static List<CarouselColumn> buildCarouselResultMovies(String aBaseImgUrl, List<ResultMovies> aResultMovies,
       int aMin) {
     List<CarouselColumn> carouselColumn = new ArrayList<>();
-    aMin = aMin == 15 ? 0 : aMin == 0 ? 0 : aMin + 5;
     List<ResultMovies> resultMovies = aResultMovies.subList(aMin, aMin + 5);
     for (ResultMovies movies : resultMovies) {
 
