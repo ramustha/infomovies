@@ -210,14 +210,14 @@ public final class BotHelper {
     String greeting = "Hi " + userProfile.getDisplayName() + ", apakah kamu kesulitan ?\n\n";
     greeting += "Panduan Info Movies:\n";
     greeting += "~ Now Playing : '" + KW_NOW_PLAYING + ", *region(ID)' \n";
-    greeting += "~ Popular : '" + KW_POPULAR + "' \n";
-    greeting += "~ Find Movie : \n";
-    greeting += "\n 1.'" + KW_FIND + " Judul, *tahun(2014)'";
-    greeting += "\n 2.'" + KW_FIND + " Judul, *region(ID)'";
-    greeting += "\n 3.'" + KW_FIND + " Judul, *tahun(2014), *region(ID)'";
+    greeting += "~ Popular : '" + KW_POPULAR + ", *region(ID)' \n";
+    greeting += "~ Find Movie :";
+    greeting += "\n 1. '" + KW_FIND + " Judul, *tahun(2014)'";
+    greeting += "\n 2. '" + KW_FIND + " Judul, *region(ID)'";
+    greeting += "\n 3. '" + KW_FIND + " Judul, *tahun(2014), *region(ID)'";
     // greeting += "Daftar Movie bulan ini : '" + KW_MOVIE_BULAN_INI + "' \n";
     // greeting += "On Air Series : '" + KW_ON_THE_AIR + "'! \n";
-    // greeting += "Daftar Series bulan ini : '" + KW_SERIES_BULAN_INI + "! \n";
+    greeting += "\n\n*Opsional";
     pushMessage(aChannelAccessToken, aUserId, greeting);
   }
   public static String createDetailOverview(ResultMovieDetail aMovieDetail, String aImdbUrl) {
@@ -319,38 +319,21 @@ public final class BotHelper {
     return service.topRatedMovies(aApiKey, page, region).execute();
   }
 
-  public static Response<DiscoverMovies> getPopularMovies(String aBaseUrl, String aApiKey, int aPage) throws IOException {
-    return getPopularMovies(aBaseUrl, aApiKey, aPage, "");
-  }
-
-  public static Response<DiscoverMovies> getPopularMovies(String aBaseUrl, String aApiKey, int aPage, String aRegion) throws IOException {
+  public static Response<DiscoverMovies> getPopularMovies(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
     TheMovieDbService service = createdService(aBaseUrl);
-
-    int page = aPage != 0 ? aPage : 0;
-    String region = aRegion != null ? aRegion : "";
-
-    return service.popularMovies(aApiKey, page, region).execute();
+    return service.popularMovies(aApiKey, aFindMovies.getPage(), aFindMovies.getRegion()).execute();
   }
 
-  public static Response<DiscoverMovies> getNowPlayingMovies(String aBaseUrl, String aApiKey, int aPage) throws IOException {
-    return getNowPlayingMovies(aBaseUrl, aApiKey, aPage, "");
-  }
-
-  public static Response<DiscoverMovies> getNowPlayingMovies(String aBaseUrl, String aApiKey, int aPage, String aRegion) throws IOException {
+  public static Response<DiscoverMovies> getNowPlayingMovies(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
     TheMovieDbService service = createdService(aBaseUrl);
-
-    int page = aPage != 0 ? aPage : 0;
-    String region = aRegion != null ? aRegion : "";
-
-    return service.nowPlayingMovies(aApiKey, page, region).execute();
+    return service.nowPlayingMovies(aApiKey, aFindMovies.getPage(), aFindMovies.getRegion()).execute();
   }
 
   public static Response<DiscoverMovies> getSearchMovies(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
     TheMovieDbService service = createdService(aBaseUrl);
-    String region = aFindMovies.getRegion() == null ? "" : aFindMovies.getRegion();
     if (aFindMovies.getYear() == 0) {
-      return service.searchMovies(aApiKey, aFindMovies.getTitle(), 1, region).execute();
+      return service.searchMovies(aApiKey, aFindMovies.getTitle(), aFindMovies.getPage(), aFindMovies.getRegion()).execute();
     }
-    return service.searchMovies(aApiKey, aFindMovies.getTitle(), 1, region, aFindMovies.getYear()).execute();
+    return service.searchMovies(aApiKey, aFindMovies.getTitle(), aFindMovies.getPage(), aFindMovies.getRegion(), aFindMovies.getYear()).execute();
   }
 }

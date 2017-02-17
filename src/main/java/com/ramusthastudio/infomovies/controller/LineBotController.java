@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 import retrofit2.Response;
 
 import static com.ramusthastudio.infomovies.model.FindMovies.newFindMovies;
-import static com.ramusthastudio.infomovies.util.BotHelper.DFL_REGION;
 import static com.ramusthastudio.infomovies.util.BotHelper.FOLLOW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL_OVERVIEW;
@@ -127,30 +126,66 @@ public class LineBotController {
           case FOLLOW:
             greetingMessage(fChannelAccessToken, userId);
             pushMessage(fChannelAccessToken, userId, "Popular movies..");
-            discoverMovies = getPopularMovies(fBaseUrl, fApiKey, 1);
-            LOG.info("Popular movies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
             findMovies = newFindMovies().withPage(1).withMax(0).withFlag(KW_POPULAR);
             LOG.info("findMovies findMovies {}", findMovies);
+
+            discoverMovies = getPopularMovies(fBaseUrl, fApiKey, findMovies);
+            LOG.info("Popular movies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
             buildMessage(discoverMovies, userId, findMovies);
             break;
           case MESSAGE:
             if (message.type().equals(MESSAGE_TEXT)) {
               String text = message.text();
               if (text.toLowerCase().startsWith(KW_NOW_PLAYING.toLowerCase())) {
-                discoverMovies = getNowPlayingMovies(fBaseUrl, fApiKey, 1);
-                LOG.info("Now Playing code {} message {}", discoverMovies.code(), discoverMovies.message());
-                findMovies = newFindMovies().withPage(1).withMax(0).withFlag(KW_NOW_PLAYING);
+                if (text.contains(",")) {
+                  String[] strData = text.split(",");
+                  String region = strData[1];
+                  findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_NOW_PLAYING);
+                } else {
+                  findMovies = newFindMovies().withPage(1).withMax(0).withFlag(KW_NOW_PLAYING);
+                }
                 LOG.info("findMovies findMovies {}", findMovies);
+
+                discoverMovies = getNowPlayingMovies(fBaseUrl, fApiKey, findMovies);
+                LOG.info("NowPlayingMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
                 buildMessage(discoverMovies, userId, findMovies);
               } else if (text.toLowerCase().startsWith(KW_POPULAR.toLowerCase())) {
-                discoverMovies = getPopularMovies(fBaseUrl, fApiKey, 1);
-                LOG.info("Popular code {} message {}", discoverMovies.code(), discoverMovies.message());
-                findMovies = newFindMovies().withPage(1).withMax(0).withFlag(KW_POPULAR);
+                if (text.contains(",")) {
+                  String[] strData = text.split(",");
+                  String region = strData[1];
+                  findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_NOW_PLAYING);
+                } else {
+                  findMovies = newFindMovies().withPage(1).withMax(0).withFlag(KW_NOW_PLAYING);
+                }
                 LOG.info("findMovies findMovies {}", findMovies);
+
+                discoverMovies = getPopularMovies(fBaseUrl, fApiKey, findMovies);
+                LOG.info("PopularMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
                 buildMessage(discoverMovies, userId, findMovies);
               } else if (text.toLowerCase().startsWith(KW_FIND.toLowerCase())) {
                 String keyword = text.substring(KW_FIND.length(), text.length());
-                finding(userId, keyword);
+                String[] data = keyword.split(",");
+                int year = 0;
+                String region = "";
+                if (data.length == 2 && data[1].length() > 1 && !data[1].isEmpty()) {
+                  year = data[1].length() == 4 ? Integer.parseInt(data[1]) : 0;
+                  region = data[1].length() == 2 ? data[1] : "";
+                } else if (data.length == 3 && !data[1].isEmpty() && !data[2].isEmpty()) {
+                  year = data[1].length() == 4 ? Integer.parseInt(data[1]) : 0;
+                  region = data[1].length() == 2 ? data[1] : "";
+                }
+                findMovies = newFindMovies()
+                    .withTitle(data[0]).withYear(year).withPage(1).withRegion(region).withFlag(KW_FIND);
+                LOG.info("findMovies findMovies {}", findMovies);
+
+                discoverMovies = getSearchMovies(fBaseUrl, fApiKey, findMovies);
+                LOG.info("SearchMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
+                buildMessage(discoverMovies, userId, findMovies);
               } else if (text.toLowerCase().startsWith(KW_PANDUAN.toLowerCase())) {
                 unrecognizedMessage(fChannelAccessToken, userId);
               } else { unrecognizedMessage(fChannelAccessToken, userId); }
@@ -191,12 +226,15 @@ public class LineBotController {
 
               int page = Integer.parseInt(pageMax[0].trim());
               int max = Integer.parseInt(pageMax[1].trim());
+              int year = Integer.parseInt(pageMax[2].trim());
+              String region = pageMax[3].trim();
 
-              LOG.info("paging page {} max {}", page, max);
-              discoverMovies = getPopularMovies(fBaseUrl, fApiKey, page);
-              LOG.info("Popular movies code {} message {}", discoverMovies.code(), discoverMovies.message());
-              findMovies = newFindMovies().withPage(page).withMax(max).withFlag(KW_POPULAR);
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withRegion(region).withFlag(KW_POPULAR);
               LOG.info("findMovies findMovies {}", findMovies);
+
+              discoverMovies = getPopularMovies(fBaseUrl, fApiKey, findMovies);
+              LOG.info("Popular movies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
               buildMessage(discoverMovies, userId, findMovies);
             } else if (text.toLowerCase().startsWith(KW_NOW_PLAYING.toLowerCase())) {
               String strPageMax = text.substring(KW_NOW_PLAYING.length(), text.length());
@@ -204,17 +242,20 @@ public class LineBotController {
 
               int page = Integer.parseInt(pageMax[0].trim());
               int max = Integer.parseInt(pageMax[1].trim());
+              int year = Integer.parseInt(pageMax[2].trim());
+              String region = pageMax[3].trim();
 
-              LOG.info("paging page {} max {}", page, max);
-              discoverMovies = getNowPlayingMovies(fBaseUrl, fApiKey, page);
-              LOG.info("Popular movies code {} message {}", discoverMovies.code(), discoverMovies.message());
-              findMovies = newFindMovies().withPage(page).withMax(max).withFlag(KW_NOW_PLAYING);
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withRegion(region).withFlag(KW_NOW_PLAYING);
               LOG.info("findMovies findMovies {}", findMovies);
+
+              discoverMovies = getNowPlayingMovies(fBaseUrl, fApiKey, findMovies);
+              LOG.info("Popular movies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
               buildMessage(discoverMovies, userId, findMovies);
 
             } else if (text.toLowerCase().startsWith(KW_FIND.toLowerCase())) {
               String keyword = text.substring(KW_FIND.length(), text.length());
-              finding(userId, keyword);
+              // finding(userId, keyword);
             } else {
               stickerMessage(fChannelAccessToken, userId, "1", "407");
               unrecognizedMessage(fChannelAccessToken, userId);
@@ -228,18 +269,6 @@ public class LineBotController {
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  private void finding(String aUserId, String aKeyword) throws IOException {
-    FindMovies findMovies;
-    Response<DiscoverMovies> discoverMovies;
-    findMovies = buildFindMovies(aKeyword, KW_FIND);
-    LOG.info("findMovies findMovies {}", findMovies);
-
-    discoverMovies = getSearchMovies(fBaseUrl, fApiKey, findMovies);
-    LOG.info("SearchMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
-
-    buildMessage(discoverMovies, aUserId, findMovies);
-  }
-
   private void buildMessage(Response<DiscoverMovies> aDiscoverMovies, String aUserId,
       FindMovies aFindMovies) throws IOException {
     if (aDiscoverMovies.isSuccessful()) {
@@ -249,22 +278,6 @@ public class LineBotController {
     } else {
       stickerMessage(fChannelAccessToken, aUserId, "1", "407");
     }
-  }
-
-  private static FindMovies buildFindMovies(String aData, String aFlag) {
-    String[] data = aData.split(",");
-    int year = 0;
-    String region = DFL_REGION;
-    if (data.length == 2 && data[1].length() > 1 && !data[1].isEmpty()) {
-      year = data[1].length() == 4 ? Integer.parseInt(data[1]) : 0;
-      region = data[1].length() == 2 ? data[1] : DFL_REGION;
-    } else if (data.length == 3 && !data[1].isEmpty() && !data[2].isEmpty()) {
-      year = data[1].length() == 4 ? Integer.parseInt(data[1]) : 0;
-      region = data[1].length() == 2 ? data[1] : DFL_REGION;
-    }
-
-    return newFindMovies()
-        .withTitle(data[0]).withYear(year).withRegion(region).withFlag(aFlag);
   }
 
 }
