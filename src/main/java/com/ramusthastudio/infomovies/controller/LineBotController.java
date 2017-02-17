@@ -217,9 +217,12 @@ public class LineBotController {
               int page = Integer.parseInt(pageMax[0].trim());
               int max = Integer.parseInt(pageMax[1].trim());
               int year = Integer.parseInt(pageMax[2].trim());
-              String region = pageMax[3].trim();
-
-              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withRegion(region).withFlag(KW_NOW_PLAYING);
+              if (pageMax.length == 4) {
+                String region = pageMax[3].trim();
+                findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withRegion(region).withFlag(KW_NOW_PLAYING);
+              } else {
+                findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withFlag(KW_NOW_PLAYING);
+              }
               LOG.info("findMovies findMovies {}", findMovies);
 
               discoverMovies = getNowPlayingMovies(fBaseUrl, fApiKey, findMovies);
@@ -262,9 +265,10 @@ public class LineBotController {
   private void buildMessage(Response<DiscoverMovies> aDiscoverMovies, String aUserId,
       FindMovies aFindMovies) throws IOException {
     if (aDiscoverMovies.isSuccessful()) {
+      int size = aDiscoverMovies.body().getTotalResults();
       List<ResultMovies> movies = aDiscoverMovies.body().getResultMovies();
       carouselMessage(fChannelAccessToken, aUserId, fBaseImgUrl, movies, aFindMovies.getMax());
-      if (movies.size() < 5 || !aFindMovies.getFlag().equalsIgnoreCase(KW_FIND)) {
+      if (size > aFindMovies.getMax() || !aFindMovies.getFlag().equalsIgnoreCase(KW_FIND)) {
         confirmMessage(fChannelAccessToken, aUserId, aFindMovies);
       }
     } else {
