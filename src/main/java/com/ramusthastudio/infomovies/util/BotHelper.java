@@ -125,8 +125,8 @@ public final class BotHelper {
     int page = (aFindMovies.getMax() == 15 ? aFindMovies.getPage() + 1 : aFindMovies.getPage());
     int max = (aFindMovies.getMax() == 15 ? 0 : aFindMovies.getMax() + 5);
     int year = aFindMovies.getYear();
-    String region = aFindMovies.getRegion().isEmpty() ? DFL_REGION : aFindMovies.getRegion();
-    String language = aFindMovies.getLanguage().isEmpty() ? DFL_LANGUAGE : aFindMovies.getLanguage();
+    String region = aFindMovies.getRegion() == null ? DFL_REGION : aFindMovies.getRegion();
+    String language = aFindMovies.getLanguage() == null ? DFL_LANGUAGE : aFindMovies.getLanguage();
     String data = aFindMovies.getFlag() + " " + page + "," + max + "," + year + "," + region + "," + language;
 
     ConfirmTemplate template = new ConfirmTemplate("Lihat yang lain ?", Arrays.asList(
@@ -209,11 +209,12 @@ public final class BotHelper {
     UserProfileResponse userProfile = getUserProfile(aChannelAccessToken, aUserId).body();
     String greeting = "Hi " + userProfile.getDisplayName() + ", apakah kamu kesulitan ?\n\n";
     greeting += "Panduan Info Movies:\n";
-    greeting += "Now Playing : '" + KW_NOW_PLAYING + "' \n";
-    greeting += "Find Movie : \n'" + KW_FIND + " Judul' \n";
-    greeting += "\n'" + KW_FIND + " Judul, *tahun(2014)' \n";
-    greeting += "\n'" + KW_FIND + " Judul, *region(ID)' \n";
-    greeting += "\n'" + KW_FIND + " Judul, *tahun(2014), *region(ID)' \n";
+    greeting += "~ Now Playing : '" + KW_NOW_PLAYING + "' \n";
+    greeting += "~ Popular : '" + KW_POPULAR + "' \n";
+    greeting += "~ Find Movie : \n 1.'" + KW_FIND + " Judul'";
+    greeting += "\n 2.'" + KW_FIND + " Judul, *tahun(2014)'";
+    greeting += "\n 3.'" + KW_FIND + " Judul, *region(ID)'";
+    greeting += "\n 4.'" + KW_FIND + " Judul, *tahun(2014), *region(ID)'";
     // greeting += "Daftar Movie bulan ini : '" + KW_MOVIE_BULAN_INI + "' \n";
     // greeting += "On Air Series : '" + KW_ON_THE_AIR + "'! \n";
     // greeting += "Daftar Series bulan ini : '" + KW_SERIES_BULAN_INI + "! \n";
