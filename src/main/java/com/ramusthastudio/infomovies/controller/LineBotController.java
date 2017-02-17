@@ -223,9 +223,6 @@ public class LineBotController {
               int max = Integer.parseInt(pageMax[1].trim());
 
               LOG.info("paging page {} max {}", page, max);
-              page = (max == 20 ? page + 1 : page);
-              max = (max == 20 ? 0 : max + 5);
-              LOG.info("paging page {} max {}", page, max);
 
               discoverMoviesResp = getPopularMovies(fBaseUrl, fApiKey, page);
               LOG.info("Popular movies code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
