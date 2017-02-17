@@ -210,22 +210,6 @@ public class LineBotController {
                 LOG.info("Postback code {} message {}", detail.code(), detail.message());
               }
 
-            } else if (text.toLowerCase().startsWith(KW_POPULAR.toLowerCase())) {
-              String strPageMax = text.substring(KW_POPULAR.length(), text.length());
-              String[] pageMax = strPageMax.split(",");
-
-              int page = Integer.parseInt(pageMax[0].trim());
-              int max = Integer.parseInt(pageMax[1].trim());
-              int year = Integer.parseInt(pageMax[2].trim());
-              String region = pageMax[3].trim();
-
-              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withRegion(region).withFlag(KW_POPULAR);
-              LOG.info("findMovies findMovies {}", findMovies);
-
-              discoverMovies = getPopularMovies(fBaseUrl, fApiKey, findMovies);
-              LOG.info("Popular movies code {} message {}", discoverMovies.code(), discoverMovies.message());
-
-              buildMessage(discoverMovies, userId, findMovies);
             } else if (text.toLowerCase().startsWith(KW_NOW_PLAYING.toLowerCase())) {
               String strPageMax = text.substring(KW_NOW_PLAYING.length(), text.length());
               String[] pageMax = strPageMax.split(",");
@@ -243,9 +227,25 @@ public class LineBotController {
 
               buildMessage(discoverMovies, userId, findMovies);
 
-            } else if (text.toLowerCase().startsWith(KW_FIND.toLowerCase())) {
-              String keyword = text.substring(KW_FIND.length(), text.length());
-              // finding(userId, keyword);
+            } else if (text.toLowerCase().startsWith(KW_POPULAR.toLowerCase())) {
+              String strPageMax = text.substring(KW_POPULAR.length(), text.length());
+              String[] pageMax = strPageMax.split(",");
+
+              int page = Integer.parseInt(pageMax[0].trim());
+              int max = Integer.parseInt(pageMax[1].trim());
+              int year = Integer.parseInt(pageMax[2].trim());
+              if (pageMax.length == 4) {
+                String region = pageMax[3].trim();
+                findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withRegion(region).withFlag(KW_POPULAR);
+              } else {
+                findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withFlag(KW_POPULAR);
+              }
+              LOG.info("findMovies findMovies {}", findMovies);
+
+              discoverMovies = getPopularMovies(fBaseUrl, fApiKey, findMovies);
+              LOG.info("Popular movies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
+              buildMessage(discoverMovies, userId, findMovies);
             } else {
               stickerMessage(fChannelAccessToken, userId, "1", "407");
               unrecognizedMessage(fChannelAccessToken, userId);
@@ -264,7 +264,9 @@ public class LineBotController {
     if (aDiscoverMovies.isSuccessful()) {
       List<ResultMovies> movies = aDiscoverMovies.body().getResultMovies();
       carouselMessage(fChannelAccessToken, aUserId, fBaseImgUrl, movies, aFindMovies.getMax());
-      confirmMessage(fChannelAccessToken, aUserId, aFindMovies);
+      if (movies.size() < 5 || !aFindMovies.getFlag().equalsIgnoreCase(KW_FIND)) {
+        confirmMessage(fChannelAccessToken, aUserId, aFindMovies);
+      }
     } else {
       stickerMessage(fChannelAccessToken, aUserId, "1", "407");
     }
