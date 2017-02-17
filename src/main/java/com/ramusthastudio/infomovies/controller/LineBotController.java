@@ -92,6 +92,7 @@ public class LineBotController {
 
     LOG.info("XLineSignature: {} ", aXLineSignature);
     LOG.info("Payload: {} ", aPayload);
+
     LOG.info("The Signature is: {} ", (aXLineSignature != null && aXLineSignature.length() > 0) ? aXLineSignature : "N/A");
     final boolean valid = new LineSignatureValidator(fChannelSecret.getBytes()).validateSignature(aPayload.getBytes(), aXLineSignature);
     LOG.info("The Signature is: {} ", valid ? "valid" : "tidak valid");
@@ -99,7 +100,6 @@ public class LineBotController {
     if (aPayload != null && aPayload.length() > 0) {
       Gson gson = new Gson();
       Payload payload = gson.fromJson(aPayload, Payload.class);
-      LOG.info("payload: {} ", payload);
 
       Events event = payload.events()[0];
 
@@ -218,9 +218,14 @@ public class LineBotController {
             } else if (text.toLowerCase().startsWith(KW_NEXT_POPULAR.toLowerCase())) {
               String strPageMax = text.substring(KW_NEXT_POPULAR.length(), text.length());
               String[] pageMax = strPageMax.split(",");
-              LOG.info("page popular {} max {}", pageMax[0].trim(), pageMax[1].trim());
+
               int page = Integer.parseInt(pageMax[0].trim());
               int max = Integer.parseInt(pageMax[1].trim());
+
+              LOG.info("paging page {} max {}", page, max);
+              page = (max == 20 ? page + 1 : page);
+              max = (max == 20 ? 0 : max + 5);
+              LOG.info("paging page {} max {}", page, max);
 
               discoverMoviesResp = getPopularMovies(fBaseUrl, fApiKey, page);
               LOG.info("Popular movies code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());

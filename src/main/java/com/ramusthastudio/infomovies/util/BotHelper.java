@@ -148,7 +148,6 @@ public final class BotHelper {
     int page = (aMax == 20 ? aPage + 1 : aPage);
     int max = (aMax == 20 ? 0 : aMax + 5);
 
-    LOG.info("paging page {} aMax {}", page, max);
     ConfirmTemplate confirmTemplate = new ConfirmTemplate(aMsg, Arrays.asList(
         new PostbackAction("Ya", KW_NEXT_POPULAR + page + "," + max),
         new PostbackAction("Panduan", KW_PANDUAN)));
