@@ -145,8 +145,8 @@ public final class BotHelper {
 
   public static Response<BotApiResponse> createConfirmMessage(String aChannelAccessToken,
       String aUserId, String aMsg, int aPage, int aMax) throws IOException {
-    aPage = aMax == 20 ? ++aPage : aPage;
-    aMax = aMax == 20 ? 0 : aMax;
+    aPage = aMax == 20 ? aPage + 1 : aPage;
+    aMax = aMax == 20 ? 0 : aMax + 5;
     ConfirmTemplate confirmTemplate = new ConfirmTemplate(aMsg, Arrays.asList(
         new PostbackAction("Ya", KW_NEXT_POPULAR + aPage + "," + aMax),
         new PostbackAction("Panduan", KW_PANDUAN)));
