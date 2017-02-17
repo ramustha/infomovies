@@ -272,7 +272,7 @@ public class LineBotController {
     }
   }
 
-  private FindMovies buildFindMovies(String aData, String aFlag) {
+  private static FindMovies buildFindMovies(String aData, String aFlag) {
     String[] data = aData.split(",");
     int year = 0;
     String region = DFL_REGION;

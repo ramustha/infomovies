@@ -125,8 +125,8 @@ public final class BotHelper {
     int page = (aFindMovies.getMax() == 15 ? aFindMovies.getPage() + 1 : aFindMovies.getPage());
     int max = (aFindMovies.getMax() == 15 ? 0 : aFindMovies.getMax() + 5);
     int year = aFindMovies.getYear();
-    String region = aFindMovies.getRegion();
-    String language = aFindMovies.getLanguage();
+    String region = aFindMovies.getRegion().isEmpty() ? DFL_REGION : aFindMovies.getRegion();
+    String language = aFindMovies.getLanguage().isEmpty() ? DFL_LANGUAGE : aFindMovies.getLanguage();
     String data = aFindMovies.getFlag() + " " + page + "," + max + "," + year + "," + region + "," + language;
 
     ConfirmTemplate template = new ConfirmTemplate("Lihat yang lain ?", Arrays.asList(
@@ -161,9 +161,14 @@ public final class BotHelper {
   public static List<CarouselColumn> buildCarouselColumn(String aBaseImgUrl, List<ResultMovies> aResultMovies,
       int aMin) {
     List<CarouselColumn> carouselColumn = new ArrayList<>();
-    List<ResultMovies> resultMovies = aResultMovies.subList(aMin, aMin + 5);
-    for (ResultMovies movies : resultMovies) {
+    List<ResultMovies> resultMovies;
+    if (aResultMovies.size() > 5) {
+      resultMovies = aResultMovies.subList(aMin, aMin + 5);
+    } else {
+      resultMovies = aResultMovies;
+    }
 
+    for (ResultMovies movies : resultMovies) {
       String filterTitle = createTitle(movies.getTitle());
       String filterTagLine = createTagline(createFromGenreId(movies.getGenreIds()));
       String backDropPath = createBackDropPath(aBaseImgUrl, movies.getBackdropPath(), movies.getPosterPath());
