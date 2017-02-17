@@ -11,6 +11,7 @@ import com.ramusthastudio.infomovies.model.Message;
 import com.ramusthastudio.infomovies.model.Payload;
 import com.ramusthastudio.infomovies.model.Postback;
 import com.ramusthastudio.infomovies.model.ResultMovieDetail;
+import com.ramusthastudio.infomovies.model.ResultMovies;
 import com.ramusthastudio.infomovies.model.Source;
 import java.io.IOException;
 import java.util.List;
@@ -30,26 +31,26 @@ import retrofit2.Response;
 import static com.ramusthastudio.infomovies.util.BotHelper.FOLLOW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL_OVERVIEW;
+import static com.ramusthastudio.infomovies.util.BotHelper.KW_FIND;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_NEXT_POPULAR;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_NOW_PLAYING;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_PANDUAN;
-import static com.ramusthastudio.infomovies.util.BotHelper.KW_SEARCH;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE_TEXT;
 import static com.ramusthastudio.infomovies.util.BotHelper.POSTBACK;
-import static com.ramusthastudio.infomovies.util.BotHelper.buildButtonDetailMovie;
-import static com.ramusthastudio.infomovies.util.BotHelper.buildCarouselResultMovies;
-import static com.ramusthastudio.infomovies.util.BotHelper.createCarouselMessage;
-import static com.ramusthastudio.infomovies.util.BotHelper.createConfirmMessage;
+import static com.ramusthastudio.infomovies.util.BotHelper.buttonMessage;
+import static com.ramusthastudio.infomovies.util.BotHelper.buildCarouselColumn;
+import static com.ramusthastudio.infomovies.util.BotHelper.carouselMessage;
+import static com.ramusthastudio.infomovies.util.BotHelper.confirmMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.createDetailOverview;
-import static com.ramusthastudio.infomovies.util.BotHelper.createMessage;
-import static com.ramusthastudio.infomovies.util.BotHelper.createSticker;
 import static com.ramusthastudio.infomovies.util.BotHelper.getDetailMovie;
 import static com.ramusthastudio.infomovies.util.BotHelper.getNowPlayingMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getPopularMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getSearchMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getUserProfile;
 import static com.ramusthastudio.infomovies.util.BotHelper.greetingMessage;
+import static com.ramusthastudio.infomovies.util.BotHelper.pushMessage;
+import static com.ramusthastudio.infomovies.util.BotHelper.stickerMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.unrecognizedMessage;
 
 @RestController
@@ -120,20 +121,19 @@ public class LineBotController {
       try {
         switch (eventType) {
           case FOLLOW:
-            createSticker(fChannelAccessToken, userId, "1", "125");
             greetingMessage(fChannelAccessToken, userId);
-            createMessage(fChannelAccessToken, userId, "Popular movies..");
+            pushMessage(fChannelAccessToken, userId, "Popular movies..");
 
             Response<DiscoverMovies> discoverMoviesResp = getPopularMovies(fBaseUrl, fApiKey, 1);
             LOG.info("Popular movies code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
 
             if (discoverMoviesResp.isSuccessful()) {
-              DiscoverMovies discoverMovies = discoverMoviesResp.body();
-              List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getResultMovies(), 0);
-              createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
+              List<ResultMovies> movies = discoverMoviesResp.body().getResultMovies();
+              carouselMessage(fChannelAccessToken, userId, fBaseImgUrl, movies, 0);
+              confirmMessage(fChannelAccessToken, userId, "Lihat Popular movie lainnya ?", 1, 0);
+            } else {
+              stickerMessage(fChannelAccessToken, userId, "1", "407");
             }
-
-            createConfirmMessage(fChannelAccessToken, userId, "Lihat Popular movie lainnya ?", 1, 0);
 
             break;
           case MESSAGE:
@@ -145,15 +145,15 @@ public class LineBotController {
                 LOG.info("Now Playing code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
 
                 if (discoverMoviesResp.isSuccessful()) {
-                  DiscoverMovies discoverMovies = discoverMoviesResp.body();
-                  List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getResultMovies(), 0);
-                  createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
+                  List<ResultMovies> movies = discoverMoviesResp.body().getResultMovies();
+                  carouselMessage(fChannelAccessToken, userId, fBaseImgUrl, movies, 0);
+                  confirmMessage(fChannelAccessToken, userId, "Lihat yang lainnya ?", 1, 0);
+                } else {
+                  stickerMessage(fChannelAccessToken, userId, "1", "407");
                 }
 
-                createConfirmMessage(fChannelAccessToken, userId, "Lihat Now Playing movie lainnya ?", 1, 0);
-
-              } else if (text.toLowerCase().startsWith(KW_SEARCH.toLowerCase())) {
-                String keyword = text.substring(KW_SEARCH.length(), text.length());
+              } else if (text.toLowerCase().startsWith(KW_FIND.toLowerCase())) {
+                String keyword = text.substring(KW_FIND.length(), text.length());
                 String title;
                 int year = 0;
                 if (keyword.contains(",")) {
@@ -170,12 +170,12 @@ public class LineBotController {
                 LOG.info("SearchMovies code {} message {}", searchMovies.code(), searchMovies.message());
 
                 if (searchMovies.isSuccessful()) {
-                  DiscoverMovies discoverMovies = searchMovies.body();
-                  List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getResultMovies(), 0);
-                  createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
+                  List<ResultMovies> movies = searchMovies.body().getResultMovies();
+                  carouselMessage(fChannelAccessToken, userId, fBaseImgUrl, movies, 0);
+                  confirmMessage(fChannelAccessToken, userId, "Lihat yang lainnya ?", 1, 0);
+                } else {
+                  stickerMessage(fChannelAccessToken, userId, "1", "407");
                 }
-
-                createConfirmMessage(fChannelAccessToken, userId, "Lihat movie lainnya ?", 1, 0);
 
               } else if (text.toLowerCase().contains(KW_PANDUAN.toLowerCase())) {
                 unrecognizedMessage(fChannelAccessToken, userId);
@@ -197,7 +197,7 @@ public class LineBotController {
 
               if (detailMovieResp.isSuccessful()) {
                 ResultMovieDetail movie = detailMovieResp.body();
-                Response<BotApiResponse> detail = buildButtonDetailMovie(fChannelAccessToken, fBaseImdbUrl, fBaseImgUrl, userId, movie);
+                Response<BotApiResponse> detail = buttonMessage(fChannelAccessToken, fBaseImdbUrl, fBaseImgUrl, userId, movie);
                 LOG.info("Message code {} message {}", detail.code(), detail.message());
               }
 
@@ -211,7 +211,7 @@ public class LineBotController {
               if (detailMovieResp.isSuccessful()) {
                 ResultMovieDetail movie = detailMovieResp.body();
                 String overview = createDetailOverview(movie, fBaseImdbUrl);
-                Response<BotApiResponse> detail = createMessage(fChannelAccessToken, userId, overview);
+                Response<BotApiResponse> detail = pushMessage(fChannelAccessToken, userId, overview);
                 LOG.info("Postback code {} message {}", detail.code(), detail.message());
               }
 
@@ -229,13 +229,13 @@ public class LineBotController {
 
               if (discoverMoviesResp.isSuccessful()) {
                 DiscoverMovies discoverMovies = discoverMoviesResp.body();
-                List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getResultMovies(), max);
-                createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
+                List<CarouselColumn> carouselColumn = buildCarouselColumn(fBaseImgUrl, discoverMovies.getResultMovies(), max);
+                carouselMessage(fChannelAccessToken, userId, carouselColumn);
               }
 
-              createConfirmMessage(fChannelAccessToken, userId, "Lihat Popular movie lainnya ?", page, max);
+              confirmMessage(fChannelAccessToken, userId, "Lihat Popular movie lainnya ?", page, max);
             } else {
-              createSticker(fChannelAccessToken, userId, "1", "407");
+              stickerMessage(fChannelAccessToken, userId, "1", "407");
               unrecognizedMessage(fChannelAccessToken, userId);
             }
             break;

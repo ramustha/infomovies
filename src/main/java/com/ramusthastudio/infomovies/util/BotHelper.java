@@ -1,7 +1,9 @@
 package com.ramusthastudio.infomovies.util;
 
 import com.linecorp.bot.client.LineMessagingServiceBuilder;
+import com.linecorp.bot.model.Multicast;
 import com.linecorp.bot.model.PushMessage;
+import com.linecorp.bot.model.ReplyMessage;
 import com.linecorp.bot.model.action.PostbackAction;
 import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.message.StickerMessage;
@@ -11,6 +13,7 @@ import com.linecorp.bot.model.message.template.ButtonsTemplate;
 import com.linecorp.bot.model.message.template.CarouselColumn;
 import com.linecorp.bot.model.message.template.CarouselTemplate;
 import com.linecorp.bot.model.message.template.ConfirmTemplate;
+import com.linecorp.bot.model.message.template.Template;
 import com.linecorp.bot.model.profile.UserProfileResponse;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.ramusthastudio.infomovies.controller.TheMovieDbService;
@@ -22,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import retrofit2.Response;
@@ -52,8 +56,9 @@ public final class BotHelper {
   public static final String MESSAGE_LOCATION = "location";
   public static final String MESSAGE_STICKER = "sticker";
 
-  public static final String KW_SEARCH = "Find";
+  public static final String KW_FIND = "Find";
   public static final String KW_DETAIL = "Detail";
+  public static final String KW_STAR = "Star";
   public static final String KW_DETAIL_OVERVIEW = "Overview";
   public static final String KW_NOW_PLAYING = "Now Playing";
   public static final String KW_LATEST = "Latest";
@@ -68,137 +73,183 @@ public final class BotHelper {
 
   public static final String IMG_HOLDER = "https://www.themoviedb.org/assets/static_cache/41bdcf10bbf6f84c0fc73f27b2180b95/images/v4/logos/91x81.png";
 
-  public static Response<UserProfileResponse> getUserProfile(String aChannelAccessToken, String aUserId) throws IOException {
-    return LineMessagingServiceBuilder
-        .create(aChannelAccessToken)
-        .build()
-        .getProfile(aUserId)
-        .execute();
+  public static Response<UserProfileResponse> getUserProfile(String aChannelAccessToken,
+      String aUserId) throws IOException {
+    return LineMessagingServiceBuilder.create(aChannelAccessToken).build().getProfile(aUserId).execute();
   }
 
-  public static Response<BotApiResponse> pushMessage(String aChannelAccessToken, String aUserId, String aMsg) throws IOException {
-    TextMessage textMessage = new TextMessage(aMsg);
-    PushMessage pushMessage = new PushMessage(aUserId, textMessage);
-    return LineMessagingServiceBuilder
-        .create(aChannelAccessToken)
-        .build()
-        .pushMessage(pushMessage)
-        .execute();
+  public static Response<BotApiResponse> replayMessage(String aChannelAccessToken, String aReplayToken,
+      String aMsg) throws IOException {
+    TextMessage message = new TextMessage(aMsg);
+    ReplyMessage pushMessage = new ReplyMessage(aReplayToken, message);
+    return LineMessagingServiceBuilder.create(aChannelAccessToken).build().replyMessage(pushMessage).execute();
+  }
+
+  public static Response<BotApiResponse> pushMessage(String aChannelAccessToken, String aUserId,
+      String aMsg) throws IOException {
+    TextMessage message = new TextMessage(aMsg);
+    PushMessage pushMessage = new PushMessage(aUserId, message);
+    return LineMessagingServiceBuilder.create(aChannelAccessToken).build().pushMessage(pushMessage).execute();
+  }
+
+  public static Response<BotApiResponse> multicastMessage(String aChannelAccessToken, Set<String> aUserIds,
+      String aMsg) throws IOException {
+    TextMessage message = new TextMessage(aMsg);
+    Multicast pushMessage = new Multicast(aUserIds, message);
+    return LineMessagingServiceBuilder.create(aChannelAccessToken).build().multicast(pushMessage).execute();
+  }
+
+  public static Response<BotApiResponse> templateMessage(String aChannelAccessToken, String aUserId,
+      Template aTemplate) throws IOException {
+    TemplateMessage message = new TemplateMessage("Result", aTemplate);
+    PushMessage pushMessage = new PushMessage(aUserId, message);
+    return LineMessagingServiceBuilder.create(aChannelAccessToken).build().pushMessage(pushMessage).execute();
+  }
+
+  public static Response<BotApiResponse> stickerMessage(String aChannelAccessToken, String aUserId,
+      String aPackageId, String stickerId) throws IOException {
+    StickerMessage message = new StickerMessage(aPackageId, stickerId);
+    PushMessage pushMessage = new PushMessage(aUserId, message);
+    return LineMessagingServiceBuilder.create(aChannelAccessToken).build().pushMessage(pushMessage).execute();
+  }
+
+  public static Response<BotApiResponse> carouselMessage(String aChannelAccessToken, String aUserId,
+      String aBaseImgUrl, List<ResultMovies> aResultMovies, int aMin) throws IOException {
+    List<CarouselColumn> carouselColumn = buildCarouselColumn(aBaseImgUrl, aResultMovies, aMin);
+    CarouselTemplate template = new CarouselTemplate(carouselColumn);
+    return templateMessage(aChannelAccessToken, aUserId, template);
+  }
+
+  public static Response<BotApiResponse> confirmMessage(String aChannelAccessToken, String aUserId,
+      String aMsg, int aPage, int aMax) throws IOException {
+    int page = (aMax == 15 ? aPage + 1 : aPage);
+    int max = (aMax == 15 ? 0 : aMax + 5);
+
+    ConfirmTemplate template = new ConfirmTemplate(aMsg, Arrays.asList(
+        new PostbackAction("Ya", KW_NEXT_POPULAR + page + "," + max),
+        new PostbackAction("Panduan", KW_PANDUAN)));
+
+    return templateMessage(aChannelAccessToken, aUserId, template);
+  }
+
+  public static Response<BotApiResponse> buttonMessage(String aChannelAccessToken, String aBaseImdbUrl,
+      String aBaseImgUrl, String aUserId, ResultMovieDetail aMovieDetail) throws IOException {
+    String title = createTitle(aMovieDetail.getTitle());
+    String tagline = createTagline(createFromGenre(aMovieDetail.getGenres()));
+    String homepage = createHomepage(aBaseImdbUrl, aMovieDetail.getHomepage(), aMovieDetail.getImdbId());
+    String backDropPath = createBackDropPath(aBaseImgUrl, aMovieDetail.getBackdropPath(), aMovieDetail.getPosterPath());
+    String posterPath = createPosterPath(aBaseImgUrl, aMovieDetail.getBackdropPath(), aMovieDetail.getPosterPath());
+
+    LOG.info("ResultMovies poster {}\n backdrop {}\n title {}\n genre {}\n homepage {}\n",
+        posterPath, backDropPath, title + " (" + aMovieDetail.getVoteAverage() + ")", tagline, homepage);
+
+    ButtonsTemplate template = new ButtonsTemplate(
+        backDropPath, title + " (" + aMovieDetail.getVoteAverage() + ")", tagline,
+        Arrays.asList(
+            new PostbackAction("Overview", KW_DETAIL_OVERVIEW + " " + aMovieDetail.getId()),
+            new URIAction("IMDB", aBaseImdbUrl + aMovieDetail.getImdbId()),
+            new URIAction("Homepage", homepage)
+        ));
+
+    return templateMessage(aChannelAccessToken, aUserId, template);
+  }
+
+  public static List<CarouselColumn> buildCarouselColumn(String aBaseImgUrl, List<ResultMovies> aResultMovies,
+      int aMin) {
+    List<CarouselColumn> carouselColumn = new ArrayList<>();
+    List<ResultMovies> resultMovies = aResultMovies.subList(aMin, aMin + 5);
+    for (ResultMovies movies : resultMovies) {
+
+      String filterTitle = createTitle(movies.getTitle());
+      String filterTagLine = createTagline(createFromGenreId(movies.getGenreIds()));
+      String backDropPath = createBackDropPath(aBaseImgUrl, movies.getBackdropPath(), movies.getPosterPath());
+      String posterPath = createPosterPath(aBaseImgUrl, movies.getBackdropPath(), movies.getPosterPath());
+
+      LOG.info("ResultMovies poster {}\n backdrop {}\n title {}\n genre {}\n id {}\n",
+          posterPath, backDropPath, filterTitle + " (" + movies.getVoteAverage() + ")", filterTagLine,
+          KW_DETAIL + " " + movies.getId());
+
+      carouselColumn.add(
+          new CarouselColumn(
+              backDropPath, filterTitle + " (" + movies.getVoteAverage() + ")", filterTagLine,
+              Arrays.asList(
+                  new URIAction("Poster", posterPath),
+                  new PostbackAction("Detail", KW_DETAIL + " " + movies.getId()))));
+    }
+
+    return carouselColumn;
   }
 
   public static void greetingMessage(String aChannelAccessToken, String aUserId) throws IOException {
+    stickerMessage(aChannelAccessToken, aUserId, "1", "125");
     UserProfileResponse userProfile = getUserProfile(aChannelAccessToken, aUserId).body();
     String greeting = "Hi " + userProfile.getDisplayName() + ", selamat datang di Info Movies\n";
     greeting += "Terima kasih telah menambahkan saya sebagai teman! \n\n";
-    greeting += "Panduan di Info Movies:\n";
-    greeting += "Now Playing : '" + KW_NOW_PLAYING + "' \n";
-    greeting += "Cari Movie : '" + KW_SEARCH + " Judul, Tahun(Opsional)'";
-    createMessage(aChannelAccessToken, aUserId, greeting);
+    pushMessage(aChannelAccessToken, aUserId, greeting);
+  }
+
+  public static void errorMessage(String aChannelAccessToken, String aUserId) throws IOException {
+    stickerMessage(aChannelAccessToken, aUserId, "1", "123");
+    UserProfileResponse userProfile = getUserProfile(aChannelAccessToken, aUserId).body();
+    String msg = "Hi " + userProfile.getDisplayName() + "\n";
+    msg += "Mohon maaf, pesan yang kamu minta gagal di tampilkan, coba ulangi lagi! \n\n";
+    pushMessage(aChannelAccessToken, aUserId, msg);
   }
 
   public static void unrecognizedMessage(String aChannelAccessToken, String aUserId) throws IOException {
     UserProfileResponse userProfile = getUserProfile(aChannelAccessToken, aUserId).body();
     String greeting = "Hi " + userProfile.getDisplayName() + ", apakah kamu kesulitan ?\n\n";
     greeting += "Panduan Info Movies:\n";
-    greeting += "Panduan : '" + KW_PANDUAN + "' \n";
     greeting += "Now Playing : '" + KW_NOW_PLAYING + "' \n";
-    greeting += "Cari Movie : '" + KW_SEARCH + " Judul, Tahun(Opsional)' \n";
+    greeting += "Cari Movie : '" + KW_FIND + " Judul, Tahun(Opsional)' \n";
     // greeting += "Daftar Movie bulan ini : '" + KW_MOVIE_BULAN_INI + "' \n";
     // greeting += "On Air Series : '" + KW_ON_THE_AIR + "'! \n";
     // greeting += "Daftar Series bulan ini : '" + KW_SERIES_BULAN_INI + "! \n";
-    createMessage(aChannelAccessToken, aUserId, greeting);
+    pushMessage(aChannelAccessToken, aUserId, greeting);
+  }
+  public static String createDetailOverview(ResultMovieDetail aMovieDetail, String aImdbUrl) {
+    String overview = "Title: " + aMovieDetail.getOriginalTitle() + "\n";
+    overview += "Genre: " + createFromGenre(aMovieDetail.getGenres()) + "\n";
+    overview += "Rating: " + aMovieDetail.getVoteAverage() + " (" + aMovieDetail.getVoteCount() + ")\n";
+    overview += "Release date: " + aMovieDetail.getReleaseDate() + "\n";
+    overview += "IMDB: " + aImdbUrl + aMovieDetail.getImdbId() + "\n";
+    overview += "Overview: \n" + aMovieDetail.getOverview() + "\n";
+    return overview;
   }
 
-  public static Response<BotApiResponse> createMessage(String aChannelAccessToken, String aUserId,
-      String aMsg) throws IOException {
-    TextMessage textMessage = new TextMessage(aMsg);
-    PushMessage pushMessage = new PushMessage(aUserId, textMessage);
-    return LineMessagingServiceBuilder
-        .create(aChannelAccessToken)
-        .build()
-        .pushMessage(pushMessage)
-        .execute();
+  public static String createTitle(String aTitle) {
+    String filterTitle;
+    if (aTitle.length() > 30) {
+      filterTitle = aTitle.substring(0, 30) + "...";
+    } else {
+      filterTitle = aTitle;
+    }
+    return filterTitle;
   }
 
-  public static Response<BotApiResponse> createSticker(String aChannelAccessToken, String aUserId,
-      String aPackageId, String stickerId) throws IOException {
-    StickerMessage stickerMessage = new StickerMessage(aPackageId, stickerId);
-    PushMessage pushMessage = new PushMessage(aUserId, stickerMessage);
-    return LineMessagingServiceBuilder
-        .create(aChannelAccessToken)
-        .build()
-        .pushMessage(pushMessage)
-        .execute();
+  public static String createTagline(String aTagline) {
+    String filterTitle;
+    if (aTagline.length() > 55) {
+      filterTitle = aTagline.substring(0, 55) + "...";
+    } else {
+      filterTitle = aTagline;
+    }
+    return filterTitle;
   }
 
-  public static Response<BotApiResponse> createCarouselMessage(String aChannelAccessToken,
-      String aUserId, List<CarouselColumn> aCarouselColumns) throws IOException {
-    CarouselTemplate carouselTemplate = new CarouselTemplate(aCarouselColumns);
-    TemplateMessage templateMessage = new TemplateMessage("Your search result", carouselTemplate);
-    PushMessage pushMessage = new PushMessage(aUserId, templateMessage);
-    return LineMessagingServiceBuilder
-        .create(aChannelAccessToken)
-        .build()
-        .pushMessage(pushMessage)
-        .execute();
+  public static String createHomepage(String aBaseImdbUrl, String aHomepage, String aImdbId) {
+
+    return aHomepage == null || aHomepage.isEmpty() ? aBaseImdbUrl + aImdbId : aHomepage;
   }
 
-  public static Response<BotApiResponse> createConfirmMessage(String aChannelAccessToken,
-      String aUserId, String aMsg, int aPage, int aMax) throws IOException {
-    int page = (aMax == 15 ? aPage + 1 : aPage);
-    int max = (aMax == 15 ? 0 : aMax + 5);
-
-    ConfirmTemplate confirmTemplate = new ConfirmTemplate(aMsg, Arrays.asList(
-        new PostbackAction("Ya", KW_NEXT_POPULAR + page + "," + max),
-        new PostbackAction("Panduan", KW_PANDUAN)));
-
-    TemplateMessage templateMessage = new TemplateMessage("Confirm ?", confirmTemplate);
-    PushMessage pushMessage = new PushMessage(aUserId, templateMessage);
-    return LineMessagingServiceBuilder
-        .create(aChannelAccessToken)
-        .build()
-        .pushMessage(pushMessage)
-        .execute();
+  public static String createBackDropPath(String aBaseImgUrl, String aBackdropPath, String aPosterPath) {
+    return aBackdropPath == null ? (aPosterPath == null ? IMG_HOLDER : aBaseImgUrl + aPosterPath) :
+        aBaseImgUrl + aBackdropPath;
   }
 
-  public static Response<BotApiResponse> buildButtonDetailMovie(String aChannelAccessToken,
-      String aBaseImdbUrl, String aBaseImgUrl, String aUserId, ResultMovieDetail aMovieDetail) throws IOException {
-    String filterTitle = filterTitle(aMovieDetail.getTitle());
-    String filterTagLine = filterTagLine(createFromGenre(aMovieDetail.getGenres()));
-    String hp = aMovieDetail.getHomepage() == null ? "" : aMovieDetail.getHomepage();
-    String homepage = hp.length() == 0 ? aBaseImdbUrl + aMovieDetail.getImdbId() : aMovieDetail.getHomepage();
-
-    String backdropImg = aMovieDetail.getBackdropPath() == null ?
-        (aMovieDetail.getPosterPath() == null ? IMG_HOLDER : aBaseImgUrl + aMovieDetail.getPosterPath()) :
-        aBaseImgUrl + aMovieDetail.getBackdropPath();
-
-    String posterImg = aMovieDetail.getPosterPath() == null ?
-        (aMovieDetail.getBackdropPath() == null ? IMG_HOLDER : aBaseImgUrl + aMovieDetail.getBackdropPath()) :
-        aBaseImgUrl + aMovieDetail.getPosterPath();
-
-    LOG.info("ResultMovies poster {}\n backdrop {}\n title {}\n genre {}\n homepage {}\n",
-        posterImg,
-        backdropImg,
-        filterTitle + " (" + aMovieDetail.getVoteAverage() + ")",
-        filterTagLine,
-        homepage);
-
-    ButtonsTemplate buttonsTemplate = new ButtonsTemplate(
-        backdropImg,
-        filterTitle + " (" + aMovieDetail.getVoteAverage() + ")",
-        filterTagLine,
-        Arrays.asList(
-            new PostbackAction("Overview", KW_DETAIL_OVERVIEW + " " + aMovieDetail.getId()),
-            new URIAction("Homepage", homepage)
-        ));
-
-    TemplateMessage templateMessage = new TemplateMessage(filterTitle, buttonsTemplate);
-    PushMessage pushMessage = new PushMessage(aUserId, templateMessage);
-    return LineMessagingServiceBuilder
-        .create(aChannelAccessToken)
-        .build()
-        .pushMessage(pushMessage)
-        .execute();
+  public static String createPosterPath(String aBaseImgUrl, String aBackdropPath, String aPosterPath) {
+    return aPosterPath == null ? (aBackdropPath == null ? IMG_HOLDER : aBaseImgUrl + aBackdropPath) :
+        aBaseImgUrl + aPosterPath;
   }
 
   public static String createFromGenreId(List<Integer> aGenreIds) {
@@ -206,27 +257,19 @@ public final class BotHelper {
     for (int i = 0; i < aGenreIds.size(); i++) {
       int id = aGenreIds.get(i);
       for (EGenre genre : EGenre.values()) {
-        if (genre.getGenre() == id) {
-          sb.append(",").append(genre.getDisplayname());
-        }
+        if (genre.getGenre() == id) { sb.append(",").append(genre.getDisplayname()); }
       }
     }
     String genre = sb.toString().replaceFirst(",", "");
-    if (genre.isEmpty() || genre.length() < 3) {
-      genre = "N/A";
-    }
+    if (genre.isEmpty() || genre.length() < 3) { genre = "N/A"; }
     return genre;
   }
 
   public static String createFromGenre(List<Genre> aGenres) {
     StringBuilder sb = new StringBuilder();
-    for (Genre genre : aGenres) {
-      sb.append(",").append(genre.getName());
-    }
+    for (Genre genre : aGenres) { sb.append(",").append(genre.getName()); }
     String genre = sb.toString().replaceFirst(",", "");
-    if (genre.isEmpty() || genre.length() < 3) {
-      genre = "N/A";
-    }
+    if (genre.isEmpty() || genre.length() < 3) { genre = "N/A"; }
     return genre;
   }
 
@@ -234,6 +277,14 @@ public final class BotHelper {
     Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
         .addConverterFactory(GsonConverterFactory.create()).build();
     return retrofit.create(TheMovieDbService.class);
+  }
+
+  public static Response<ResultMovieDetail> getDetailMovie(String aBaseUrl, int aMovieId, String aApiKey) throws IOException {
+    Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
+        .addConverterFactory(GsonConverterFactory.create()).build();
+    TheMovieDbService service = retrofit.create(TheMovieDbService.class);
+
+    return service.detailMovies(aMovieId, aApiKey).execute();
   }
 
   public static Response<DiscoverMovies> getTopRatedMovies(String aBaseUrl, String aApiKey, int aPage) throws IOException {
@@ -302,87 +353,5 @@ public final class BotHelper {
       return service.searchMovies(aApiKey, DFL_LANGUAGE, aTitle, 1, DFL_REGION).execute();
     }
     return service.searchMovies(aApiKey, DFL_LANGUAGE, aTitle, 1, DFL_REGION, aYear).execute();
-  }
-
-  // public static Response<DiscoverMovies> getDiscoverMovies(String aBaseUrl, String aApiKey) throws IOException {
-  //   TheMovieDbService service = createdService(aBaseUrl);
-  //
-  //   LocalDate now = LocalDate.now();
-  //   return service.discoverMovies(aApiKey, now.getYear()).execute();
-  // }
-
-  public static Response<ResultMovieDetail> getDetailMovie(String aBaseUrl, int aMovieId, String aApiKey) throws IOException {
-    Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
-        .addConverterFactory(GsonConverterFactory.create()).build();
-    TheMovieDbService service = retrofit.create(TheMovieDbService.class);
-
-    return service.detailMovies(aMovieId, aApiKey).execute();
-  }
-
-  public static List<CarouselColumn> buildCarouselResultMovies(String aBaseImgUrl, List<ResultMovies> aResultMovies,
-      int aMin) {
-    List<CarouselColumn> carouselColumn = new ArrayList<>();
-    List<ResultMovies> resultMovies = aResultMovies.subList(aMin, aMin + 5);
-    for (ResultMovies movies : resultMovies) {
-
-      String filterTitle = filterTitle(movies.getTitle());
-      String filterTagLine = filterTagLine(createFromGenreId(movies.getGenreIds()));
-
-      String backdropImg = movies.getBackdropPath() == null ?
-          (movies.getPosterPath() == null ? IMG_HOLDER : aBaseImgUrl + movies.getPosterPath()) :
-          aBaseImgUrl + movies.getBackdropPath();
-
-      String posterImg = movies.getPosterPath() == null ?
-          (movies.getBackdropPath() == null ? IMG_HOLDER : aBaseImgUrl + movies.getBackdropPath()) :
-          aBaseImgUrl + movies.getPosterPath();
-
-      LOG.info("ResultMovies poster {}\n backdrop {}\n title {}\n genre {}\n id {}\n",
-          posterImg,
-          backdropImg,
-          filterTitle + " (" + movies.getVoteAverage() + ")",
-          filterTagLine,
-          KW_DETAIL + " " + movies.getId());
-
-      carouselColumn.add(
-          new CarouselColumn(
-              backdropImg,
-              filterTitle + " (" + movies.getVoteAverage() + ")",
-              filterTagLine,
-              Arrays.asList(
-                  new URIAction("Poster", posterImg),
-                  new PostbackAction("Detail", KW_DETAIL + " " + movies.getId()))));
-    }
-
-    return carouselColumn;
-  }
-
-  public static String createDetailOverview(ResultMovieDetail aMovieDetail, String aImdbUrl) {
-    String overview = "Title: " + aMovieDetail.getOriginalTitle() + "\n";
-    overview += "Genre: " + createFromGenre(aMovieDetail.getGenres()) + "\n";
-    overview += "Rating: " + aMovieDetail.getVoteAverage() + " (" + aMovieDetail.getVoteCount() + ")\n";
-    overview += "Release date: " + aMovieDetail.getReleaseDate() + "\n";
-    overview += "IMDB: " + aImdbUrl + aMovieDetail.getImdbId() + "\n";
-    overview += "Overview: \n" + aMovieDetail.getOverview() + "\n";
-    return overview;
-  }
-
-  public static String filterTitle(String aTitle) {
-    String filterTitle;
-    if (aTitle.length() > 30) {
-      filterTitle = aTitle.substring(0, 30) + "...";
-    } else {
-      filterTitle = aTitle;
-    }
-    return filterTitle;
-  }
-
-  public static String filterTagLine(String aTitle) {
-    String filterTitle;
-    if (aTitle.length() > 55) {
-      filterTitle = aTitle.substring(0, 55) + "...";
-    } else {
-      filterTitle = aTitle;
-    }
-    return filterTitle;
   }
 }
