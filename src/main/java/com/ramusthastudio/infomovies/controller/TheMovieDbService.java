@@ -11,25 +11,25 @@ import retrofit2.http.Query;
 public interface TheMovieDbService {
 
   @GET("/movie/latest")
-  Call<ResultMovieDetail> latestMovies(@Query("api_key") String aApi, @Query("language") String aLanguage);
+  Call<ResultMovieDetail> latestMovies(@Query("api_key") String aApi);
 
   @GET("movie/now_playing")
-  Call<DiscoverMovies> nowPlayingMovies(@Query("api_key") String aApi, @Query("language") String aLanguage, @Query("page") int aPage, @Query("region") String aRegion);
+  Call<DiscoverMovies> nowPlayingMovies(@Query("api_key") String aApi, @Query("page") int aPage, @Query("region") String aRegion);
 
   @GET("movie/popular")
-  Call<DiscoverMovies> popularMovies(@Query("api_key") String aApi, @Query("language") String aLanguage, @Query("page") int aPage, @Query("region") String aRegion);
+  Call<DiscoverMovies> popularMovies(@Query("api_key") String aApi, @Query("page") int aPage, @Query("region") String aRegion);
 
   @GET("movie/top_rated")
-  Call<DiscoverMovies> topRatedMovies(@Query("api_key") String aApi, @Query("language") String aLanguage, @Query("page") int aPage, @Query("region") String aRegion);
+  Call<DiscoverMovies> topRatedMovies(@Query("api_key") String aApi, @Query("page") int aPage, @Query("region") String aRegion);
 
   @GET("movie/upcoming")
-  Call<DiscoverMovies> upcomingMovies(@Query("api_key") String aApi, @Query("language") String aLanguage, @Query("page") int aPage, @Query("region") String aRegion);
+  Call<DiscoverMovies> upcomingMovies(@Query("api_key") String aApi, @Query("page") int aPage, @Query("region") String aRegion);
 
   @GET("movie/{movie_id}/recommendations")
-  Call<DiscoverMovies> recommendationsMovies(@Path("movie_id") int aMovieId, @Query("api_key") String aApi, @Query("language") String aLanguage, @Query("page") int aPage);
+  Call<DiscoverMovies> recommendationsMovies(@Path("movie_id") int aMovieId, @Query("api_key") String aApi, @Query("page") int aPage);
 
   @GET("movie/{movie_id}/similar")
-  Call<DiscoverMovies> similarMovies(@Path("movie_id") int aMovieId, @Query("api_key") String aApi, @Query("language") String aLanguage, @Query("page") int aPage);
+  Call<DiscoverMovies> similarMovies(@Path("movie_id") int aMovieId, @Query("api_key") String aApi, @Query("page") int aPage);
 
   @GET("movie/{movie_id}/videos")
   Call<DiscoverVideosMovies> videoMovies(@Path("movie_id") int aMovieId, @Query("api_key") String aApi);
@@ -38,10 +38,10 @@ public interface TheMovieDbService {
   Call<ResultMovieDetail> detailMovies(@Path("movie_id") int aMovieId, @Query("api_key") String aApi);
 
   @GET("search/movie")
-  Call<DiscoverMovies> searchMovies(@Query("api_key") String aApi, @Query("language") String aLanguage, @Query("query") String aQuery, @Query("page") int aPage, @Query("region") String aRegion);
+  Call<DiscoverMovies> searchMovies(@Query("api_key") String aApi, @Query("query") String aQuery, @Query("page") int aPage, @Query("region") String aRegion);
 
   @GET("search/movie")
-  Call<DiscoverMovies> searchMovies(@Query("api_key") String aApi, @Query("language") String aLanguage, @Query("query") String aQuery, @Query("page") int aPage, @Query("region") String aRegion, @Query("primary_release_year") int aReleaseYear);
+  Call<DiscoverMovies> searchMovies(@Query("api_key") String aApi, @Query("query") String aQuery, @Query("page") int aPage, @Query("region") String aRegion, @Query("primary_release_year") int aReleaseYear);
 
   // @GET("discover/movie")
   // Call<DiscoverMovies> discoverMovies(@Query("api_key") String aApi, @Query("primary_release_year") int aYear);

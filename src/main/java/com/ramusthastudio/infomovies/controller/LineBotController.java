@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 import retrofit2.Response;
 
 import static com.ramusthastudio.infomovies.model.FindMovies.newFindMovies;
-import static com.ramusthastudio.infomovies.util.BotHelper.DFL_LANGUAGE;
 import static com.ramusthastudio.infomovies.util.BotHelper.DFL_REGION;
 import static com.ramusthastudio.infomovies.util.BotHelper.FOLLOW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL;
@@ -265,7 +264,7 @@ public class LineBotController {
     }
 
     return newFindMovies()
-        .withTitle(data[0]).withYear(year).withRegion(region).withLanguage(DFL_LANGUAGE).withFlag(aFlag);
+        .withTitle(data[0]).withYear(year).withRegion(region).withFlag(aFlag);
   }
 
 }

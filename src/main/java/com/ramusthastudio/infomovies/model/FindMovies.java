@@ -1,9 +1,8 @@
 package com.ramusthastudio.infomovies.model;
 
-public class FindMovies {
+public final class FindMovies {
   private String title;
   private int year;
-  private String language;
   private String region;
   private int page;
   private int max;
@@ -13,9 +12,6 @@ public class FindMovies {
 
   public String getTitle() {
     return title;
-  }
-  public String getLanguage() {
-    return language;
   }
   public String getRegion() {
     return region;
@@ -33,10 +29,6 @@ public class FindMovies {
   }
   public FindMovies withYear(int aYear) {
     year = aYear;
-    return this;
-  }
-  public FindMovies withLanguage(String aLanguage) {
-    language = aLanguage;
     return this;
   }
   public FindMovies withRegion(String aRegion) {
@@ -64,7 +56,6 @@ public class FindMovies {
     return "FindMovies{" +
         "title='" + title + '\'' +
         ", year=" + year +
-        ", language='" + language + '\'' +
         ", region='" + region + '\'' +
         ", page=" + page +
         ", max=" + max +
