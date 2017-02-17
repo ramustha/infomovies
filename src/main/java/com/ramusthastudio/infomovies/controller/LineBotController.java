@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 import retrofit2.Response;
 
 import static com.ramusthastudio.infomovies.model.FindMovies.newFindMovies;
+import static com.ramusthastudio.infomovies.util.BotHelper.DFL_REGION;
 import static com.ramusthastudio.infomovies.util.BotHelper.FOLLOW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL_OVERVIEW;
@@ -153,16 +154,8 @@ public class LineBotController {
 
               } else if (text.toLowerCase().startsWith(KW_FIND.toLowerCase())) {
                 String keyword = text.substring(KW_FIND.length(), text.length());
-                String title;
-                int year = 0;
-                if (keyword.contains(",")) {
-                  String[] keySplit = keyword.split(",");
-                  title = keySplit[0];
-                  year = Integer.parseInt(keySplit[1].trim());
-                } else { title = keyword; }
 
-                findMovies = newFindMovies()
-                    .withPage(1).withMax(0).withTitle(title).withYear(year).withFlag(KW_FIND);
+                findMovies = buildFindMovies(keyword, KW_FIND);
                 LOG.info("findMovies findMovies {}", findMovies);
 
                 discoverMovies = getSearchMovies(fBaseUrl, fApiKey, findMovies);
@@ -244,6 +237,17 @@ public class LineBotController {
 
               buildMessage(discoverMovies, userId, findMovies);
 
+            } else if (text.toLowerCase().startsWith(KW_FIND.toLowerCase())) {
+              String keyword = text.substring(KW_FIND.length(), text.length());
+
+              findMovies = buildFindMovies(keyword, KW_FIND);
+              LOG.info("findMovies findMovies {}", findMovies);
+
+              discoverMovies = getSearchMovies(fBaseUrl, fApiKey, findMovies);
+              LOG.info("SearchMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
+              buildMessage(discoverMovies, userId, findMovies);
+
             } else {
               stickerMessage(fChannelAccessToken, userId, "1", "407");
               unrecognizedMessage(fChannelAccessToken, userId);
@@ -262,10 +266,25 @@ public class LineBotController {
     if (aDiscoverMovies.isSuccessful()) {
       List<ResultMovies> movies = aDiscoverMovies.body().getResultMovies();
       carouselMessage(fChannelAccessToken, aUserId, fBaseImgUrl, movies, aFindMovies.getMax());
-      confirmMessage(fChannelAccessToken, aUserId, aFindMovies.getPage(), aFindMovies.getMax(), aFindMovies.getFlag());
+      confirmMessage(fChannelAccessToken, aUserId, aFindMovies);
     } else {
       stickerMessage(fChannelAccessToken, aUserId, "1", "407");
     }
+  }
+
+  private FindMovies buildFindMovies(String aData, String aFlag) {
+    String[] data = aData.split(",");
+    int year = 0;
+    String region = DFL_REGION;
+    if (data.length == 2 && data[1].length() > 1 && !data[1].isEmpty()) {
+      year = data[1].length() == 4 ? Integer.parseInt(data[1]) : 0;
+      region = data[1].length() == 2 ? data[1] : DFL_REGION;
+    } else if (data.length == 3 && !data[1].isEmpty() && !data[2].isEmpty()) {
+      year = data[1].length() == 4 ? Integer.parseInt(data[1]) : 0;
+      region = data[1].length() == 2 ? data[1] : DFL_REGION;
+    }
+
+    return newFindMovies().withTitle(data[0]).withYear(year).withRegion(region).withFlag(aFlag);
   }
 
 }

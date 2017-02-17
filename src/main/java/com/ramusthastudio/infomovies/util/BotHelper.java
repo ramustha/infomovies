@@ -35,8 +35,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public final class BotHelper {
   private static final Logger LOG = LoggerFactory.getLogger(BotHelper.class);
-  private static final String DFL_LANGUAGE = "en-US";
-  private static final String DFL_REGION = "ID";
+  public static final String DFL_LANGUAGE = "en-US";
+  public static final String DFL_REGION = "ID";
 
   public static final String SOURCE_USER = "user";
   public static final String SOURCE_GROUP = "group";
@@ -121,12 +121,16 @@ public final class BotHelper {
   }
 
   public static Response<BotApiResponse> confirmMessage(String aChannelAccessToken, String aUserId,
-      int aPage, int aMax, String aFlag) throws IOException {
-    int page = (aMax == 15 ? aPage + 1 : aPage);
-    int max = (aMax == 15 ? 0 : aMax + 5);
+      FindMovies aFindMovies) throws IOException {
+    int page = (aFindMovies.getMax() == 15 ? aFindMovies.getPage() + 1 : aFindMovies.getPage());
+    int max = (aFindMovies.getMax() == 15 ? 0 : aFindMovies.getMax() + 5);
+    int year = aFindMovies.getYear();
+    String region = aFindMovies.getRegion();
+    String language = aFindMovies.getLanguage();
+    String data = aFindMovies.getFlag() + " " + page + "," + max + "," + year + "," + region + "," + language;
 
     ConfirmTemplate template = new ConfirmTemplate("Lihat yang lain ?", Arrays.asList(
-        new PostbackAction("Ya", aFlag +" "+ page + "," + max),
+        new PostbackAction("Ya", data),
         new PostbackAction("Panduan", KW_PANDUAN)));
 
     return templateMessage(aChannelAccessToken, aUserId, template);
@@ -201,7 +205,10 @@ public final class BotHelper {
     String greeting = "Hi " + userProfile.getDisplayName() + ", apakah kamu kesulitan ?\n\n";
     greeting += "Panduan Info Movies:\n";
     greeting += "Now Playing : '" + KW_NOW_PLAYING + "' \n";
-    greeting += "Find Movie : '" + KW_FIND + " Judul' \n";
+    greeting += "Find Movie : \n'" + KW_FIND + " Judul' \n";
+    greeting += "\n'" + KW_FIND + " Judul, *tahun(2014)' \n";
+    greeting += "\n'" + KW_FIND + " Judul, *region(ID)' \n";
+    greeting += "\n'" + KW_FIND + " Judul, *tahun(2014), *region(ID)' \n";
     // greeting += "Daftar Movie bulan ini : '" + KW_MOVIE_BULAN_INI + "' \n";
     // greeting += "On Air Series : '" + KW_ON_THE_AIR + "'! \n";
     // greeting += "Daftar Series bulan ini : '" + KW_SERIES_BULAN_INI + "! \n";
