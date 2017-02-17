@@ -268,7 +268,7 @@ public class LineBotController {
       int size = aDiscoverMovies.body().getTotalResults();
       List<ResultMovies> movies = aDiscoverMovies.body().getResultMovies();
       carouselMessage(fChannelAccessToken, aUserId, fBaseImgUrl, movies, aFindMovies.getMax());
-      if (size > aFindMovies.getMax() || !aFindMovies.getFlag().equalsIgnoreCase(KW_FIND)) {
+      if (size > aFindMovies.getMax() - 5 || !aFindMovies.getFlag().equalsIgnoreCase(KW_FIND)) {
         confirmMessage(fChannelAccessToken, aUserId, aFindMovies);
       }
     } else {
