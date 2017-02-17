@@ -14,7 +14,6 @@ import com.ramusthastudio.infomovies.model.ResultMovieDetail;
 import com.ramusthastudio.infomovies.model.Source;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,9 +114,7 @@ public class LineBotController {
         Response<UserProfileResponse> profileResp = getUserProfile(fChannelAccessToken, userId);
         UserProfileResponse profile = profileResp.body();
         LOG.info("profileResp code {} message {}", profileResp.code(), profileResp.message());
-      } catch (IOException aE) {
-        LOG.error("Failed GET UserProfileResponse: {} ", aE);
-      }
+      } catch (IOException ignored) { }
 
       try {
         switch (eventType) {
@@ -132,12 +129,7 @@ public class LineBotController {
             if (discoverMoviesResp.isSuccessful()) {
               DiscoverMovies discoverMovies = discoverMoviesResp.body();
               List<CarouselColumn> carouselColumn = buildCarouselResultMovies(fBaseImgUrl, discoverMovies.getResultMovies(), 0);
-              try {
-                createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
-              }catch (IOException aE){
-                createMessage(fChannelAccessToken, userId, "Gagal menampilkan pesan...");
-                createSticker(fChannelAccessToken, userId, "1", "422");
-              }
+              createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
             }
 
             createConfirmMessage(fChannelAccessToken, userId, "Lihat Popular movie lainnya ?", 1, 0);
@@ -182,7 +174,7 @@ public class LineBotController {
                   createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
                 }
 
-                createConfirmMessage(fChannelAccessToken, userId, "Lihat movie lainnya ?", 1, 5);
+                createConfirmMessage(fChannelAccessToken, userId, "Lihat movie lainnya ?", 1, 4);
 
               } else if (text.toLowerCase().contains(KW_PANDUAN.toLowerCase())) {
                 unrecognizedMessage(fChannelAccessToken, userId);
