@@ -69,7 +69,6 @@ public final class BotHelper {
   public static final String KW_SIMILAR = "Similar";
   public static final String KW_VIDEOS = "Video";
   public static final String KW_PANDUAN = "Panduan";
-  public static final String KW_NEXT_POPULAR = "NP";
 
   public static final String IMG_HOLDER = "https://www.themoviedb.org/assets/static_cache/41bdcf10bbf6f84c0fc73f27b2180b95/images/v4/logos/91x81.png";
 
@@ -114,19 +113,19 @@ public final class BotHelper {
   }
 
   public static Response<BotApiResponse> carouselMessage(String aChannelAccessToken, String aUserId,
-      String aBaseImgUrl, List<ResultMovies> aResultMovies, int aMin) throws IOException {
-    List<CarouselColumn> carouselColumn = buildCarouselColumn(aBaseImgUrl, aResultMovies, aMin);
+      String aBaseImgUrl, List<ResultMovies> aResultMovies, int aMax) throws IOException {
+    List<CarouselColumn> carouselColumn = buildCarouselColumn(aBaseImgUrl, aResultMovies, aMax);
     CarouselTemplate template = new CarouselTemplate(carouselColumn);
     return templateMessage(aChannelAccessToken, aUserId, template);
   }
 
   public static Response<BotApiResponse> confirmMessage(String aChannelAccessToken, String aUserId,
-      String aMsg, int aPage, int aMax) throws IOException {
+      int aPage, int aMax, String aFlag) throws IOException {
     int page = (aMax == 15 ? aPage + 1 : aPage);
     int max = (aMax == 15 ? 0 : aMax + 5);
 
-    ConfirmTemplate template = new ConfirmTemplate(aMsg, Arrays.asList(
-        new PostbackAction("Ya", KW_NEXT_POPULAR + page + "," + max),
+    ConfirmTemplate template = new ConfirmTemplate("Lihat yang lain ?", Arrays.asList(
+        new PostbackAction("Ya", aFlag + page + "," + max),
         new PostbackAction("Panduan", KW_PANDUAN)));
 
     return templateMessage(aChannelAccessToken, aUserId, template);

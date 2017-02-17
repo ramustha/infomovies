@@ -2,7 +2,6 @@ package com.ramusthastudio.infomovies.controller;
 
 import com.google.gson.Gson;
 import com.linecorp.bot.client.LineSignatureValidator;
-import com.linecorp.bot.model.message.template.CarouselColumn;
 import com.linecorp.bot.model.profile.UserProfileResponse;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.ramusthastudio.infomovies.model.DiscoverMovies;
@@ -32,14 +31,13 @@ import static com.ramusthastudio.infomovies.util.BotHelper.FOLLOW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL_OVERVIEW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_FIND;
-import static com.ramusthastudio.infomovies.util.BotHelper.KW_NEXT_POPULAR;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_NOW_PLAYING;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_PANDUAN;
+import static com.ramusthastudio.infomovies.util.BotHelper.KW_POPULAR;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE_TEXT;
 import static com.ramusthastudio.infomovies.util.BotHelper.POSTBACK;
 import static com.ramusthastudio.infomovies.util.BotHelper.buttonMessage;
-import static com.ramusthastudio.infomovies.util.BotHelper.buildCarouselColumn;
 import static com.ramusthastudio.infomovies.util.BotHelper.carouselMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.confirmMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.createDetailOverview;
@@ -112,6 +110,8 @@ public class LineBotController {
       Postback postback = event.postback();
 
       String userId = source.userId();
+      Response<DiscoverMovies> discoverMovies;
+
       try {
         Response<UserProfileResponse> profileResp = getUserProfile(fChannelAccessToken, userId);
         UserProfileResponse profile = profileResp.body();
@@ -124,33 +124,21 @@ public class LineBotController {
             greetingMessage(fChannelAccessToken, userId);
             pushMessage(fChannelAccessToken, userId, "Popular movies..");
 
-            Response<DiscoverMovies> discoverMoviesResp = getPopularMovies(fBaseUrl, fApiKey, 1);
-            LOG.info("Popular movies code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
+            discoverMovies = getPopularMovies(fBaseUrl, fApiKey, 1);
+            LOG.info("Popular movies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
-            if (discoverMoviesResp.isSuccessful()) {
-              List<ResultMovies> movies = discoverMoviesResp.body().getResultMovies();
-              carouselMessage(fChannelAccessToken, userId, fBaseImgUrl, movies, 0);
-              confirmMessage(fChannelAccessToken, userId, "Lihat Popular movie lainnya ?", 1, 0);
-            } else {
-              stickerMessage(fChannelAccessToken, userId, "1", "407");
-            }
+            buildMessage(discoverMovies, userId, 1, 0, KW_POPULAR);
 
             break;
           case MESSAGE:
             if (message.type().equals(MESSAGE_TEXT)) {
               String text = message.text();
-              if (text.toLowerCase().contains(KW_NOW_PLAYING.toLowerCase())) {
+              if (text.toLowerCase().startsWith(KW_NOW_PLAYING.toLowerCase())) {
 
-                discoverMoviesResp = getNowPlayingMovies(fBaseUrl, fApiKey, 1);
-                LOG.info("Now Playing code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
+                discoverMovies = getNowPlayingMovies(fBaseUrl, fApiKey, 1);
+                LOG.info("Now Playing code {} message {}", discoverMovies.code(), discoverMovies.message());
 
-                if (discoverMoviesResp.isSuccessful()) {
-                  List<ResultMovies> movies = discoverMoviesResp.body().getResultMovies();
-                  carouselMessage(fChannelAccessToken, userId, fBaseImgUrl, movies, 0);
-                  confirmMessage(fChannelAccessToken, userId, "Lihat yang lainnya ?", 1, 0);
-                } else {
-                  stickerMessage(fChannelAccessToken, userId, "1", "407");
-                }
+                buildMessage(discoverMovies, userId, 1, 0, KW_NOW_PLAYING);
 
               } else if (text.toLowerCase().startsWith(KW_FIND.toLowerCase())) {
                 String keyword = text.substring(KW_FIND.length(), text.length());
@@ -166,18 +154,12 @@ public class LineBotController {
 
                 LOG.info("Keyword title {} year {}", title, year);
 
-                Response<DiscoverMovies> searchMovies = getSearchMovies(fBaseUrl, fApiKey, title, year);
-                LOG.info("SearchMovies code {} message {}", searchMovies.code(), searchMovies.message());
+                discoverMovies = getSearchMovies(fBaseUrl, fApiKey, title, year);
+                LOG.info("SearchMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
-                if (searchMovies.isSuccessful()) {
-                  List<ResultMovies> movies = searchMovies.body().getResultMovies();
-                  carouselMessage(fChannelAccessToken, userId, fBaseImgUrl, movies, 0);
-                  confirmMessage(fChannelAccessToken, userId, "Lihat yang lainnya ?", 1, 0);
-                } else {
-                  stickerMessage(fChannelAccessToken, userId, "1", "407");
-                }
+                buildMessage(discoverMovies, userId, 1, 0, KW_FIND);
 
-              } else if (text.toLowerCase().contains(KW_PANDUAN.toLowerCase())) {
+              } else if (text.toLowerCase().startsWith(KW_PANDUAN.toLowerCase())) {
                 unrecognizedMessage(fChannelAccessToken, userId);
               } else {
                 unrecognizedMessage(fChannelAccessToken, userId);
@@ -215,8 +197,8 @@ public class LineBotController {
                 LOG.info("Postback code {} message {}", detail.code(), detail.message());
               }
 
-            } else if (text.toLowerCase().startsWith(KW_NEXT_POPULAR.toLowerCase())) {
-              String strPageMax = text.substring(KW_NEXT_POPULAR.length(), text.length());
+            } else if (text.toLowerCase().startsWith(KW_POPULAR.toLowerCase())) {
+              String strPageMax = text.substring(KW_POPULAR.length(), text.length());
               String[] pageMax = strPageMax.split(",");
 
               int page = Integer.parseInt(pageMax[0].trim());
@@ -224,16 +206,25 @@ public class LineBotController {
 
               LOG.info("paging page {} max {}", page, max);
 
-              discoverMoviesResp = getPopularMovies(fBaseUrl, fApiKey, page);
-              LOG.info("Popular movies code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
+              discoverMovies = getPopularMovies(fBaseUrl, fApiKey, page);
+              LOG.info("Popular movies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
-              if (discoverMoviesResp.isSuccessful()) {
-                DiscoverMovies discoverMovies = discoverMoviesResp.body();
-                List<CarouselColumn> carouselColumn = buildCarouselColumn(fBaseImgUrl, discoverMovies.getResultMovies(), max);
-                carouselMessage(fChannelAccessToken, userId, carouselColumn);
-              }
+              buildMessage(discoverMovies, userId, page, max, KW_FIND);
 
-              confirmMessage(fChannelAccessToken, userId, "Lihat Popular movie lainnya ?", page, max);
+            } else if (text.toLowerCase().startsWith(KW_NOW_PLAYING.toLowerCase())) {
+              String strPageMax = text.substring(KW_NOW_PLAYING.length(), text.length());
+              String[] pageMax = strPageMax.split(",");
+
+              int page = Integer.parseInt(pageMax[0].trim());
+              int max = Integer.parseInt(pageMax[1].trim());
+
+              LOG.info("paging page {} max {}", page, max);
+
+              discoverMovies = getNowPlayingMovies(fBaseUrl, fApiKey, page);
+              LOG.info("Popular movies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
+              buildMessage(discoverMovies, userId, page, max, KW_NOW_PLAYING);
+
             } else {
               stickerMessage(fChannelAccessToken, userId, "1", "407");
               unrecognizedMessage(fChannelAccessToken, userId);
@@ -245,6 +236,16 @@ public class LineBotController {
     }
 
     return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  private void buildMessage(Response<DiscoverMovies> aDiscoverMovies, String aUserId, int aPage, int aMax, String aFlag) throws IOException {
+    if (aDiscoverMovies.isSuccessful()) {
+      List<ResultMovies> movies = aDiscoverMovies.body().getResultMovies();
+      carouselMessage(fChannelAccessToken, aUserId, fBaseImgUrl, movies, aMax);
+      confirmMessage(fChannelAccessToken, aUserId, aPage, aMax, aFlag);
+    } else {
+      stickerMessage(fChannelAccessToken, aUserId, "1", "407");
+    }
   }
 
 }
