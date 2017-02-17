@@ -18,6 +18,7 @@ import com.linecorp.bot.model.profile.UserProfileResponse;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.ramusthastudio.infomovies.controller.TheMovieDbService;
 import com.ramusthastudio.infomovies.model.DiscoverMovies;
+import com.ramusthastudio.infomovies.model.FindMovies;
 import com.ramusthastudio.infomovies.model.Genre;
 import com.ramusthastudio.infomovies.model.ResultMovieDetail;
 import com.ramusthastudio.infomovies.model.ResultMovies;
@@ -125,7 +126,7 @@ public final class BotHelper {
     int max = (aMax == 15 ? 0 : aMax + 5);
 
     ConfirmTemplate template = new ConfirmTemplate("Lihat yang lain ?", Arrays.asList(
-        new PostbackAction("Ya", aFlag + page + "," + max),
+        new PostbackAction("Ya", aFlag +" "+ page + "," + max),
         new PostbackAction("Panduan", KW_PANDUAN)));
 
     return templateMessage(aChannelAccessToken, aUserId, template);
@@ -200,7 +201,7 @@ public final class BotHelper {
     String greeting = "Hi " + userProfile.getDisplayName() + ", apakah kamu kesulitan ?\n\n";
     greeting += "Panduan Info Movies:\n";
     greeting += "Now Playing : '" + KW_NOW_PLAYING + "' \n";
-    greeting += "Cari Movie : '" + KW_FIND + " Judul, Tahun(Opsional)' \n";
+    greeting += "Find Movie : '" + KW_FIND + " Judul' \n";
     // greeting += "Daftar Movie bulan ini : '" + KW_MOVIE_BULAN_INI + "' \n";
     // greeting += "On Air Series : '" + KW_ON_THE_AIR + "'! \n";
     // greeting += "Daftar Series bulan ini : '" + KW_SERIES_BULAN_INI + "! \n";
@@ -346,11 +347,11 @@ public final class BotHelper {
     return service.nowPlayingMovies(aApiKey, language, page, region).execute();
   }
 
-  public static Response<DiscoverMovies> getSearchMovies(String aBaseUrl, String aApiKey, String aTitle, int aYear) throws IOException {
+  public static Response<DiscoverMovies> getSearchMovies(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
     TheMovieDbService service = createdService(aBaseUrl);
-    if (aYear == 0) {
-      return service.searchMovies(aApiKey, DFL_LANGUAGE, aTitle, 1, DFL_REGION).execute();
+    if (aFindMovies.getYear() == 0) {
+      return service.searchMovies(aApiKey, DFL_LANGUAGE, aFindMovies.getTitle(), 1, DFL_REGION).execute();
     }
-    return service.searchMovies(aApiKey, DFL_LANGUAGE, aTitle, 1, DFL_REGION, aYear).execute();
+    return service.searchMovies(aApiKey, DFL_LANGUAGE, aFindMovies.getTitle(), 1, DFL_REGION, aFindMovies.getYear()).execute();
   }
 }
