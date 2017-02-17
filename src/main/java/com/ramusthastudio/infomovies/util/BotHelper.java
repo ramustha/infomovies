@@ -163,7 +163,9 @@ public final class BotHelper {
     List<CarouselColumn> carouselColumn = new ArrayList<>();
     List<ResultMovies> resultMovies;
     if (aResultMovies.size() > 5) {
-      resultMovies = aResultMovies.subList(aMin, aMin + 5);
+      int max = aMin + 5;
+      max = max > aResultMovies.size() ? aResultMovies.size() : max;
+      resultMovies = aResultMovies.subList(aMin, max);
     } else {
       resultMovies = aResultMovies;
     }
