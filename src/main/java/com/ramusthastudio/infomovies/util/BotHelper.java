@@ -209,8 +209,8 @@ public final class BotHelper {
     UserProfileResponse userProfile = getUserProfile(aChannelAccessToken, aUserId).body();
     String greeting = "Hi " + userProfile.getDisplayName() + ", apakah kamu kesulitan ?\n\n";
     greeting += "Panduan Info Movies:\n";
-    greeting += "~ Now Playing : '" + KW_NOW_PLAYING + ", *region(ID)' \n";
-    greeting += "~ Popular : '" + KW_POPULAR + ", *region(ID)' \n";
+    greeting += "~ Now Playing : '" + KW_NOW_PLAYING + " *region(ID)' \n";
+    greeting += "~ Popular : '" + KW_POPULAR + " *region(ID)' \n";
     greeting += "~ Find Movie :";
     greeting += "\n 1. '" + KW_FIND + " Judul, *tahun(2014)'";
     greeting += "\n 2. '" + KW_FIND + " Judul, *region(ID)'";

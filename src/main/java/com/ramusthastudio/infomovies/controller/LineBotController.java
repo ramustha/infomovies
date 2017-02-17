@@ -139,13 +139,8 @@ public class LineBotController {
             if (message.type().equals(MESSAGE_TEXT)) {
               String text = message.text();
               if (text.toLowerCase().startsWith(KW_NOW_PLAYING.toLowerCase())) {
-                if (text.contains(",")) {
-                  String[] strData = text.split(",");
-                  String region = strData[1];
-                  findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_NOW_PLAYING);
-                } else {
-                  findMovies = newFindMovies().withPage(1).withMax(0).withFlag(KW_NOW_PLAYING);
-                }
+                String region = text.substring(KW_NOW_PLAYING.length(), text.length()).trim();
+                findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_NOW_PLAYING);
                 LOG.info("findMovies findMovies {}", findMovies);
 
                 discoverMovies = getNowPlayingMovies(fBaseUrl, fApiKey, findMovies);
@@ -153,13 +148,8 @@ public class LineBotController {
 
                 buildMessage(discoverMovies, userId, findMovies);
               } else if (text.toLowerCase().startsWith(KW_POPULAR.toLowerCase())) {
-                if (text.contains(",")) {
-                  String[] strData = text.split(",");
-                  String region = strData[1];
-                  findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_NOW_PLAYING);
-                } else {
-                  findMovies = newFindMovies().withPage(1).withMax(0).withFlag(KW_NOW_PLAYING);
-                }
+                String region = text.substring(KW_POPULAR.length(), text.length()).trim();
+                findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_POPULAR);
                 LOG.info("findMovies findMovies {}", findMovies);
 
                 discoverMovies = getPopularMovies(fBaseUrl, fApiKey, findMovies);
