@@ -266,11 +266,12 @@ public class LineBotController {
       FindMovies aFindMovies) throws IOException {
     if (aDiscoverMovies.isSuccessful()) {
       int size = aDiscoverMovies.body().getTotalResults();
+      int max = aFindMovies.getMax() - 5;
       List<ResultMovies> movies = aDiscoverMovies.body().getResultMovies();
       carouselMessage(fChannelAccessToken, aUserId, fBaseImgUrl, movies, aFindMovies.getMax());
 
-      LOG.info("buildMessage size {}", size, aFindMovies.getMax());
-      if (size < aFindMovies.getMax() || !aFindMovies.getFlag().equalsIgnoreCase(KW_FIND)) {
+      LOG.info("buildMessage size {} max {}", size, max);
+      if (max <size || !aFindMovies.getFlag().equalsIgnoreCase(KW_FIND)) {
         confirmMessage(fChannelAccessToken, aUserId, aFindMovies);
       }
     } else {
