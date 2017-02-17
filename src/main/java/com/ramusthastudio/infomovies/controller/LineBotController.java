@@ -90,13 +90,14 @@ public class LineBotController {
       @RequestHeader("X-Line-Signature") String aXLineSignature,
       @RequestBody String aPayload) {
 
+    LOG.info("XLineSignature: {} ", aXLineSignature);
+    LOG.info("Payload: {} ", aPayload);
     LOG.info("The Signature is: {} ", (aXLineSignature != null && aXLineSignature.length() > 0) ? aXLineSignature : "N/A");
     final boolean valid = new LineSignatureValidator(fChannelSecret.getBytes()).validateSignature(aPayload.getBytes(), aXLineSignature);
     LOG.info("The Signature is: {} ", valid ? "valid" : "tidak valid");
 
-    Gson gson = new Gson();
-
     if (aPayload != null && aPayload.length() > 0) {
+      Gson gson = new Gson();
       Payload payload = gson.fromJson(aPayload, Payload.class);
       LOG.info("payload: {} ", payload);
 

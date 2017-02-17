@@ -367,7 +367,7 @@ public final class BotHelper {
 
   public static String filterTitle(String aTitle) {
     String filterTitle;
-    if (aTitle.length() > 40) {
+    if (aTitle.length() > 30) {
       filterTitle = aTitle.substring(0, 30) + "...";
     } else {
       filterTitle = aTitle;
@@ -377,21 +377,11 @@ public final class BotHelper {
 
   public static String filterTagLine(String aTitle) {
     String filterTitle;
-    if (aTitle.length() > 60) {
+    if (aTitle.length() > 55) {
       filterTitle = aTitle.substring(0, 55) + "...";
     } else {
       filterTitle = aTitle;
     }
     return filterTitle;
-  }
-
-  public static String filterOverview(String aOverview) {
-    String filterOverview;
-    if (aOverview.length() > 300) {
-      filterOverview = aOverview.substring(0, 250) + "...";
-    } else {
-      filterOverview = aOverview;
-    }
-    return filterOverview;
   }
 }
