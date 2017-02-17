@@ -119,9 +119,9 @@ public class LineBotController {
       try {
         switch (eventType) {
           case FOLLOW:
+            createSticker(fChannelAccessToken, userId, "1", "125");
             greetingMessage(fChannelAccessToken, userId);
             createMessage(fChannelAccessToken, userId, "Popular movies..");
-            createSticker(fChannelAccessToken, userId, "1", "125");
 
             Response<DiscoverMovies> discoverMoviesResp = getPopularMovies(fBaseUrl, fApiKey, 1);
             LOG.info("Popular movies code {} message {}", discoverMoviesResp.code(), discoverMoviesResp.message());
@@ -174,7 +174,7 @@ public class LineBotController {
                   createCarouselMessage(fChannelAccessToken, userId, carouselColumn);
                 }
 
-                createConfirmMessage(fChannelAccessToken, userId, "Lihat movie lainnya ?", 1, 4);
+                createConfirmMessage(fChannelAccessToken, userId, "Lihat movie lainnya ?", 1, 0);
 
               } else if (text.toLowerCase().contains(KW_PANDUAN.toLowerCase())) {
                 unrecognizedMessage(fChannelAccessToken, userId);
