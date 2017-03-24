@@ -64,7 +64,7 @@ public final class BotHelper {
   public static final String KW_LATEST = "Latest";
   public static final String KW_POPULAR = "Popular";
   public static final String KW_TOP_RATED = "Top Rated";
-  public static final String KW_UPCOMING = "Comming Soon";
+  public static final String KW_UPCOMING = "Coming Soon";
   public static final String KW_RECOMMEND = "Recommend";
   public static final String KW_SIMILAR = "Similar";
   public static final String KW_VIDEOS = "Video";
@@ -208,7 +208,7 @@ public final class BotHelper {
   }
 
   public static void unrecognizedMessage(String aChannelAccessToken, String aUserId) throws IOException {
-    String greeting = "Panduan Info Movies:\n";
+    String greeting = "Panduan Info Movies:\n\n";
     greeting += KW_NOW_PLAYING + " *region(ID)\n";
     greeting += KW_POPULAR + " *region(ID)\n";
     greeting += KW_FIND + " Judul, *tahun(2014)\n";
@@ -315,6 +315,11 @@ public final class BotHelper {
     String region = aRegion != null ? aRegion : "";
 
     return service.topRatedMovies(aApiKey, page, region).execute();
+  }
+
+  public static Response<DiscoverMovies> getUpcomingMoviesMovies(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
+    TheMovieDbService service = createdService(aBaseUrl);
+    return service.upcomingMovies(aApiKey, aFindMovies.getPage(), aFindMovies.getRegion()).execute();
   }
 
   public static Response<DiscoverMovies> getPopularMovies(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
