@@ -176,7 +176,7 @@ public class LineBotController {
               LOG.info("NowPlayingMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
               buildMessage(discoverMovies, aUserId, findMovies);
-            } else if (text.toLowerCase().contains(KW_POPULAR.toLowerCase())) {
+            } else if (text.toLowerCase().startsWith(KW_POPULAR.toLowerCase())) {
               String region = text.substring(KW_POPULAR.length(), text.length()).trim();
               findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_POPULAR);
               LOG.info("findMovies findMovies {}", findMovies);
@@ -185,7 +185,7 @@ public class LineBotController {
               LOG.info("PopularMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
               buildMessage(discoverMovies, aUserId, findMovies);
-            } else if (text.toLowerCase().contains(KW_POPULAR_TV.toLowerCase())) {
+            } else if (text.toLowerCase().startsWith(KW_POPULAR_TV.toLowerCase())) {
               String region = text.substring(KW_POPULAR_TV.length(), text.length()).trim();
               findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_POPULAR_TV);
               LOG.info("findMovies findMovies {}", findMovies);
