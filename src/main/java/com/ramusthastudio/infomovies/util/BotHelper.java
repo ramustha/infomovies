@@ -65,7 +65,7 @@ public final class BotHelper {
   public static final String KW_NOW_PLAYING = "Now Playing";
   public static final String KW_LATEST = "Latest";
   public static final String KW_POPULAR = "Popular";
-  public static final String KW_POPULAR_TV = "Popular Tv";
+  public static final String KW_POPULAR_TV = "Tv Popular";
   public static final String KW_TOP_RATED = "Top Rated";
   public static final String KW_UPCOMING = "Coming Soon";
   public static final String KW_RECOMMEND = "Recommend";
