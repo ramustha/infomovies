@@ -279,6 +279,25 @@ public class LineBotController {
             LOG.info("Popular movies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
             buildMessage(discoverMovies, aUserId, findMovies);
+          } else if (text.toLowerCase().startsWith(KW_UPCOMING.toLowerCase())) {
+            String strPageMax = text.substring(KW_UPCOMING.length(), text.length());
+            String[] pageMax = strPageMax.split(",");
+
+            int page = Integer.parseInt(pageMax[0].trim());
+            int max = Integer.parseInt(pageMax[1].trim());
+            int year = Integer.parseInt(pageMax[2].trim());
+            if (pageMax.length == 4) {
+              String region = pageMax[3].trim();
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withRegion(region).withFlag(KW_UPCOMING);
+            } else {
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withFlag(KW_UPCOMING);
+            }
+            LOG.info("findMovies findMovies {}", findMovies);
+
+            discoverMovies = getUpcomingMoviesMovies(fBaseUrl, fApiKey, findMovies);
+            LOG.info("Coming soon movies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
+            buildMessage(discoverMovies, aUserId, findMovies);
           } else {
             stickerMessage(fChannelAccessToken, aUserId, "1", "407");
             unrecognizedMessage(fChannelAccessToken, aUserId);
