@@ -298,23 +298,28 @@ public final class BotHelper {
     return service.detailMovies(aMovieId, aApiKey).execute();
   }
 
-  public static Response<DiscoverMovies> getTopRatedMovies(String aBaseUrl, String aApiKey, int aPage) throws IOException {
-    return getTopRatedMovies(aBaseUrl, aApiKey, aPage, DFL_REGION);
-  }
+  // public static Response<DiscoverMovies> getTopRatedMovies(String aBaseUrl, String aApiKey, int aPage) throws IOException {
+  //   return getTopRatedMovies(aBaseUrl, aApiKey, aPage, DFL_REGION);
+  // }
 
-  public static Response<DiscoverMovies> getTopRatedMovies(String aBaseUrl, String aApiKey, int aPage, String aRegion) throws IOException {
-    String region = aRegion != null ? aRegion : "";
-    int page = aPage != 0 ? aPage : 0;
-    return getTopRatedMovies(aBaseUrl, aApiKey, page, region);
-  }
+  // public static Response<DiscoverMovies> getTopRatedMovies(String aBaseUrl, String aApiKey, int aPage, String aRegion) throws IOException {
+  //   String region = aRegion != null ? aRegion : "";
+  //   int page = aPage != 0 ? aPage : 0;
+  //   return getTopRatedMovies(aBaseUrl, aApiKey, page, region);
+  // }
+  //
+  // public static Response<DiscoverMovies> getTopRatedMovies(String aBaseUrl, String aApiKey, String aLanguage, int aPage, String aRegion) throws IOException {
+  //   TheMovieDbService service = createdService(aBaseUrl);
+  //
+  //   int page = aPage != 0 ? aPage : 0;
+  //   String region = aRegion != null ? aRegion : "";
+  //
+  //   return service.topRatedMovies(aApiKey, page, region).execute();
+  // }
 
-  public static Response<DiscoverMovies> getTopRatedMovies(String aBaseUrl, String aApiKey, String aLanguage, int aPage, String aRegion) throws IOException {
+  public static Response<DiscoverMovies> gettopRatedMovies(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
     TheMovieDbService service = createdService(aBaseUrl);
-
-    int page = aPage != 0 ? aPage : 0;
-    String region = aRegion != null ? aRegion : "";
-
-    return service.topRatedMovies(aApiKey, page, region).execute();
+    return service.topRatedMovies(aApiKey, aFindMovies.getPage(), aFindMovies.getRegion()).execute();
   }
 
   public static Response<DiscoverMovies> getUpcomingMoviesMovies(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {

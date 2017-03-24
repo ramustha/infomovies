@@ -35,6 +35,7 @@ import static com.ramusthastudio.infomovies.util.BotHelper.KW_FIND;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_NOW_PLAYING;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_PANDUAN;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_POPULAR;
+import static com.ramusthastudio.infomovies.util.BotHelper.KW_TOP_RATED;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_UPCOMING;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE_TEXT;
@@ -51,6 +52,7 @@ import static com.ramusthastudio.infomovies.util.BotHelper.getNowPlayingMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getPopularMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getSearchMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getUpcomingMoviesMovies;
+import static com.ramusthastudio.infomovies.util.BotHelper.gettopRatedMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.greetingMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.pushMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.stickerMessage;
@@ -186,6 +188,15 @@ public class LineBotController {
               LOG.info("ComingSoonMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
               buildMessage(discoverMovies, aUserId, findMovies);
+            } else if (text.toLowerCase().startsWith(KW_TOP_RATED.toLowerCase())) {
+              String region = text.substring(KW_TOP_RATED.length(), text.length()).trim();
+              findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_TOP_RATED);
+              LOG.info("findMovies findMovies {}", findMovies);
+
+              discoverMovies = gettopRatedMovies(fBaseUrl, fApiKey, findMovies);
+              LOG.info("TopRatedMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
+              buildMessage(discoverMovies, aUserId, findMovies);
             } else if (text.toLowerCase().startsWith(KW_FIND.toLowerCase())) {
               String keyword = text.substring(KW_FIND.length(), text.length());
               String[] data = keyword.split(",");
@@ -296,6 +307,25 @@ public class LineBotController {
 
             discoverMovies = getUpcomingMoviesMovies(fBaseUrl, fApiKey, findMovies);
             LOG.info("Coming soon movies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
+            buildMessage(discoverMovies, aUserId, findMovies);
+          } else if (text.toLowerCase().startsWith(KW_TOP_RATED.toLowerCase())) {
+            String strPageMax = text.substring(KW_TOP_RATED.length(), text.length());
+            String[] pageMax = strPageMax.split(",");
+
+            int page = Integer.parseInt(pageMax[0].trim());
+            int max = Integer.parseInt(pageMax[1].trim());
+            int year = Integer.parseInt(pageMax[2].trim());
+            if (pageMax.length == 4) {
+              String region = pageMax[3].trim();
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withRegion(region).withFlag(KW_TOP_RATED);
+            } else {
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withFlag(KW_TOP_RATED);
+            }
+            LOG.info("findMovies findMovies {}", findMovies);
+
+            discoverMovies = getUpcomingMoviesMovies(fBaseUrl, fApiKey, findMovies);
+            LOG.info("Top Rated movies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
             buildMessage(discoverMovies, aUserId, findMovies);
           } else {
