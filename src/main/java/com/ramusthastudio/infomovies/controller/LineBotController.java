@@ -179,7 +179,7 @@ public class LineBotController {
               } else if (text.toLowerCase().startsWith(KW_PANDUAN.toLowerCase())) {
                 unrecognizedMessage(fChannelAccessToken, userId);
               } else { unrecognizedMessage(fChannelAccessToken, userId); }
-            } else { unrecognizedMessage(fChannelAccessToken, userId); }
+            }
             break;
           case POSTBACK:
             String text = postback.data();
