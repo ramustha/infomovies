@@ -15,7 +15,7 @@ public class DiscoverTvs {
   private int totalPages;
 
   public int getPage() { return page; }
-  public List<ResultTvs> getDiscoverresults() { return resultTvs; }
+  public List<ResultTvs> getResultTvs() { return resultTvs; }
   public int getTotalResults() { return totalResults; }
   public int getTotalPages() { return totalPages; }
 

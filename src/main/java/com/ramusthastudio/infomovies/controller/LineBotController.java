@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.linecorp.bot.client.LineSignatureValidator;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.ramusthastudio.infomovies.model.DiscoverMovies;
+import com.ramusthastudio.infomovies.model.DiscoverTvs;
 import com.ramusthastudio.infomovies.model.Events;
 import com.ramusthastudio.infomovies.model.FindMovies;
 import com.ramusthastudio.infomovies.model.Message;
@@ -11,6 +12,7 @@ import com.ramusthastudio.infomovies.model.Payload;
 import com.ramusthastudio.infomovies.model.Postback;
 import com.ramusthastudio.infomovies.model.ResultMovieDetail;
 import com.ramusthastudio.infomovies.model.ResultMovies;
+import com.ramusthastudio.infomovies.model.ResultTvs;
 import com.ramusthastudio.infomovies.model.Source;
 import java.io.IOException;
 import java.util.List;
@@ -35,6 +37,7 @@ import static com.ramusthastudio.infomovies.util.BotHelper.KW_FIND;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_NOW_PLAYING;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_PANDUAN;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_POPULAR;
+import static com.ramusthastudio.infomovies.util.BotHelper.KW_POPULAR_TV;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TOP_RATED;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_UPCOMING;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE;
@@ -45,11 +48,13 @@ import static com.ramusthastudio.infomovies.util.BotHelper.SOURCE_ROOM;
 import static com.ramusthastudio.infomovies.util.BotHelper.SOURCE_USER;
 import static com.ramusthastudio.infomovies.util.BotHelper.buttonMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.carouselMessage;
+import static com.ramusthastudio.infomovies.util.BotHelper.carouselMessageTv;
 import static com.ramusthastudio.infomovies.util.BotHelper.confirmMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.createDetailOverview;
 import static com.ramusthastudio.infomovies.util.BotHelper.getDetailMovie;
 import static com.ramusthastudio.infomovies.util.BotHelper.getNowPlayingMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getPopularMovies;
+import static com.ramusthastudio.infomovies.util.BotHelper.getPopularTvs;
 import static com.ramusthastudio.infomovies.util.BotHelper.getSearchMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getUpcomingMoviesMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.gettopRatedMovies;
@@ -143,6 +148,7 @@ public class LineBotController {
   }
   private void sourceUserProccess(String aEventType, String aReplayToken, long aTimestamp, Message aMessage, Postback aPostback, String aUserId) {
     Response<DiscoverMovies> discoverMovies;
+    Response<DiscoverTvs> discoverTvs;
     FindMovies findMovies;
     try {
       switch (aEventType) {
@@ -179,6 +185,15 @@ public class LineBotController {
               LOG.info("PopularMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
               buildMessage(discoverMovies, aUserId, findMovies);
+            } else if (text.toLowerCase().startsWith(KW_POPULAR_TV.toLowerCase())) {
+              String region = text.substring(KW_POPULAR_TV.length(), text.length()).trim();
+              findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_POPULAR_TV);
+              LOG.info("findMovies findMovies {}", findMovies);
+
+              discoverTvs = getPopularTvs(fBaseUrl, fApiKey, findMovies);
+              LOG.info("PopularTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
+
+              buildMessageTv(discoverTvs, aUserId, findMovies);
             } else if (text.toLowerCase().startsWith(KW_UPCOMING.toLowerCase())) {
               String region = text.substring(KW_UPCOMING.length(), text.length()).trim();
               findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_UPCOMING);
@@ -344,6 +359,23 @@ public class LineBotController {
       int max = aFindMovies.getMax() + 5;
       List<ResultMovies> movies = aDiscoverMovies.body().getResultMovies();
       carouselMessage(fChannelAccessToken, aUserId, fBaseImgUrl, movies, aFindMovies.getMax());
+
+      LOG.info("buildMessage size {} max {}", size, max);
+      if (max < size || !aFindMovies.getFlag().equalsIgnoreCase(KW_FIND)) {
+        confirmMessage(fChannelAccessToken, aUserId, aFindMovies);
+      }
+    } else {
+      stickerMessage(fChannelAccessToken, aUserId, "1", "407");
+    }
+  }
+
+  private void buildMessageTv(Response<DiscoverTvs> aDiscoverTvs, String aUserId,
+      FindMovies aFindMovies) throws IOException {
+    if (aDiscoverTvs.isSuccessful()) {
+      int size = aDiscoverTvs.body().getTotalResults();
+      int max = aFindMovies.getMax() + 5;
+      List<ResultTvs> tvs = aDiscoverTvs.body().getResultTvs();
+      carouselMessageTv(fChannelAccessToken, aUserId, fBaseImgUrl, tvs, aFindMovies.getMax());
 
       LOG.info("buildMessage size {} max {}", size, max);
       if (max < size || !aFindMovies.getFlag().equalsIgnoreCase(KW_FIND)) {
