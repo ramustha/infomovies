@@ -194,7 +194,9 @@ public final class BotHelper {
     UserProfileResponse userProfile = getUserProfile(aChannelAccessToken, aUserId).body();
     String greeting = "Hi " + userProfile.getDisplayName() + ", selamat datang di Info Movies\n";
     greeting += "Terima kasih telah menambahkan saya sebagai teman! \n\n";
+    greeting += "Disini kamu bisa meminta saya untuk memberikan informasi seputar movie maupun series...";
     pushMessage(aChannelAccessToken, aUserId, greeting);
+    unrecognizedMessage(aChannelAccessToken, aUserId);
   }
 
   public static void errorMessage(String aChannelAccessToken, String aUserId) throws IOException {
@@ -206,15 +208,11 @@ public final class BotHelper {
   }
 
   public static void unrecognizedMessage(String aChannelAccessToken, String aUserId) throws IOException {
-    UserProfileResponse userProfile = getUserProfile(aChannelAccessToken, aUserId).body();
-    String greeting = "Hi " + userProfile.getDisplayName() + ", apakah kamu kesulitan ?\n\n";
-    greeting += "Panduan Info Movies:\n";
-    greeting += "~ Now Playing : '" + KW_NOW_PLAYING + " *region(ID)' \n";
-    greeting += "~ Popular : '" + KW_POPULAR + " *region(ID)' \n";
-    greeting += "~ Find Movie :";
-    greeting += "\n 1. '" + KW_FIND + " Judul, *tahun(2014)'";
-    greeting += "\n 2. '" + KW_FIND + " Judul, *region(ID)'";
-    greeting += "\n 3. '" + KW_FIND + " Judul, *tahun(2014), *region(ID)'";
+    String greeting = "Panduan Info Movies:\n";
+    greeting += KW_NOW_PLAYING + " *region(ID)\n";
+    greeting += KW_POPULAR + " *region(ID)\n";
+    greeting += KW_FIND + " Judul, *tahun(2014)\n";
+    greeting += KW_FIND + " Judul, *region(ID)\n";
     // greeting += "Daftar Movie bulan ini : '" + KW_MOVIE_BULAN_INI + "' \n";
     // greeting += "On Air Series : '" + KW_ON_THE_AIR + "'! \n";
     greeting += "\n\n*Opsional";
