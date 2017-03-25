@@ -81,23 +81,23 @@ public class LineBotController {
   String fChannelAccessToken;
 
   @Autowired
-  @Qualifier("com.themoviedb.api_key")
+  @Qualifier("getApiKey")
   String fApiKey;
 
   @Autowired
-  @Qualifier("com.themoviedb.base_url")
+  @Qualifier("getBaseUrl")
   String fBaseUrl;
 
   @Autowired
-  @Qualifier("com.themoviedb.base_imdb_url")
+  @Qualifier("getBaseImdbUrl")
   String fBaseImdbUrl;
 
   @Autowired
-  @Qualifier("com.themoviedb.base_video_url")
+  @Qualifier("getBaseVideoUrl")
   String fBaseVideoUrl;
 
   @Autowired
-  @Qualifier("com.themoviedb.base_img_url")
+  @Qualifier("getBaseImgUrl")
   String fBaseImgUrl;
 
   @RequestMapping(value = "/callback", method = RequestMethod.POST)
