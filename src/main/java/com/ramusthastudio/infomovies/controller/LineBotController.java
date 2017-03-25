@@ -43,6 +43,7 @@ import static com.ramusthastudio.infomovies.util.BotHelper.KW_PANDUAN;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_POPULAR;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TOP_RATED;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_DETAIL;
+import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_DETAIL_OVERVIEW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_DETAIL_TRAILER_OVERVIEW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_POPULAR;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_UPCOMING;
@@ -58,6 +59,7 @@ import static com.ramusthastudio.infomovies.util.BotHelper.carouselMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.carouselMessageTv;
 import static com.ramusthastudio.infomovies.util.BotHelper.confirmMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.createDetailOverview;
+import static com.ramusthastudio.infomovies.util.BotHelper.createDetailOverviewTv;
 import static com.ramusthastudio.infomovies.util.BotHelper.getDetailMovie;
 import static com.ramusthastudio.infomovies.util.BotHelper.getDetailTvs;
 import static com.ramusthastudio.infomovies.util.BotHelper.getDetailTvsVideo;
@@ -285,6 +287,20 @@ public class LineBotController {
             if (detailMovieResp.isSuccessful()) {
               ResultMovieDetail movie = detailMovieResp.body();
               String overview = createDetailOverview(movie, fBaseImdbUrl);
+              Response<BotApiResponse> detail = pushMessage(fChannelAccessToken, aUserId, overview);
+              LOG.info("Postback code {} message {}", detail.code(), detail.message());
+            }
+
+          } else if (text.toLowerCase().startsWith(KW_TV_DETAIL_OVERVIEW.toLowerCase())) {
+            String strId = text.substring(KW_TV_DETAIL_OVERVIEW.length(), text.length());
+            LOG.info("Tv id {}", strId.trim());
+            int id = Integer.parseInt(strId.trim());
+            Response<ResultTvsDetail> detailTvResp = getDetailTvs(fBaseUrl, id, fApiKey);
+            LOG.info("Postback code {} message {}", detailTvResp.code(), detailTvResp.message());
+
+            if (detailTvResp.isSuccessful()) {
+              ResultTvsDetail tv = detailTvResp.body();
+              String overview = createDetailOverviewTv(tv);
               Response<BotApiResponse> detail = pushMessage(fChannelAccessToken, aUserId, overview);
               LOG.info("Postback code {} message {}", detail.code(), detail.message());
             }

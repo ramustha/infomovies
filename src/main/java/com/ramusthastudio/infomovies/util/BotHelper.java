@@ -320,6 +320,21 @@ public final class BotHelper {
     return overview;
   }
 
+  public static String createDetailOverviewTv(ResultTvsDetail aTvDetail) {
+    String overview = "Title: " + aTvDetail.getName() + "\n";
+    overview += "Genre: " + createFromGenre(aTvDetail.getGenres()) + "\n";
+    overview += "Rating: " + aTvDetail.getVoteAverage() + " (" + aTvDetail.getVoteCount() + ")\n";
+    overview += "First air date: " + aTvDetail.getFirstAirDate() + "\n";
+    overview += "Last air date: " + aTvDetail.getLastAirDate() + "\n";
+    overview += "Seasons: " + aTvDetail.getNumberOfSeasons() + "\n";
+    overview += "Episodes: " + aTvDetail.getNumberOfEpisodes() + "\n";
+    overview += "Duration: " + aTvDetail.getEpisodeRunTimes() + " Minutes\n";
+    overview += "Status: " + aTvDetail.getStatus() + "\n";
+    overview += "Homepage: " + aTvDetail.getHomepage() + "\n";
+    overview += "Overview: \n" + aTvDetail.getOverview();
+    return overview;
+  }
+
   public static String createTitle(String aTitle) {
     String filterTitle;
     if (aTitle.length() > 30) {
