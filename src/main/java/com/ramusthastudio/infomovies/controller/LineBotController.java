@@ -79,6 +79,7 @@ import static com.ramusthastudio.infomovies.util.BotHelper.getTopRatedMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getTopRatedTvs;
 import static com.ramusthastudio.infomovies.util.BotHelper.getUpcomingMoviesMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.greetingMessage;
+import static com.ramusthastudio.infomovies.util.BotHelper.greetingMessageGroup;
 import static com.ramusthastudio.infomovies.util.BotHelper.pushMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.stickerMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.unrecognizedMessage;
@@ -303,7 +304,9 @@ public class LineBotController {
               buildMessageTvs(discoverTvs, aUserId, findMovies);
             } else if (text.toLowerCase().contains(KW_PANDUAN.toLowerCase())) {
               unrecognizedMessage(fChannelAccessToken, aUserId);
-            } else { unrecognizedMessage(fChannelAccessToken, aUserId); }
+            } else {
+              // unrecognizedMessage(fChannelAccessToken, aUserId);
+            }
           }
           break;
         case POSTBACK:
@@ -550,7 +553,7 @@ public class LineBotController {
     try {
       switch (aEventType) {
         case JOIN:
-          greetingMessage(fChannelAccessToken, aSource.groupId());
+          greetingMessageGroup(fChannelAccessToken, aSource.groupId());
           pushMessage(fChannelAccessToken, aSource.groupId(), "Popular movies..");
 
           findMovies = newFindMovies().withPage(1).withMax(0).withFlag(KW_POPULAR);
@@ -678,7 +681,9 @@ public class LineBotController {
               buildMessageTvs(discoverTvs, aSource.groupId(), findMovies);
             } else if (text.toLowerCase().contains(KW_PANDUAN.toLowerCase())) {
               unrecognizedMessage(fChannelAccessToken, aSource.groupId());
-            } else { unrecognizedMessage(fChannelAccessToken, aSource.groupId()); }
+            } else {
+              // unrecognizedMessage(fChannelAccessToken, aSource.groupId());
+            }
           }
           break;
         case POSTBACK:

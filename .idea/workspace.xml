@@ -4,6 +4,7 @@
     <list default="true" id="383bcd04-0812-4968-ae91-cfb823c453f9" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/controller/LineBotController.java" afterPath="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/controller/LineBotController.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/util/BotHelper.java" afterPath="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/util/BotHelper.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
@@ -49,25 +50,22 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file leaf-file-name="LineBotController.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="LineBotController.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/controller/LineBotController.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="265">
-              <caret line="892" column="45" lean-forward="false" selection-start-line="892" selection-start-column="45" selection-end-line="892" selection-end-column="45" />
+            <state relative-caret-position="307">
+              <caret line="562" column="34" lean-forward="false" selection-start-line="562" selection-start-column="34" selection-end-line="562" selection-end-column="34" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="String.java" pinned="false" current-in-tab="true">
-        <entry file="jar://C:/Program Files/Java/jdk1.8.0_121/src.zip!/java/lang/String.java">
+      <file leaf-file-name="BotHelper.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/util/BotHelper.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-6245">
-              <caret line="2131" column="19" lean-forward="false" selection-start-line="2131" selection-start-column="19" selection-end-line="2131" selection-end-column="19" />
-              <folding>
-                <element signature="e#82971#82972#0" expanded="true" />
-                <element signature="e#83020#83021#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="158">
+              <caret line="291" column="21" lean-forward="false" selection-start-line="291" selection-start-column="21" selection-end-line="291" selection-end-column="21" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -131,6 +129,7 @@
       <find>KW_POPULAR</find>
       <find>KW_DETAIL_OVERVIEW</find>
       <find>startsWith</find>
+      <find>saya</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -1285,7 +1284,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="149191000" />
+    <option name="totallyTimeSpent" value="149852000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1098" extended-state="6" />
@@ -1316,7 +1315,7 @@
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3288889" sideWeight="0.5" order="14" side_tool="false" content_ui="tabs" />
       <window_info id="Spring" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="CheckStyle" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.0698174" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Bean Validation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.17561762" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -1722,22 +1721,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/util/BotHelper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="506">
-          <caret line="465" column="34" lean-forward="false" selection-start-line="465" selection-start-column="34" selection-end-line="465" selection-end-column="34" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/controller/LineBotController.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="265">
-          <caret line="892" column="45" lean-forward="false" selection-start-line="892" selection-start-column="45" selection-end-line="892" selection-end-column="45" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://C:/Program Files/Java/jdk1.8.0_121/src.zip!/java/lang/String.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-6245">
@@ -1746,6 +1729,22 @@
             <element signature="e#82971#82972#0" expanded="true" />
             <element signature="e#83020#83021#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/util/BotHelper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="158">
+          <caret line="291" column="21" lean-forward="false" selection-start-line="291" selection-start-column="21" selection-end-line="291" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/controller/LineBotController.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="307">
+          <caret line="562" column="34" lean-forward="false" selection-start-line="562" selection-start-column="34" selection-end-line="562" selection-end-column="34" />
+          <folding />
         </state>
       </provider>
     </entry>

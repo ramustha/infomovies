@@ -283,8 +283,15 @@ public final class BotHelper {
     stickerMessage(aChannelAccessToken, aUserId, "1", "125");
     UserProfileResponse userProfile = getUserProfile(aChannelAccessToken, aUserId).body();
     String greeting = "Hi " + userProfile.getDisplayName() + ", selamat datang di Info Movies\n";
-    greeting += "Terima kasih telah menambahkan saya sebagai teman! \n\n";
-    greeting += "Disini kamu bisa meminta saya untuk memberikan informasi seputar movie maupun series...";
+    greeting += "Terima kasih telah menambahkan aku sebagai teman! \n\n";
+    greeting += "Disini kamu bisa meminta aku untuk memberikan informasi seputar movie maupun series...";
+    pushMessage(aChannelAccessToken, aUserId, greeting);
+    unrecognizedMessage(aChannelAccessToken, aUserId);
+  }
+
+  public static void greetingMessageGroup(String aChannelAccessToken, String aUserId) throws IOException {
+    String greeting = "Hi Manteman, makasih yah udah invite aku disini\n";
+    greeting += "kalian bisa meminta aku untuk memberikan informasi seputar movie maupun series...";
     pushMessage(aChannelAccessToken, aUserId, greeting);
     unrecognizedMessage(aChannelAccessToken, aUserId);
   }
