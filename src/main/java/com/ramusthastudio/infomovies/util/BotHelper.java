@@ -186,9 +186,9 @@ public final class BotHelper {
     String title = createTitle(aTvDetail.getName());
     List<Seasons> seasons = aTvDetail.getSeasons();
     String tagline = createTagline(
-        "Last Season " + aTvDetail.getNumberOfSeasons() + "\n" +
-            "Last episode " + seasons.get(seasons.size() - 1).getSeasonNumber() + "\n" +
-            "Time " + aTvDetail.getEpisodeRunTimes() + " M\n"
+        "Current Season: " + aTvDetail.getNumberOfSeasons() + "\n" +
+            "Current episode: " + seasons.get(seasons.size() - 1).getEpisodeCount() + "\n" +
+            "Duration: " + aTvDetail.getEpisodeRunTimes().get(0) + " M\n"
 
     );
     String homepage = createHomepage(aBaseImdbUrl, aTvDetail.getHomepage(), "");

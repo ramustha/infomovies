@@ -301,9 +301,10 @@ public class LineBotController {
               int videoId = tvVideo.getId();
               List<ResultVideo> resultVideo = tvVideo.getResultVideo();
               for (ResultVideo video : resultVideo) {
-                // pushMessage(fChannelAccessToken, aUserId, video.getName());
-                Response<BotApiResponse> detail = videoMessage(fChannelAccessToken, aUserId, IMG_HOLDER, fBaseVideoUrl + video.getKey());
-                LOG.info("Postback code {} message {}", detail.code(), detail.message());
+                String videoUrl = fBaseVideoUrl + video.getKey();
+                pushMessage(fChannelAccessToken, aUserId, video.getName());
+                Response<BotApiResponse> detail = videoMessage(fChannelAccessToken, aUserId, IMG_HOLDER, videoUrl);
+                LOG.info("Postback code {} message {} {}", detail.code(), detail.message(), videoUrl);
               }
             }
 
