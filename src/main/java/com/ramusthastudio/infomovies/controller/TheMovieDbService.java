@@ -55,6 +55,12 @@ public interface TheMovieDbService {
   @GET("tv/{tv_id}/videos")
   Call<ResultTvsVideo> detailTvsVideo(@Path("tv_id") int aMovieId, @Query("api_key") String aApi);
 
+  @GET("search/tv")
+  Call<DiscoverTvs> searchTvs(@Query("api_key") String aApi, @Query("query") String aQuery, @Query("page") int aPage);
+
+  @GET("search/tv")
+  Call<DiscoverTvs> searchTvs(@Query("api_key") String aApi, @Query("query") String aQuery, @Query("page") int aPage, @Query("first_air_date_year") int aFirstAirDateYear);
+
 
   // @GET("discover/movie")
   // Call<DiscoverMovies> discoverMovies(@Query("api_key") String aApi, @Query("primary_release_year") int aYear);

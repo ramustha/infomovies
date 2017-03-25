@@ -63,12 +63,12 @@ public final class BotHelper {
   public static final String MESSAGE_STICKER = "sticker";
 
   public static final String KW_FIND = "Find";
+  public static final String KW_TV_FIND = "Tv Find";
   public static final String KW_DETAIL = "Detail";
   public static final String KW_TV_DETAIL = "Tv Detail";
   public static final String KW_STAR = "Star";
   public static final String KW_DETAIL_OVERVIEW = "Overview";
   public static final String KW_TV_DETAIL_OVERVIEW = "Tv Overview";
-  public static final String KW_TV_DETAIL_SEASON_OVERVIEW = "Tv Season Overview";
   public static final String KW_TV_DETAIL_TRAILER_OVERVIEW = "Tv Trailer Overview";
   public static final String KW_NOW_PLAYING = "Now Playing";
   public static final String KW_LATEST = "Latest";
@@ -203,7 +203,6 @@ public final class BotHelper {
         Arrays.asList(
             new PostbackAction("Trailer", KW_TV_DETAIL_TRAILER_OVERVIEW + " " + aTvDetail.getId()),
             new PostbackAction("Overview", KW_TV_DETAIL_OVERVIEW + " " + aTvDetail.getId()),
-            new PostbackAction("Season", KW_TV_DETAIL_SEASON_OVERVIEW + " " + aTvDetail.getId()),
             new URIAction("Homepage", homepage)
         ));
 
@@ -296,15 +295,16 @@ public final class BotHelper {
 
   public static void unrecognizedMessage(String aChannelAccessToken, String aUserId) throws IOException {
     String greeting = "Panduan Info Movies:\n\n";
-    greeting += "1. " + KW_NOW_PLAYING + " *region(ID)\n";
-    greeting += "2. " + KW_POPULAR + " *region(ID)\n";
-    greeting += "3. " + KW_TOP_RATED + " *region(ID)\n";
-    greeting += "4. " + KW_UPCOMING + " *region(ID)\n";
-    greeting += "5. " + KW_POPULAR + " *region(ID)\n";
-    greeting += "6. " + KW_FIND + " Judul, *tahun(2014)\n";
-    greeting += "7. " + KW_FIND + " Judul, *region(ID)\n\n";
+    greeting += "1. " + KW_NOW_PLAYING + " *(ID)\n";
+    greeting += "2. " + KW_POPULAR + " *(ID)\n";
+    greeting += "3. " + KW_TOP_RATED + " *(ID)\n";
+    greeting += "4. " + KW_UPCOMING + " *(ID)\n";
+    greeting += "5. " + KW_POPULAR + " *(ID)\n";
+    greeting += "6. " + KW_FIND + " Judul, *(2014)\n";
+    greeting += "7. " + KW_FIND + " Judul, *(ID)\n\n";
 
     greeting += "1. " + KW_TV_POPULAR + "\n";
+    greeting += "2. " + KW_TV_FIND + " Judul, *(2014)\n";
     // greeting += "Daftar Movie bulan ini : '" + KW_MOVIE_BULAN_INI + "' \n";
     // greeting += "On Air Series : '" + KW_ON_THE_AIR + "'! \n";
     greeting += "\n\n*Opsional";
@@ -471,5 +471,13 @@ public final class BotHelper {
       return service.searchMovies(aApiKey, aFindMovies.getTitle(), aFindMovies.getPage(), aFindMovies.getRegion()).execute();
     }
     return service.searchMovies(aApiKey, aFindMovies.getTitle(), aFindMovies.getPage(), aFindMovies.getRegion(), aFindMovies.getYear()).execute();
+  }
+
+  public static Response<DiscoverTvs> getSearchTvs(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
+    TheMovieDbService service = createdService(aBaseUrl);
+    if (aFindMovies.getYear() == 0) {
+      return service.searchTvs(aApiKey, aFindMovies.getTitle(), aFindMovies.getPage()).execute();
+    }
+    return service.searchTvs(aApiKey, aFindMovies.getTitle(), aFindMovies.getPage(), aFindMovies.getYear()).execute();
   }
 }

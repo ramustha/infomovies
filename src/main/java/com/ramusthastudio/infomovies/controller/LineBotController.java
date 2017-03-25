@@ -45,6 +45,7 @@ import static com.ramusthastudio.infomovies.util.BotHelper.KW_TOP_RATED;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_DETAIL;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_DETAIL_OVERVIEW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_DETAIL_TRAILER_OVERVIEW;
+import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_FIND;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_POPULAR;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_UPCOMING;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE;
@@ -67,6 +68,7 @@ import static com.ramusthastudio.infomovies.util.BotHelper.getNowPlayingMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getPopularMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getPopularTvs;
 import static com.ramusthastudio.infomovies.util.BotHelper.getSearchMovies;
+import static com.ramusthastudio.infomovies.util.BotHelper.getSearchTvs;
 import static com.ramusthastudio.infomovies.util.BotHelper.getUpcomingMoviesMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.gettopRatedMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.greetingMessage;
@@ -205,7 +207,7 @@ public class LineBotController {
               discoverTvs = getPopularTvs(fBaseUrl, fApiKey, findMovies);
               LOG.info("PopularTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
 
-              buildMessageTv(discoverTvs, aUserId, findMovies);
+              buildMessageTvs(discoverTvs, aUserId, findMovies);
             } else if (text.toLowerCase().startsWith(KW_UPCOMING.toLowerCase())) {
               String region = text.substring(KW_UPCOMING.length(), text.length()).trim();
               findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_UPCOMING);
@@ -244,6 +246,26 @@ public class LineBotController {
               LOG.info("SearchMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
               buildMessage(discoverMovies, aUserId, findMovies);
+            } else if (text.toLowerCase().startsWith(KW_TV_FIND.toLowerCase())) {
+              String keyword = text.substring(KW_TV_FIND.length(), text.length());
+              String[] data = keyword.split(",");
+              int year = 0;
+              String region = "";
+              if (data.length == 2 && data[1].length() > 1 && !data[1].isEmpty()) {
+                year = data[1].length() == 4 ? Integer.parseInt(data[1]) : 0;
+                region = data[1].length() == 2 ? data[1] : "";
+              } else if (data.length == 3 && !data[1].isEmpty() && !data[2].isEmpty()) {
+                year = data[1].length() == 4 ? Integer.parseInt(data[1]) : 0;
+                region = data[1].length() == 2 ? data[1] : "";
+              }
+              findMovies = newFindMovies()
+                  .withTitle(data[0]).withYear(year).withPage(1).withFlag(KW_FIND);
+              LOG.info("findTvs findTv {}", findMovies);
+
+              discoverTvs = getSearchTvs(fBaseUrl, fApiKey, findMovies);
+              LOG.info("SearchTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
+
+              buildMessageTvs(discoverTvs, aUserId, findMovies);
             } else if (text.toLowerCase().startsWith(KW_PANDUAN.toLowerCase())) {
               unrecognizedMessage(fChannelAccessToken, aUserId);
             } else { unrecognizedMessage(fChannelAccessToken, aUserId); }
@@ -381,7 +403,7 @@ public class LineBotController {
             discoverTvs = getPopularTvs(fBaseUrl, fApiKey, findMovies);
             LOG.info("Popular tv code {} message {}", discoverTvs.code(), discoverTvs.message());
 
-            buildMessageTv(discoverTvs, aUserId, findMovies);
+            buildMessageTvs(discoverTvs, aUserId, findMovies);
           } else if (text.toLowerCase().startsWith(KW_UPCOMING.toLowerCase())) {
             String strPageMax = text.substring(KW_UPCOMING.length(), text.length());
             String[] pageMax = strPageMax.split(",");
@@ -446,7 +468,7 @@ public class LineBotController {
     }
   }
 
-  private void buildMessageTv(Response<DiscoverTvs> aDiscoverTvs, String aUserId,
+  private void buildMessageTvs(Response<DiscoverTvs> aDiscoverTvs, String aUserId,
       FindMovies aFindMovies) throws IOException {
     if (aDiscoverTvs.isSuccessful()) {
       int size = aDiscoverTvs.body().getTotalResults();
