@@ -155,7 +155,7 @@ public class LineBotController {
           sourceUserProccess(eventType, replayToken, timestamp, message, postback, userId);
           break;
         case SOURCE_GROUP:
-          // sourceGroupProccess(eventType, replayToken, postback, message, source);
+          sourceGroupProccess(eventType, replayToken, postback, message, source);
           break;
         case SOURCE_ROOM:
           // sourceGroupProccess(eventType, replayToken, postback, message, source);
@@ -166,6 +166,7 @@ public class LineBotController {
 
     return new ResponseEntity<>(HttpStatus.OK);
   }
+
   private void sourceUserProccess(String aEventType, String aReplayToken, long aTimestamp, Message aMessage, Postback aPostback, String aUserId) {
     Response<DiscoverMovies> discoverMovies;
     Response<DiscoverTvs> discoverTvs;
@@ -535,6 +536,381 @@ public class LineBotController {
           } else {
             stickerMessage(fChannelAccessToken, aUserId, "1", "407");
             unrecognizedMessage(fChannelAccessToken, aUserId);
+          }
+          break;
+      }
+    } catch (IOException ignored) {}
+  }
+
+  private void sourceGroupProccess(String aEventType, String aReplayToken, Postback aPostback, Message aMessage, Source aSource) {
+    Response<DiscoverMovies> discoverMovies;
+    Response<DiscoverTvs> discoverTvs;
+    FindMovies findMovies;
+    try {
+      switch (aEventType) {
+        case FOLLOW:
+          greetingMessage(fChannelAccessToken, aSource.groupId());
+          pushMessage(fChannelAccessToken, aSource.groupId(), "Popular movies..");
+
+          findMovies = newFindMovies().withPage(1).withMax(0).withFlag(KW_POPULAR);
+          LOG.info("findMovies findMovies {}", findMovies);
+
+          discoverMovies = getPopularMovies(fBaseUrl, fApiKey, findMovies);
+          LOG.info("Popular movies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
+          buildMessage(discoverMovies, aSource.groupId(), findMovies);
+          break;
+        case MESSAGE:
+          if (aMessage.type().equals(MESSAGE_TEXT)) {
+            String text = aMessage.text();
+            if (text.toLowerCase().startsWith(KW_NOW_PLAYING.toLowerCase())) {
+              String region = text.substring(KW_NOW_PLAYING.length(), text.length()).trim();
+              findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_NOW_PLAYING);
+              LOG.info("findMovies findMovies {}", findMovies);
+
+              discoverMovies = getNowPlayingMovies(fBaseUrl, fApiKey, findMovies);
+              LOG.info("NowPlayingMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
+              buildMessage(discoverMovies, aSource.groupId(), findMovies);
+            } else if (text.toLowerCase().startsWith(KW_POPULAR.toLowerCase())) {
+              String region = text.substring(KW_POPULAR.length(), text.length()).trim();
+              findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_POPULAR);
+              LOG.info("findMovies findMovies {}", findMovies);
+
+              discoverMovies = getPopularMovies(fBaseUrl, fApiKey, findMovies);
+              LOG.info("PopularMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
+              buildMessage(discoverMovies, aSource.groupId(), findMovies);
+            } else if (text.toLowerCase().startsWith(KW_TV_POPULAR.toLowerCase())) {
+              String region = text.substring(KW_TV_POPULAR.length(), text.length()).trim();
+              findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_TV_POPULAR);
+              LOG.info("findTv findTvs {}", findMovies);
+
+              discoverTvs = getPopularTvs(fBaseUrl, fApiKey, findMovies);
+              LOG.info("PopularTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
+
+              buildMessageTvs(discoverTvs, aSource.groupId(), findMovies);
+            } else if (text.toLowerCase().startsWith(KW_UPCOMING.toLowerCase())) {
+              String region = text.substring(KW_UPCOMING.length(), text.length()).trim();
+              findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_UPCOMING);
+              LOG.info("findMovies findMovies {}", findMovies);
+
+              discoverMovies = getUpcomingMoviesMovies(fBaseUrl, fApiKey, findMovies);
+              LOG.info("ComingSoonMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
+              buildMessage(discoverMovies, aSource.groupId(), findMovies);
+            } else if (text.toLowerCase().startsWith(KW_TOP_RATED.toLowerCase())) {
+              String region = text.substring(KW_TOP_RATED.length(), text.length()).trim();
+              findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_TOP_RATED);
+              LOG.info("findMovies findMovies {}", findMovies);
+
+              discoverMovies = getTopRatedMovies(fBaseUrl, fApiKey, findMovies);
+              LOG.info("TopRatedMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
+              buildMessage(discoverMovies, aSource.groupId(), findMovies);
+            } else if (text.toLowerCase().startsWith(KW_TV_TOP_RATED.toLowerCase())) {
+              String region = text.substring(KW_TV_TOP_RATED.length(), text.length()).trim();
+              findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_TV_TOP_RATED);
+              LOG.info("findTvs findTvs {}", findMovies);
+
+              discoverTvs = getTopRatedTvs(fBaseUrl, fApiKey, findMovies);
+              LOG.info("TopRatedTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
+
+              buildMessageTvs(discoverTvs, aSource.groupId(), findMovies);
+            } else if (text.toLowerCase().startsWith(KW_TV_AIRING_TODAY.toLowerCase())) {
+              String region = text.substring(KW_TV_AIRING_TODAY.length(), text.length()).trim();
+              findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_TV_AIRING_TODAY);
+              LOG.info("findTvs findTvs {}", findMovies);
+
+              discoverTvs = getAiringTodayTvs(fBaseUrl, fApiKey, findMovies);
+              LOG.info("AiringTodayTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
+
+              buildMessageTvs(discoverTvs, aSource.groupId(), findMovies);
+            } else if (text.toLowerCase().startsWith(KW_TV_ON_AIR.toLowerCase())) {
+              String region = text.substring(KW_TV_ON_AIR.length(), text.length()).trim();
+              findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_TV_ON_AIR);
+              LOG.info("findTvs findTvs {}", findMovies);
+
+              discoverTvs = getOnAirTvs(fBaseUrl, fApiKey, findMovies);
+              LOG.info("OnAirTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
+
+              buildMessageTvs(discoverTvs, aSource.groupId(), findMovies);
+            } else if (text.toLowerCase().startsWith(KW_FIND.toLowerCase())) {
+              String keyword = text.substring(KW_FIND.length(), text.length());
+              String[] data = keyword.split(",");
+              int year = 0;
+              String region = "";
+              if (data.length == 2 && data[1].length() > 1 && !data[1].isEmpty()) {
+                year = data[1].length() == 4 ? Integer.parseInt(data[1]) : 0;
+                region = data[1].length() == 2 ? data[1] : "";
+              } else if (data.length == 3 && !data[1].isEmpty() && !data[2].isEmpty()) {
+                year = data[1].length() == 4 ? Integer.parseInt(data[1]) : 0;
+                region = data[1].length() == 2 ? data[1] : "";
+              }
+              findMovies = newFindMovies()
+                  .withTitle(data[0]).withYear(year).withPage(1).withRegion(region).withFlag(KW_FIND);
+              LOG.info("findMovies findMovies {}", findMovies);
+
+              discoverMovies = getSearchMovies(fBaseUrl, fApiKey, findMovies);
+              LOG.info("SearchMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
+              buildMessage(discoverMovies, aSource.groupId(), findMovies);
+            } else if (text.toLowerCase().startsWith(KW_TV_FIND.toLowerCase())) {
+              String keyword = text.substring(KW_TV_FIND.length(), text.length());
+              String[] data = keyword.split(",");
+              int year = 0;
+              String region = "";
+              if (data.length == 2 && data[1].length() > 1 && !data[1].isEmpty()) {
+                year = data[1].length() == 4 ? Integer.parseInt(data[1]) : 0;
+                region = data[1].length() == 2 ? data[1] : "";
+              } else if (data.length == 3 && !data[1].isEmpty() && !data[2].isEmpty()) {
+                year = data[1].length() == 4 ? Integer.parseInt(data[1]) : 0;
+                region = data[1].length() == 2 ? data[1] : "";
+              }
+              findMovies = newFindMovies()
+                  .withTitle(data[0]).withYear(year).withPage(1).withFlag(KW_FIND);
+              LOG.info("findTvs findTv {}", findMovies);
+
+              discoverTvs = getSearchTvs(fBaseUrl, fApiKey, findMovies);
+              LOG.info("SearchTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
+
+              buildMessageTvs(discoverTvs, aSource.groupId(), findMovies);
+            } else if (text.toLowerCase().startsWith(KW_PANDUAN.toLowerCase())) {
+              unrecognizedMessage(fChannelAccessToken, aSource.groupId());
+            } else { unrecognizedMessage(fChannelAccessToken, aSource.groupId()); }
+          }
+          break;
+        case POSTBACK:
+          String text = aPostback.data();
+          if (text.toLowerCase().startsWith(KW_DETAIL.toLowerCase())) {
+            String strId = text.substring(KW_DETAIL.length(), text.length());
+            LOG.info("Movie id {}", strId.trim());
+            int id = Integer.parseInt(strId.trim());
+            Response<ResultMovieDetail> detailMovieResp = getDetailMovie(fBaseUrl, id, fApiKey);
+            LOG.info("Message code {} message {}", detailMovieResp.code(), detailMovieResp.message());
+
+            if (detailMovieResp.isSuccessful()) {
+              ResultMovieDetail movie = detailMovieResp.body();
+              Response<BotApiResponse> detail = buttonMessage(fChannelAccessToken, fBaseImdbUrl, fBaseImgUrl, aSource.groupId(), movie);
+              LOG.info("Message code {} message {}", detail.code(), detail.message());
+            }
+
+          } else if (text.toLowerCase().startsWith(KW_TV_DETAIL.toLowerCase())) {
+            String strId = text.substring(KW_TV_DETAIL.length(), text.length());
+            LOG.info("Tv id {}", strId.trim());
+            int id = Integer.parseInt(strId.trim());
+            Response<ResultTvsDetail> detailTvResp = getDetailTvs(fBaseUrl, id, fApiKey);
+            LOG.info("Message code {} message {}", detailTvResp.code(), detailTvResp.message());
+
+            if (detailTvResp.isSuccessful()) {
+              ResultTvsDetail tv = detailTvResp.body();
+              Response<BotApiResponse> detail = buttonMessageTv(fChannelAccessToken, fBaseImdbUrl, fBaseImgUrl, aSource.groupId(), tv);
+              LOG.info("Message code {} message {}", detail.code(), detail.message());
+            }
+
+          } else if (text.toLowerCase().startsWith(KW_DETAIL_OVERVIEW.toLowerCase())) {
+            String strId = text.substring(KW_DETAIL_OVERVIEW.length(), text.length());
+            LOG.info("Movie id {}", strId.trim());
+            int id = Integer.parseInt(strId.trim());
+            Response<ResultMovieDetail> detailMovieResp = getDetailMovie(fBaseUrl, id, fApiKey);
+            LOG.info("Postback code {} message {}", detailMovieResp.code(), detailMovieResp.message());
+
+            if (detailMovieResp.isSuccessful()) {
+              ResultMovieDetail movie = detailMovieResp.body();
+              String overview = createDetailOverview(movie, fBaseImdbUrl);
+              Response<BotApiResponse> detail = pushMessage(fChannelAccessToken, aSource.groupId(), overview);
+              LOG.info("Postback code {} message {}", detail.code(), detail.message());
+            }
+
+          } else if (text.toLowerCase().startsWith(KW_TV_DETAIL_OVERVIEW.toLowerCase())) {
+            String strId = text.substring(KW_TV_DETAIL_OVERVIEW.length(), text.length());
+            LOG.info("Tv id {}", strId.trim());
+            int id = Integer.parseInt(strId.trim());
+            Response<ResultTvsDetail> detailTvResp = getDetailTvs(fBaseUrl, id, fApiKey);
+            LOG.info("Postback code {} message {}", detailTvResp.code(), detailTvResp.message());
+
+            if (detailTvResp.isSuccessful()) {
+              ResultTvsDetail tv = detailTvResp.body();
+              String overview = createDetailOverviewTv(tv);
+              Response<BotApiResponse> detail = pushMessage(fChannelAccessToken, aSource.groupId(), overview);
+              LOG.info("Postback code {} message {}", detail.code(), detail.message());
+            }
+
+          } else if (text.toLowerCase().startsWith(KW_TV_DETAIL_TRAILER_OVERVIEW.toLowerCase())) {
+            String strId = text.substring(KW_TV_DETAIL_TRAILER_OVERVIEW.length(), text.length());
+            LOG.info("Tv id {}", strId.trim());
+            int id = Integer.parseInt(strId.trim());
+            Response<ResultTvsVideo> detailTvVideoResp = getDetailTvsVideo(fBaseUrl, id, fApiKey);
+            LOG.info("Postback code {} message {}", detailTvVideoResp.code(), detailTvVideoResp.message());
+
+            if (detailTvVideoResp.isSuccessful()) {
+              ResultTvsVideo tvVideo = detailTvVideoResp.body();
+              int videoId = tvVideo.getId();
+              List<ResultVideo> resultVideo = tvVideo.getResultVideo();
+              for (ResultVideo video : resultVideo) {
+                String videoUrl = fBaseVideoUrl + video.getKey();
+                pushMessage(fChannelAccessToken, aSource.groupId(), video.getName());
+                Response<BotApiResponse> detail = videoMessage(fChannelAccessToken, aSource.groupId(), IMG_HOLDER, videoUrl);
+                LOG.info("Postback code {} message {} {}", detail.code(), detail.message(), videoUrl);
+              }
+            }
+
+          } else if (text.toLowerCase().startsWith(KW_NOW_PLAYING.toLowerCase())) {
+            String strPageMax = text.substring(KW_NOW_PLAYING.length(), text.length());
+            String[] pageMax = strPageMax.split(",");
+
+            int page = Integer.parseInt(pageMax[0].trim());
+            int max = Integer.parseInt(pageMax[1].trim());
+            int year = Integer.parseInt(pageMax[2].trim());
+            if (pageMax.length == 4) {
+              String region = pageMax[3].trim();
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withRegion(region).withFlag(KW_NOW_PLAYING);
+            } else {
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withFlag(KW_NOW_PLAYING);
+            }
+            LOG.info("findMovies findMovies {}", findMovies);
+
+            discoverMovies = getNowPlayingMovies(fBaseUrl, fApiKey, findMovies);
+            LOG.info("Popular movies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
+            buildMessage(discoverMovies, aSource.groupId(), findMovies);
+
+          } else if (text.toLowerCase().startsWith(KW_POPULAR.toLowerCase())) {
+            String strPageMax = text.substring(KW_POPULAR.length(), text.length());
+            String[] pageMax = strPageMax.split(",");
+
+            int page = Integer.parseInt(pageMax[0].trim());
+            int max = Integer.parseInt(pageMax[1].trim());
+            int year = Integer.parseInt(pageMax[2].trim());
+            if (pageMax.length == 4) {
+              String region = pageMax[3].trim();
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withRegion(region).withFlag(KW_POPULAR);
+            } else {
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withFlag(KW_POPULAR);
+            }
+            LOG.info("findMovies findMovies {}", findMovies);
+
+            discoverMovies = getPopularMovies(fBaseUrl, fApiKey, findMovies);
+            LOG.info("Popular movies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
+            buildMessage(discoverMovies, aSource.groupId(), findMovies);
+          } else if (text.toLowerCase().startsWith(KW_TV_POPULAR.toLowerCase())) {
+            String strPageMax = text.substring(KW_TV_POPULAR.length(), text.length());
+            String[] pageMax = strPageMax.split(",");
+
+            int page = Integer.parseInt(pageMax[0].trim());
+            int max = Integer.parseInt(pageMax[1].trim());
+            int year = Integer.parseInt(pageMax[2].trim());
+            if (pageMax.length == 4) {
+              String region = pageMax[3].trim();
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withRegion(region).withFlag(KW_TV_POPULAR);
+            } else {
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withFlag(KW_TV_POPULAR);
+            }
+            LOG.info("findTvs findTvs {}", findMovies);
+
+            discoverTvs = getPopularTvs(fBaseUrl, fApiKey, findMovies);
+            LOG.info("Popular tv code {} message {}", discoverTvs.code(), discoverTvs.message());
+
+            buildMessageTvs(discoverTvs, aSource.groupId(), findMovies);
+          } else if (text.toLowerCase().startsWith(KW_UPCOMING.toLowerCase())) {
+            String strPageMax = text.substring(KW_UPCOMING.length(), text.length());
+            String[] pageMax = strPageMax.split(",");
+
+            int page = Integer.parseInt(pageMax[0].trim());
+            int max = Integer.parseInt(pageMax[1].trim());
+            int year = Integer.parseInt(pageMax[2].trim());
+            if (pageMax.length == 4) {
+              String region = pageMax[3].trim();
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withRegion(region).withFlag(KW_UPCOMING);
+            } else {
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withFlag(KW_UPCOMING);
+            }
+            LOG.info("findMovies findMovies {}", findMovies);
+
+            discoverMovies = getUpcomingMoviesMovies(fBaseUrl, fApiKey, findMovies);
+            LOG.info("Coming soon movies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
+            buildMessage(discoverMovies, aSource.groupId(), findMovies);
+          } else if (text.toLowerCase().startsWith(KW_TOP_RATED.toLowerCase())) {
+            String strPageMax = text.substring(KW_TOP_RATED.length(), text.length());
+            String[] pageMax = strPageMax.split(",");
+
+            int page = Integer.parseInt(pageMax[0].trim());
+            int max = Integer.parseInt(pageMax[1].trim());
+            int year = Integer.parseInt(pageMax[2].trim());
+            if (pageMax.length == 4) {
+              String region = pageMax[3].trim();
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withRegion(region).withFlag(KW_TOP_RATED);
+            } else {
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withFlag(KW_TOP_RATED);
+            }
+            LOG.info("findMovies findMovies {}", findMovies);
+
+            discoverMovies = getTopRatedMovies(fBaseUrl, fApiKey, findMovies);
+            LOG.info("Top Rated movies code {} message {}", discoverMovies.code(), discoverMovies.message());
+
+            buildMessage(discoverMovies, aSource.groupId(), findMovies);
+          } else if (text.toLowerCase().startsWith(KW_TV_TOP_RATED.toLowerCase())) {
+            String strPageMax = text.substring(KW_TV_TOP_RATED.length(), text.length());
+            String[] pageMax = strPageMax.split(",");
+
+            int page = Integer.parseInt(pageMax[0].trim());
+            int max = Integer.parseInt(pageMax[1].trim());
+            int year = Integer.parseInt(pageMax[2].trim());
+            if (pageMax.length == 4) {
+              String region = pageMax[3].trim();
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withRegion(region).withFlag(KW_TOP_RATED);
+            } else {
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withFlag(KW_TV_TOP_RATED);
+            }
+            LOG.info("findTvs findTvs {}", findMovies);
+
+            discoverTvs = getTopRatedTvs(fBaseUrl, fApiKey, findMovies);
+            LOG.info("Top Rated tvs code {} message {}", discoverTvs.code(), discoverTvs.message());
+
+            buildMessageTvs(discoverTvs, aSource.groupId(), findMovies);
+          } else if (text.toLowerCase().startsWith(KW_TV_AIRING_TODAY.toLowerCase())) {
+            String strPageMax = text.substring(KW_TV_AIRING_TODAY.length(), text.length());
+            String[] pageMax = strPageMax.split(",");
+
+            int page = Integer.parseInt(pageMax[0].trim());
+            int max = Integer.parseInt(pageMax[1].trim());
+            int year = Integer.parseInt(pageMax[2].trim());
+            if (pageMax.length == 4) {
+              String region = pageMax[3].trim();
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withRegion(region).withFlag(KW_TV_AIRING_TODAY);
+            } else {
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withFlag(KW_TV_AIRING_TODAY);
+            }
+            LOG.info("findTvs findTvs {}", findMovies);
+
+            discoverTvs = getAiringTodayTvs(fBaseUrl, fApiKey, findMovies);
+            LOG.info("Airing Today tvs code {} message {}", discoverTvs.code(), discoverTvs.message());
+
+            buildMessageTvs(discoverTvs, aSource.groupId(), findMovies);
+          } else if (text.toLowerCase().startsWith(KW_TV_ON_AIR.toLowerCase())) {
+            String strPageMax = text.substring(KW_TV_ON_AIR.length(), text.length());
+            String[] pageMax = strPageMax.split(",");
+
+            int page = Integer.parseInt(pageMax[0].trim());
+            int max = Integer.parseInt(pageMax[1].trim());
+            int year = Integer.parseInt(pageMax[2].trim());
+            if (pageMax.length == 4) {
+              String region = pageMax[3].trim();
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withRegion(region).withFlag(KW_TV_ON_AIR);
+            } else {
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withFlag(KW_TV_ON_AIR);
+            }
+            LOG.info("findTvs findTvs {}", findMovies);
+
+            discoverTvs = getOnAirTvs(fBaseUrl, fApiKey, findMovies);
+            LOG.info("On Air tvs code {} message {}", discoverTvs.code(), discoverTvs.message());
+
+            buildMessageTvs(discoverTvs, aSource.groupId(), findMovies);
+          } else {
+            stickerMessage(fChannelAccessToken, aSource.groupId(), "1", "407");
+            unrecognizedMessage(fChannelAccessToken, aSource.groupId());
           }
           break;
       }
