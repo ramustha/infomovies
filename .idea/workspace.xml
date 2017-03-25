@@ -4,9 +4,8 @@
     <list default="true" id="383bcd04-0812-4968-ae91-cfb823c453f9" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/controller/LineBotController.java" afterPath="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/controller/LineBotController.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/controller/TheMovieDbService.java" afterPath="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/controller/TheMovieDbService.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/model/Seasons.java" afterPath="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/model/Seasons.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/util/BotHelper.java" afterPath="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/util/BotHelper.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/model/ResultTvDetail.java" afterPath="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/model/ResultTvsDetail.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
@@ -51,17 +50,15 @@
     </system>
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.6799538">
+    <splitter split-orientation="horizontal" split-proportion="0.12716763">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
           <file leaf-file-name="LineBotController.java" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/controller/LineBotController.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="423">
-                  <caret line="302" column="73" lean-forward="false" selection-start-line="302" selection-start-column="73" selection-end-line="302" selection-end-column="73" />
-                  <folding>
-                    <element signature="imports" expanded="true" />
-                  </folding>
+                <state relative-caret-position="5035">
+                  <caret line="299" column="40" lean-forward="true" selection-start-line="299" selection-start-column="40" selection-end-line="299" selection-end-column="40" />
+                  <folding />
                 </state>
               </provider>
             </entry>
@@ -83,8 +80,18 @@
           <file leaf-file-name="BotHelper.java" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/util/BotHelper.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="454">
-                  <caret line="125" column="46" lean-forward="true" selection-start-line="125" selection-start-column="6" selection-end-line="125" selection-end-column="46" />
+                <state relative-caret-position="352">
+                  <caret line="83" column="148" lean-forward="true" selection-start-line="83" selection-start-column="43" selection-end-line="83" selection-end-column="148" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="Seasons.java" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/model/Seasons.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="638">
+                  <caret line="38" column="36" lean-forward="false" selection-start-line="38" selection-start-column="36" selection-end-line="38" selection-end-column="36" />
                   <folding />
                 </state>
               </provider>
@@ -549,7 +556,6 @@
         <option value="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/Application.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/model/DiscoverTvs.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/model/ResultMovieDetail.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/model/Seasons.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/model/Networks.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/model/CreatedBy.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/model/ResultTvDetail.java" />
@@ -558,6 +564,7 @@
         <option value="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/controller/TheMovieDbService.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/model/ResultVideo.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/model/ResultTvsVideo.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/model/Seasons.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/util/BotHelper.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/controller/LineBotController.java" />
       </list>
@@ -1252,7 +1259,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="141313000" />
+    <option name="totallyTimeSpent" value="142179000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1098" extended-state="6" />
@@ -1283,7 +1290,7 @@
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3288889" sideWeight="0.5" order="14" side_tool="false" content_ui="tabs" />
       <window_info id="Spring" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="CheckStyle" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.070354454" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Bean Validation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.17561762" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -1553,14 +1560,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/model/Seasons.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="505">
-          <caret line="43" column="26" lean-forward="false" selection-start-line="43" selection-start-column="26" selection-end-line="43" selection-end-column="26" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/model/Networks.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="374">
@@ -1695,21 +1694,27 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/util/BotHelper.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/model/Seasons.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="454">
-          <caret line="125" column="46" lean-forward="true" selection-start-line="125" selection-start-column="6" selection-end-line="125" selection-end-column="46" />
+        <state relative-caret-position="638">
+          <caret line="38" column="36" lean-forward="false" selection-start-line="38" selection-start-column="36" selection-end-line="38" selection-end-column="36" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/controller/LineBotController.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="423">
-          <caret line="302" column="73" lean-forward="false" selection-start-line="302" selection-start-column="73" selection-end-line="302" selection-end-column="73" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state relative-caret-position="5035">
+          <caret line="299" column="40" lean-forward="true" selection-start-line="299" selection-start-column="40" selection-end-line="299" selection-end-column="40" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/ramusthastudio/infomovies/util/BotHelper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="352">
+          <caret line="83" column="148" lean-forward="true" selection-start-line="83" selection-start-column="43" selection-end-line="83" selection-end-column="148" />
+          <folding />
         </state>
       </provider>
     </entry>

@@ -24,9 +24,10 @@ import com.ramusthastudio.infomovies.model.FindMovies;
 import com.ramusthastudio.infomovies.model.Genre;
 import com.ramusthastudio.infomovies.model.ResultMovieDetail;
 import com.ramusthastudio.infomovies.model.ResultMovies;
-import com.ramusthastudio.infomovies.model.ResultTvsDetail;
 import com.ramusthastudio.infomovies.model.ResultTvs;
+import com.ramusthastudio.infomovies.model.ResultTvsDetail;
 import com.ramusthastudio.infomovies.model.ResultTvsVideo;
+import com.ramusthastudio.infomovies.model.Seasons;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -183,10 +184,11 @@ public final class BotHelper {
   public static Response<BotApiResponse> buttonMessageTv(String aChannelAccessToken, String aBaseImdbUrl,
       String aBaseImgUrl, String aUserId, ResultTvsDetail aTvDetail) throws IOException {
     String title = createTitle(aTvDetail.getName());
+    List<Seasons> seasons = aTvDetail.getSeasons();
     String tagline = createTagline(
-        "Current " + aTvDetail.getNumberOfSeasons() + " S\n" +
-            "First air " + aTvDetail.getFirstAirDate() + "\n" +
-            "Last air " + aTvDetail.getLastAirDate() + "\n"
+        "Last Season " + aTvDetail.getNumberOfSeasons() + "\n" +
+            "Last episode " + seasons.get(seasons.size() - 1).getSeasonNumber() + "\n" +
+            "Time " + aTvDetail.getEpisodeRunTimes() + " M\n"
 
     );
     String homepage = createHomepage(aBaseImdbUrl, aTvDetail.getHomepage(), "");
@@ -294,15 +296,15 @@ public final class BotHelper {
 
   public static void unrecognizedMessage(String aChannelAccessToken, String aUserId) throws IOException {
     String greeting = "Panduan Info Movies:\n\n";
-    greeting += "1. "+KW_NOW_PLAYING + " *region(ID)\n";
-    greeting += "2. "+KW_POPULAR + " *region(ID)\n";
-    greeting += "3. "+KW_TOP_RATED + " *region(ID)\n";
-    greeting += "4. "+KW_UPCOMING + " *region(ID)\n";
-    greeting += "5. "+KW_POPULAR + " *region(ID)\n";
-    greeting += "6. "+KW_FIND + " Judul, *tahun(2014)\n";
-    greeting += "7. "+KW_FIND + " Judul, *region(ID)\n\n";
+    greeting += "1. " + KW_NOW_PLAYING + " *region(ID)\n";
+    greeting += "2. " + KW_POPULAR + " *region(ID)\n";
+    greeting += "3. " + KW_TOP_RATED + " *region(ID)\n";
+    greeting += "4. " + KW_UPCOMING + " *region(ID)\n";
+    greeting += "5. " + KW_POPULAR + " *region(ID)\n";
+    greeting += "6. " + KW_FIND + " Judul, *tahun(2014)\n";
+    greeting += "7. " + KW_FIND + " Judul, *region(ID)\n\n";
 
-    greeting += "1. "+KW_TV_POPULAR + "\n";
+    greeting += "1. " + KW_TV_POPULAR + "\n";
     // greeting += "Daftar Movie bulan ini : '" + KW_MOVIE_BULAN_INI + "' \n";
     // greeting += "On Air Series : '" + KW_ON_THE_AIR + "'! \n";
     greeting += "\n\n*Opsional";

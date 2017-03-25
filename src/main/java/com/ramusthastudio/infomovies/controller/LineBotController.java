@@ -34,6 +34,7 @@ import retrofit2.Response;
 
 import static com.ramusthastudio.infomovies.model.FindMovies.newFindMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.FOLLOW;
+import static com.ramusthastudio.infomovies.util.BotHelper.IMG_HOLDER;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL_OVERVIEW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_FIND;
@@ -300,8 +301,8 @@ public class LineBotController {
               int videoId = tvVideo.getId();
               List<ResultVideo> resultVideo = tvVideo.getResultVideo();
               for (ResultVideo video : resultVideo) {
-                pushMessage(fChannelAccessToken, aUserId, video.getName());
-                Response<BotApiResponse> detail = videoMessage(fChannelAccessToken, aUserId, "", fBaseVideoUrl + video.getKey());
+                // pushMessage(fChannelAccessToken, aUserId, video.getName());
+                Response<BotApiResponse> detail = videoMessage(fChannelAccessToken, aUserId, IMG_HOLDER, fBaseVideoUrl + video.getKey());
                 LOG.info("Postback code {} message {}", detail.code(), detail.message());
               }
             }

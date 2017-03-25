@@ -6,29 +6,29 @@ public class Seasons {
   @SerializedName("air_date")
   private String airDate;
   @SerializedName("episode_count")
-  private String episodeCount;
+  private int episodeCount;
   @SerializedName("id")
-  private String id;
+  private int id;
   @SerializedName("poster_path")
   private String posterPath;
   @SerializedName("season_number")
-  private String seasonNumber;
+  private int seasonNumber;
 
   public String getAirDate() { return airDate; }
-  public String getEpisodeCount() { return episodeCount; }
-  public String getId() { return id; }
+  public int getEpisodeCount() { return episodeCount; }
+  public int getId() { return id; }
   public String getPosterPath() { return posterPath; }
-  public String getSeasonNumber() { return seasonNumber; }
+  public int getSeasonNumber() { return seasonNumber; }
 
   public Seasons setAirDate(String aAirDate) {
     airDate = aAirDate;
     return this;
   }
-  public Seasons setEpisodeCount(String aEpisodeCount) {
+  public Seasons setEpisodeCount(int aEpisodeCount) {
     episodeCount = aEpisodeCount;
     return this;
   }
-  public Seasons setId(String aId) {
+  public Seasons setId(int aId) {
     id = aId;
     return this;
   }
@@ -36,7 +36,7 @@ public class Seasons {
     posterPath = aPosterPath;
     return this;
   }
-  public Seasons setSeasonNumber(String aSeasonNumber) {
+  public Seasons setSeasonNumber(int aSeasonNumber) {
     seasonNumber = aSeasonNumber;
     return this;
   }
