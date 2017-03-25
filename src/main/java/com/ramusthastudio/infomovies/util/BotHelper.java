@@ -304,13 +304,18 @@ public final class BotHelper {
     greeting += "2. " + KW_POPULAR + " *(ID)\n";
     greeting += "3. " + KW_TOP_RATED + " *(ID)\n";
     greeting += "4. " + KW_UPCOMING + " *(ID)\n";
-    greeting += "5. " + KW_POPULAR + " *(ID)\n";
+    greeting += "5. " + KW_POPULAR + " *(ID)\n\n";
+
     greeting += "6. " + KW_FIND + " Judul, *(2014)\n";
     greeting += "7. " + KW_FIND + " Judul, *(ID)\n\n";
 
     greeting += "Tv Series...\n\n";
     greeting += "1. " + KW_TV_POPULAR + "\n";
-    greeting += "2. " + KW_TV_FIND + " Judul, *(2014)\n";
+    greeting += "2. " + KW_TV_TOP_RATED + "\n";
+    greeting += "3. " + KW_TV_AIRING_TODAY + "\n";
+    greeting += "4. " + KW_TV_ON_AIR + "\n\n";
+
+    greeting += "5. " + KW_TV_FIND + " Judul, *(2014)\n";
     // greeting += "Daftar Movie bulan ini : '" + KW_MOVIE_BULAN_INI + "' \n";
     // greeting += "On Air Series : '" + KW_ON_THE_AIR + "'! \n";
     greeting += "\n\n*Opsional";
@@ -454,6 +459,16 @@ public final class BotHelper {
   public static Response<DiscoverTvs> getTopRatedTvs(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
     TheMovieDbService service = createdService(aBaseUrl);
     return service.topRatedTvs(aApiKey, aFindMovies.getPage(), aFindMovies.getRegion()).execute();
+  }
+
+  public static Response<DiscoverTvs> getAiringTodayTvs(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
+    TheMovieDbService service = createdService(aBaseUrl);
+    return service.airingTodayTvs(aApiKey, aFindMovies.getPage(), aFindMovies.getRegion()).execute();
+  }
+
+  public static Response<DiscoverTvs> getOnAirTvs(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
+    TheMovieDbService service = createdService(aBaseUrl);
+    return service.onAirTvs(aApiKey, aFindMovies.getPage(), aFindMovies.getRegion()).execute();
   }
 
   public static Response<DiscoverMovies> getUpcomingMoviesMovies(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {

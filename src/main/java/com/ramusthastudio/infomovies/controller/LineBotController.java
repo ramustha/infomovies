@@ -42,10 +42,12 @@ import static com.ramusthastudio.infomovies.util.BotHelper.KW_NOW_PLAYING;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_PANDUAN;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_POPULAR;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TOP_RATED;
+import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_AIRING_TODAY;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_DETAIL;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_DETAIL_OVERVIEW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_DETAIL_TRAILER_OVERVIEW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_FIND;
+import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_ON_AIR;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_POPULAR;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_TOP_RATED;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_UPCOMING;
@@ -62,17 +64,19 @@ import static com.ramusthastudio.infomovies.util.BotHelper.carouselMessageTv;
 import static com.ramusthastudio.infomovies.util.BotHelper.confirmMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.createDetailOverview;
 import static com.ramusthastudio.infomovies.util.BotHelper.createDetailOverviewTv;
+import static com.ramusthastudio.infomovies.util.BotHelper.getAiringTodayTvs;
 import static com.ramusthastudio.infomovies.util.BotHelper.getDetailMovie;
 import static com.ramusthastudio.infomovies.util.BotHelper.getDetailTvs;
 import static com.ramusthastudio.infomovies.util.BotHelper.getDetailTvsVideo;
 import static com.ramusthastudio.infomovies.util.BotHelper.getNowPlayingMovies;
+import static com.ramusthastudio.infomovies.util.BotHelper.getOnAirTvs;
 import static com.ramusthastudio.infomovies.util.BotHelper.getPopularMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getPopularTvs;
 import static com.ramusthastudio.infomovies.util.BotHelper.getSearchMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getSearchTvs;
+import static com.ramusthastudio.infomovies.util.BotHelper.getTopRatedMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getTopRatedTvs;
 import static com.ramusthastudio.infomovies.util.BotHelper.getUpcomingMoviesMovies;
-import static com.ramusthastudio.infomovies.util.BotHelper.getTopRatedMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.greetingMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.pushMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.stickerMessage;
@@ -235,6 +239,24 @@ public class LineBotController {
 
               discoverTvs = getTopRatedTvs(fBaseUrl, fApiKey, findMovies);
               LOG.info("TopRatedTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
+
+              buildMessageTvs(discoverTvs, aUserId, findMovies);
+            } else if (text.toLowerCase().startsWith(KW_TV_AIRING_TODAY.toLowerCase())) {
+              String region = text.substring(KW_TV_AIRING_TODAY.length(), text.length()).trim();
+              findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_TV_AIRING_TODAY);
+              LOG.info("findTvs findTvs {}", findMovies);
+
+              discoverTvs = getAiringTodayTvs(fBaseUrl, fApiKey, findMovies);
+              LOG.info("AiringTodayTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
+
+              buildMessageTvs(discoverTvs, aUserId, findMovies);
+            } else if (text.toLowerCase().startsWith(KW_TV_ON_AIR.toLowerCase())) {
+              String region = text.substring(KW_TV_ON_AIR.length(), text.length()).trim();
+              findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_TV_ON_AIR);
+              LOG.info("findTvs findTvs {}", findMovies);
+
+              discoverTvs = getOnAirTvs(fBaseUrl, fApiKey, findMovies);
+              LOG.info("OnAirTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
 
               buildMessageTvs(discoverTvs, aUserId, findMovies);
             } else if (text.toLowerCase().startsWith(KW_FIND.toLowerCase())) {
@@ -449,10 +471,67 @@ public class LineBotController {
             }
             LOG.info("findMovies findMovies {}", findMovies);
 
-            discoverMovies = getUpcomingMoviesMovies(fBaseUrl, fApiKey, findMovies);
+            discoverMovies = getTopRatedMovies(fBaseUrl, fApiKey, findMovies);
             LOG.info("Top Rated movies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
             buildMessage(discoverMovies, aUserId, findMovies);
+          } else if (text.toLowerCase().startsWith(KW_TV_TOP_RATED.toLowerCase())) {
+            String strPageMax = text.substring(KW_TV_TOP_RATED.length(), text.length());
+            String[] pageMax = strPageMax.split(",");
+
+            int page = Integer.parseInt(pageMax[0].trim());
+            int max = Integer.parseInt(pageMax[1].trim());
+            int year = Integer.parseInt(pageMax[2].trim());
+            if (pageMax.length == 4) {
+              String region = pageMax[3].trim();
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withRegion(region).withFlag(KW_TOP_RATED);
+            } else {
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withFlag(KW_TV_TOP_RATED);
+            }
+            LOG.info("findTvs findTvs {}", findMovies);
+
+            discoverTvs = getTopRatedTvs(fBaseUrl, fApiKey, findMovies);
+            LOG.info("Top Rated tvs code {} message {}", discoverTvs.code(), discoverTvs.message());
+
+            buildMessageTvs(discoverTvs, aUserId, findMovies);
+          } else if (text.toLowerCase().startsWith(KW_TV_AIRING_TODAY.toLowerCase())) {
+            String strPageMax = text.substring(KW_TV_AIRING_TODAY.length(), text.length());
+            String[] pageMax = strPageMax.split(",");
+
+            int page = Integer.parseInt(pageMax[0].trim());
+            int max = Integer.parseInt(pageMax[1].trim());
+            int year = Integer.parseInt(pageMax[2].trim());
+            if (pageMax.length == 4) {
+              String region = pageMax[3].trim();
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withRegion(region).withFlag(KW_TV_AIRING_TODAY);
+            } else {
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withFlag(KW_TV_AIRING_TODAY);
+            }
+            LOG.info("findTvs findTvs {}", findMovies);
+
+            discoverTvs = getAiringTodayTvs(fBaseUrl, fApiKey, findMovies);
+            LOG.info("Airing Today tvs code {} message {}", discoverTvs.code(), discoverTvs.message());
+
+            buildMessageTvs(discoverTvs, aUserId, findMovies);
+          } else if (text.toLowerCase().startsWith(KW_TV_ON_AIR.toLowerCase())) {
+            String strPageMax = text.substring(KW_TV_ON_AIR.length(), text.length());
+            String[] pageMax = strPageMax.split(",");
+
+            int page = Integer.parseInt(pageMax[0].trim());
+            int max = Integer.parseInt(pageMax[1].trim());
+            int year = Integer.parseInt(pageMax[2].trim());
+            if (pageMax.length == 4) {
+              String region = pageMax[3].trim();
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withRegion(region).withFlag(KW_TV_ON_AIR);
+            } else {
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withFlag(KW_TV_ON_AIR);
+            }
+            LOG.info("findTvs findTvs {}", findMovies);
+
+            discoverTvs = getOnAirTvs(fBaseUrl, fApiKey, findMovies);
+            LOG.info("On Air tvs code {} message {}", discoverTvs.code(), discoverTvs.message());
+
+            buildMessageTvs(discoverTvs, aUserId, findMovies);
           } else {
             stickerMessage(fChannelAccessToken, aUserId, "1", "407");
             unrecognizedMessage(fChannelAccessToken, aUserId);
