@@ -175,9 +175,9 @@ public final class BotHelper {
       String aBaseImgUrl, String aUserId, ResultTvDetail aTvDetail) throws IOException {
     String title = createTitle(aTvDetail.getName());
     String tagline = createTagline(
-        "Current Season " + aTvDetail.getNumberOfSeasons() + "\n" +
-            "First air date " + aTvDetail.getFirstAirDate() + "\n" +
-            "Last air date " + aTvDetail.getLastAirDate() + "\n"
+        "Current " + aTvDetail.getNumberOfSeasons() + " S\n" +
+            "First air " + aTvDetail.getFirstAirDate() + "\n" +
+            "Last air " + aTvDetail.getLastAirDate() + "\n"
 
     );
     String homepage = createHomepage(aBaseImdbUrl, aTvDetail.getHomepage(), "");

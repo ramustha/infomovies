@@ -322,6 +322,25 @@ public class LineBotController {
             LOG.info("Popular movies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
             buildMessage(discoverMovies, aUserId, findMovies);
+          } else if (text.toLowerCase().startsWith(KW_TV_POPULAR.toLowerCase())) {
+            String strPageMax = text.substring(KW_TV_POPULAR.length(), text.length());
+            String[] pageMax = strPageMax.split(",");
+
+            int page = Integer.parseInt(pageMax[0].trim());
+            int max = Integer.parseInt(pageMax[1].trim());
+            int year = Integer.parseInt(pageMax[2].trim());
+            if (pageMax.length == 4) {
+              String region = pageMax[3].trim();
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withRegion(region).withFlag(KW_TV_POPULAR);
+            } else {
+              findMovies = newFindMovies().withPage(page).withMax(max).withYear(year).withFlag(KW_TV_POPULAR);
+            }
+            LOG.info("findTvs findTvs {}", findMovies);
+
+            discoverTvs = getPopularTvs(fBaseUrl, fApiKey, findMovies);
+            LOG.info("Popular tv code {} message {}", discoverTvs.code(), discoverTvs.message());
+
+            buildMessageTv(discoverTvs, aUserId, findMovies);
           } else if (text.toLowerCase().startsWith(KW_UPCOMING.toLowerCase())) {
             String strPageMax = text.substring(KW_UPCOMING.length(), text.length());
             String[] pageMax = strPageMax.split(",");
