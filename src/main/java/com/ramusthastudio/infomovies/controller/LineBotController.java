@@ -35,6 +35,7 @@ import retrofit2.Response;
 import static com.ramusthastudio.infomovies.model.FindMovies.newFindMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.FOLLOW;
 import static com.ramusthastudio.infomovies.util.BotHelper.IMG_HOLDER;
+import static com.ramusthastudio.infomovies.util.BotHelper.JOIN;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_DETAIL_OVERVIEW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_FIND;
@@ -188,7 +189,7 @@ public class LineBotController {
         case MESSAGE:
           if (aMessage.type().equals(MESSAGE_TEXT)) {
             String text = aMessage.text();
-            if (text.toLowerCase().startsWith(KW_NOW_PLAYING.toLowerCase())) {
+            if (text.toLowerCase().contains(KW_NOW_PLAYING.toLowerCase())) {
               String region = text.substring(KW_NOW_PLAYING.length(), text.length()).trim();
               findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_NOW_PLAYING);
               LOG.info("findMovies findMovies {}", findMovies);
@@ -197,7 +198,7 @@ public class LineBotController {
               LOG.info("NowPlayingMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
               buildMessage(discoverMovies, aUserId, findMovies);
-            } else if (text.toLowerCase().startsWith(KW_POPULAR.toLowerCase())) {
+            } else if (text.toLowerCase().contains(KW_POPULAR.toLowerCase())) {
               String region = text.substring(KW_POPULAR.length(), text.length()).trim();
               findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_POPULAR);
               LOG.info("findMovies findMovies {}", findMovies);
@@ -206,7 +207,7 @@ public class LineBotController {
               LOG.info("PopularMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
               buildMessage(discoverMovies, aUserId, findMovies);
-            } else if (text.toLowerCase().startsWith(KW_TV_POPULAR.toLowerCase())) {
+            } else if (text.toLowerCase().contains(KW_TV_POPULAR.toLowerCase())) {
               String region = text.substring(KW_TV_POPULAR.length(), text.length()).trim();
               findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_TV_POPULAR);
               LOG.info("findTv findTvs {}", findMovies);
@@ -215,7 +216,7 @@ public class LineBotController {
               LOG.info("PopularTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
 
               buildMessageTvs(discoverTvs, aUserId, findMovies);
-            } else if (text.toLowerCase().startsWith(KW_UPCOMING.toLowerCase())) {
+            } else if (text.toLowerCase().contains(KW_UPCOMING.toLowerCase())) {
               String region = text.substring(KW_UPCOMING.length(), text.length()).trim();
               findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_UPCOMING);
               LOG.info("findMovies findMovies {}", findMovies);
@@ -224,7 +225,7 @@ public class LineBotController {
               LOG.info("ComingSoonMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
               buildMessage(discoverMovies, aUserId, findMovies);
-            } else if (text.toLowerCase().startsWith(KW_TOP_RATED.toLowerCase())) {
+            } else if (text.toLowerCase().contains(KW_TOP_RATED.toLowerCase())) {
               String region = text.substring(KW_TOP_RATED.length(), text.length()).trim();
               findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_TOP_RATED);
               LOG.info("findMovies findMovies {}", findMovies);
@@ -233,7 +234,7 @@ public class LineBotController {
               LOG.info("TopRatedMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
               buildMessage(discoverMovies, aUserId, findMovies);
-            } else if (text.toLowerCase().startsWith(KW_TV_TOP_RATED.toLowerCase())) {
+            } else if (text.toLowerCase().contains(KW_TV_TOP_RATED.toLowerCase())) {
               String region = text.substring(KW_TV_TOP_RATED.length(), text.length()).trim();
               findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_TV_TOP_RATED);
               LOG.info("findTvs findTvs {}", findMovies);
@@ -242,7 +243,7 @@ public class LineBotController {
               LOG.info("TopRatedTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
 
               buildMessageTvs(discoverTvs, aUserId, findMovies);
-            } else if (text.toLowerCase().startsWith(KW_TV_AIRING_TODAY.toLowerCase())) {
+            } else if (text.toLowerCase().contains(KW_TV_AIRING_TODAY.toLowerCase())) {
               String region = text.substring(KW_TV_AIRING_TODAY.length(), text.length()).trim();
               findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_TV_AIRING_TODAY);
               LOG.info("findTvs findTvs {}", findMovies);
@@ -251,7 +252,7 @@ public class LineBotController {
               LOG.info("AiringTodayTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
 
               buildMessageTvs(discoverTvs, aUserId, findMovies);
-            } else if (text.toLowerCase().startsWith(KW_TV_ON_AIR.toLowerCase())) {
+            } else if (text.toLowerCase().contains(KW_TV_ON_AIR.toLowerCase())) {
               String region = text.substring(KW_TV_ON_AIR.length(), text.length()).trim();
               findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_TV_ON_AIR);
               LOG.info("findTvs findTvs {}", findMovies);
@@ -260,7 +261,7 @@ public class LineBotController {
               LOG.info("OnAirTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
 
               buildMessageTvs(discoverTvs, aUserId, findMovies);
-            } else if (text.toLowerCase().startsWith(KW_FIND.toLowerCase())) {
+            } else if (text.toLowerCase().contains(KW_FIND.toLowerCase())) {
               String keyword = text.substring(KW_FIND.length(), text.length());
               String[] data = keyword.split(",");
               int year = 0;
@@ -280,7 +281,7 @@ public class LineBotController {
               LOG.info("SearchMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
               buildMessage(discoverMovies, aUserId, findMovies);
-            } else if (text.toLowerCase().startsWith(KW_TV_FIND.toLowerCase())) {
+            } else if (text.toLowerCase().contains(KW_TV_FIND.toLowerCase())) {
               String keyword = text.substring(KW_TV_FIND.length(), text.length());
               String[] data = keyword.split(",");
               int year = 0;
@@ -300,14 +301,14 @@ public class LineBotController {
               LOG.info("SearchTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
 
               buildMessageTvs(discoverTvs, aUserId, findMovies);
-            } else if (text.toLowerCase().startsWith(KW_PANDUAN.toLowerCase())) {
+            } else if (text.toLowerCase().contains(KW_PANDUAN.toLowerCase())) {
               unrecognizedMessage(fChannelAccessToken, aUserId);
             } else { unrecognizedMessage(fChannelAccessToken, aUserId); }
           }
           break;
         case POSTBACK:
           String text = aPostback.data();
-          if (text.toLowerCase().startsWith(KW_DETAIL.toLowerCase())) {
+          if (text.toLowerCase().contains(KW_DETAIL.toLowerCase())) {
             String strId = text.substring(KW_DETAIL.length(), text.length());
             LOG.info("Movie id {}", strId.trim());
             int id = Integer.parseInt(strId.trim());
@@ -320,7 +321,7 @@ public class LineBotController {
               LOG.info("Message code {} message {}", detail.code(), detail.message());
             }
 
-          } else if (text.toLowerCase().startsWith(KW_TV_DETAIL.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_TV_DETAIL.toLowerCase())) {
             String strId = text.substring(KW_TV_DETAIL.length(), text.length());
             LOG.info("Tv id {}", strId.trim());
             int id = Integer.parseInt(strId.trim());
@@ -333,7 +334,7 @@ public class LineBotController {
               LOG.info("Message code {} message {}", detail.code(), detail.message());
             }
 
-          } else if (text.toLowerCase().startsWith(KW_DETAIL_OVERVIEW.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_DETAIL_OVERVIEW.toLowerCase())) {
             String strId = text.substring(KW_DETAIL_OVERVIEW.length(), text.length());
             LOG.info("Movie id {}", strId.trim());
             int id = Integer.parseInt(strId.trim());
@@ -347,7 +348,7 @@ public class LineBotController {
               LOG.info("Postback code {} message {}", detail.code(), detail.message());
             }
 
-          } else if (text.toLowerCase().startsWith(KW_TV_DETAIL_OVERVIEW.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_TV_DETAIL_OVERVIEW.toLowerCase())) {
             String strId = text.substring(KW_TV_DETAIL_OVERVIEW.length(), text.length());
             LOG.info("Tv id {}", strId.trim());
             int id = Integer.parseInt(strId.trim());
@@ -361,7 +362,7 @@ public class LineBotController {
               LOG.info("Postback code {} message {}", detail.code(), detail.message());
             }
 
-          } else if (text.toLowerCase().startsWith(KW_TV_DETAIL_TRAILER_OVERVIEW.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_TV_DETAIL_TRAILER_OVERVIEW.toLowerCase())) {
             String strId = text.substring(KW_TV_DETAIL_TRAILER_OVERVIEW.length(), text.length());
             LOG.info("Tv id {}", strId.trim());
             int id = Integer.parseInt(strId.trim());
@@ -380,7 +381,7 @@ public class LineBotController {
               }
             }
 
-          } else if (text.toLowerCase().startsWith(KW_NOW_PLAYING.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_NOW_PLAYING.toLowerCase())) {
             String strPageMax = text.substring(KW_NOW_PLAYING.length(), text.length());
             String[] pageMax = strPageMax.split(",");
 
@@ -400,7 +401,7 @@ public class LineBotController {
 
             buildMessage(discoverMovies, aUserId, findMovies);
 
-          } else if (text.toLowerCase().startsWith(KW_POPULAR.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_POPULAR.toLowerCase())) {
             String strPageMax = text.substring(KW_POPULAR.length(), text.length());
             String[] pageMax = strPageMax.split(",");
 
@@ -419,7 +420,7 @@ public class LineBotController {
             LOG.info("Popular movies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
             buildMessage(discoverMovies, aUserId, findMovies);
-          } else if (text.toLowerCase().startsWith(KW_TV_POPULAR.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_TV_POPULAR.toLowerCase())) {
             String strPageMax = text.substring(KW_TV_POPULAR.length(), text.length());
             String[] pageMax = strPageMax.split(",");
 
@@ -438,7 +439,7 @@ public class LineBotController {
             LOG.info("Popular tv code {} message {}", discoverTvs.code(), discoverTvs.message());
 
             buildMessageTvs(discoverTvs, aUserId, findMovies);
-          } else if (text.toLowerCase().startsWith(KW_UPCOMING.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_UPCOMING.toLowerCase())) {
             String strPageMax = text.substring(KW_UPCOMING.length(), text.length());
             String[] pageMax = strPageMax.split(",");
 
@@ -457,7 +458,7 @@ public class LineBotController {
             LOG.info("Coming soon movies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
             buildMessage(discoverMovies, aUserId, findMovies);
-          } else if (text.toLowerCase().startsWith(KW_TOP_RATED.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_TOP_RATED.toLowerCase())) {
             String strPageMax = text.substring(KW_TOP_RATED.length(), text.length());
             String[] pageMax = strPageMax.split(",");
 
@@ -476,7 +477,7 @@ public class LineBotController {
             LOG.info("Top Rated movies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
             buildMessage(discoverMovies, aUserId, findMovies);
-          } else if (text.toLowerCase().startsWith(KW_TV_TOP_RATED.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_TV_TOP_RATED.toLowerCase())) {
             String strPageMax = text.substring(KW_TV_TOP_RATED.length(), text.length());
             String[] pageMax = strPageMax.split(",");
 
@@ -495,7 +496,7 @@ public class LineBotController {
             LOG.info("Top Rated tvs code {} message {}", discoverTvs.code(), discoverTvs.message());
 
             buildMessageTvs(discoverTvs, aUserId, findMovies);
-          } else if (text.toLowerCase().startsWith(KW_TV_AIRING_TODAY.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_TV_AIRING_TODAY.toLowerCase())) {
             String strPageMax = text.substring(KW_TV_AIRING_TODAY.length(), text.length());
             String[] pageMax = strPageMax.split(",");
 
@@ -514,7 +515,7 @@ public class LineBotController {
             LOG.info("Airing Today tvs code {} message {}", discoverTvs.code(), discoverTvs.message());
 
             buildMessageTvs(discoverTvs, aUserId, findMovies);
-          } else if (text.toLowerCase().startsWith(KW_TV_ON_AIR.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_TV_ON_AIR.toLowerCase())) {
             String strPageMax = text.substring(KW_TV_ON_AIR.length(), text.length());
             String[] pageMax = strPageMax.split(",");
 
@@ -534,8 +535,8 @@ public class LineBotController {
 
             buildMessageTvs(discoverTvs, aUserId, findMovies);
           } else {
-            stickerMessage(fChannelAccessToken, aUserId, "1", "407");
-            unrecognizedMessage(fChannelAccessToken, aUserId);
+            // stickerMessage(fChannelAccessToken, aUserId, "1", "407");
+            // unrecognizedMessage(fChannelAccessToken, aUserId);
           }
           break;
       }
@@ -548,7 +549,7 @@ public class LineBotController {
     FindMovies findMovies;
     try {
       switch (aEventType) {
-        case FOLLOW:
+        case JOIN:
           greetingMessage(fChannelAccessToken, aSource.groupId());
           pushMessage(fChannelAccessToken, aSource.groupId(), "Popular movies..");
 
@@ -563,7 +564,7 @@ public class LineBotController {
         case MESSAGE:
           if (aMessage.type().equals(MESSAGE_TEXT)) {
             String text = aMessage.text();
-            if (text.toLowerCase().startsWith(KW_NOW_PLAYING.toLowerCase())) {
+            if (text.toLowerCase().contains(KW_NOW_PLAYING.toLowerCase())) {
               String region = text.substring(KW_NOW_PLAYING.length(), text.length()).trim();
               findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_NOW_PLAYING);
               LOG.info("findMovies findMovies {}", findMovies);
@@ -572,7 +573,7 @@ public class LineBotController {
               LOG.info("NowPlayingMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
               buildMessage(discoverMovies, aSource.groupId(), findMovies);
-            } else if (text.toLowerCase().startsWith(KW_POPULAR.toLowerCase())) {
+            } else if (text.toLowerCase().contains(KW_POPULAR.toLowerCase())) {
               String region = text.substring(KW_POPULAR.length(), text.length()).trim();
               findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_POPULAR);
               LOG.info("findMovies findMovies {}", findMovies);
@@ -581,7 +582,7 @@ public class LineBotController {
               LOG.info("PopularMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
               buildMessage(discoverMovies, aSource.groupId(), findMovies);
-            } else if (text.toLowerCase().startsWith(KW_TV_POPULAR.toLowerCase())) {
+            } else if (text.toLowerCase().contains(KW_TV_POPULAR.toLowerCase())) {
               String region = text.substring(KW_TV_POPULAR.length(), text.length()).trim();
               findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_TV_POPULAR);
               LOG.info("findTv findTvs {}", findMovies);
@@ -590,7 +591,7 @@ public class LineBotController {
               LOG.info("PopularTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
 
               buildMessageTvs(discoverTvs, aSource.groupId(), findMovies);
-            } else if (text.toLowerCase().startsWith(KW_UPCOMING.toLowerCase())) {
+            } else if (text.toLowerCase().contains(KW_UPCOMING.toLowerCase())) {
               String region = text.substring(KW_UPCOMING.length(), text.length()).trim();
               findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_UPCOMING);
               LOG.info("findMovies findMovies {}", findMovies);
@@ -599,7 +600,7 @@ public class LineBotController {
               LOG.info("ComingSoonMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
               buildMessage(discoverMovies, aSource.groupId(), findMovies);
-            } else if (text.toLowerCase().startsWith(KW_TOP_RATED.toLowerCase())) {
+            } else if (text.toLowerCase().contains(KW_TOP_RATED.toLowerCase())) {
               String region = text.substring(KW_TOP_RATED.length(), text.length()).trim();
               findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_TOP_RATED);
               LOG.info("findMovies findMovies {}", findMovies);
@@ -608,7 +609,7 @@ public class LineBotController {
               LOG.info("TopRatedMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
               buildMessage(discoverMovies, aSource.groupId(), findMovies);
-            } else if (text.toLowerCase().startsWith(KW_TV_TOP_RATED.toLowerCase())) {
+            } else if (text.toLowerCase().contains(KW_TV_TOP_RATED.toLowerCase())) {
               String region = text.substring(KW_TV_TOP_RATED.length(), text.length()).trim();
               findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_TV_TOP_RATED);
               LOG.info("findTvs findTvs {}", findMovies);
@@ -617,7 +618,7 @@ public class LineBotController {
               LOG.info("TopRatedTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
 
               buildMessageTvs(discoverTvs, aSource.groupId(), findMovies);
-            } else if (text.toLowerCase().startsWith(KW_TV_AIRING_TODAY.toLowerCase())) {
+            } else if (text.toLowerCase().contains(KW_TV_AIRING_TODAY.toLowerCase())) {
               String region = text.substring(KW_TV_AIRING_TODAY.length(), text.length()).trim();
               findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_TV_AIRING_TODAY);
               LOG.info("findTvs findTvs {}", findMovies);
@@ -626,7 +627,7 @@ public class LineBotController {
               LOG.info("AiringTodayTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
 
               buildMessageTvs(discoverTvs, aSource.groupId(), findMovies);
-            } else if (text.toLowerCase().startsWith(KW_TV_ON_AIR.toLowerCase())) {
+            } else if (text.toLowerCase().contains(KW_TV_ON_AIR.toLowerCase())) {
               String region = text.substring(KW_TV_ON_AIR.length(), text.length()).trim();
               findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_TV_ON_AIR);
               LOG.info("findTvs findTvs {}", findMovies);
@@ -635,7 +636,7 @@ public class LineBotController {
               LOG.info("OnAirTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
 
               buildMessageTvs(discoverTvs, aSource.groupId(), findMovies);
-            } else if (text.toLowerCase().startsWith(KW_FIND.toLowerCase())) {
+            } else if (text.toLowerCase().contains(KW_FIND.toLowerCase())) {
               String keyword = text.substring(KW_FIND.length(), text.length());
               String[] data = keyword.split(",");
               int year = 0;
@@ -655,7 +656,7 @@ public class LineBotController {
               LOG.info("SearchMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
               buildMessage(discoverMovies, aSource.groupId(), findMovies);
-            } else if (text.toLowerCase().startsWith(KW_TV_FIND.toLowerCase())) {
+            } else if (text.toLowerCase().contains(KW_TV_FIND.toLowerCase())) {
               String keyword = text.substring(KW_TV_FIND.length(), text.length());
               String[] data = keyword.split(",");
               int year = 0;
@@ -675,14 +676,14 @@ public class LineBotController {
               LOG.info("SearchTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
 
               buildMessageTvs(discoverTvs, aSource.groupId(), findMovies);
-            } else if (text.toLowerCase().startsWith(KW_PANDUAN.toLowerCase())) {
+            } else if (text.toLowerCase().contains(KW_PANDUAN.toLowerCase())) {
               unrecognizedMessage(fChannelAccessToken, aSource.groupId());
             } else { unrecognizedMessage(fChannelAccessToken, aSource.groupId()); }
           }
           break;
         case POSTBACK:
           String text = aPostback.data();
-          if (text.toLowerCase().startsWith(KW_DETAIL.toLowerCase())) {
+          if (text.toLowerCase().contains(KW_DETAIL.toLowerCase())) {
             String strId = text.substring(KW_DETAIL.length(), text.length());
             LOG.info("Movie id {}", strId.trim());
             int id = Integer.parseInt(strId.trim());
@@ -695,7 +696,7 @@ public class LineBotController {
               LOG.info("Message code {} message {}", detail.code(), detail.message());
             }
 
-          } else if (text.toLowerCase().startsWith(KW_TV_DETAIL.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_TV_DETAIL.toLowerCase())) {
             String strId = text.substring(KW_TV_DETAIL.length(), text.length());
             LOG.info("Tv id {}", strId.trim());
             int id = Integer.parseInt(strId.trim());
@@ -708,7 +709,7 @@ public class LineBotController {
               LOG.info("Message code {} message {}", detail.code(), detail.message());
             }
 
-          } else if (text.toLowerCase().startsWith(KW_DETAIL_OVERVIEW.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_DETAIL_OVERVIEW.toLowerCase())) {
             String strId = text.substring(KW_DETAIL_OVERVIEW.length(), text.length());
             LOG.info("Movie id {}", strId.trim());
             int id = Integer.parseInt(strId.trim());
@@ -722,7 +723,7 @@ public class LineBotController {
               LOG.info("Postback code {} message {}", detail.code(), detail.message());
             }
 
-          } else if (text.toLowerCase().startsWith(KW_TV_DETAIL_OVERVIEW.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_TV_DETAIL_OVERVIEW.toLowerCase())) {
             String strId = text.substring(KW_TV_DETAIL_OVERVIEW.length(), text.length());
             LOG.info("Tv id {}", strId.trim());
             int id = Integer.parseInt(strId.trim());
@@ -736,7 +737,7 @@ public class LineBotController {
               LOG.info("Postback code {} message {}", detail.code(), detail.message());
             }
 
-          } else if (text.toLowerCase().startsWith(KW_TV_DETAIL_TRAILER_OVERVIEW.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_TV_DETAIL_TRAILER_OVERVIEW.toLowerCase())) {
             String strId = text.substring(KW_TV_DETAIL_TRAILER_OVERVIEW.length(), text.length());
             LOG.info("Tv id {}", strId.trim());
             int id = Integer.parseInt(strId.trim());
@@ -755,7 +756,7 @@ public class LineBotController {
               }
             }
 
-          } else if (text.toLowerCase().startsWith(KW_NOW_PLAYING.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_NOW_PLAYING.toLowerCase())) {
             String strPageMax = text.substring(KW_NOW_PLAYING.length(), text.length());
             String[] pageMax = strPageMax.split(",");
 
@@ -775,7 +776,7 @@ public class LineBotController {
 
             buildMessage(discoverMovies, aSource.groupId(), findMovies);
 
-          } else if (text.toLowerCase().startsWith(KW_POPULAR.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_POPULAR.toLowerCase())) {
             String strPageMax = text.substring(KW_POPULAR.length(), text.length());
             String[] pageMax = strPageMax.split(",");
 
@@ -794,7 +795,7 @@ public class LineBotController {
             LOG.info("Popular movies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
             buildMessage(discoverMovies, aSource.groupId(), findMovies);
-          } else if (text.toLowerCase().startsWith(KW_TV_POPULAR.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_TV_POPULAR.toLowerCase())) {
             String strPageMax = text.substring(KW_TV_POPULAR.length(), text.length());
             String[] pageMax = strPageMax.split(",");
 
@@ -813,7 +814,7 @@ public class LineBotController {
             LOG.info("Popular tv code {} message {}", discoverTvs.code(), discoverTvs.message());
 
             buildMessageTvs(discoverTvs, aSource.groupId(), findMovies);
-          } else if (text.toLowerCase().startsWith(KW_UPCOMING.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_UPCOMING.toLowerCase())) {
             String strPageMax = text.substring(KW_UPCOMING.length(), text.length());
             String[] pageMax = strPageMax.split(",");
 
@@ -832,7 +833,7 @@ public class LineBotController {
             LOG.info("Coming soon movies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
             buildMessage(discoverMovies, aSource.groupId(), findMovies);
-          } else if (text.toLowerCase().startsWith(KW_TOP_RATED.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_TOP_RATED.toLowerCase())) {
             String strPageMax = text.substring(KW_TOP_RATED.length(), text.length());
             String[] pageMax = strPageMax.split(",");
 
@@ -851,7 +852,7 @@ public class LineBotController {
             LOG.info("Top Rated movies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
             buildMessage(discoverMovies, aSource.groupId(), findMovies);
-          } else if (text.toLowerCase().startsWith(KW_TV_TOP_RATED.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_TV_TOP_RATED.toLowerCase())) {
             String strPageMax = text.substring(KW_TV_TOP_RATED.length(), text.length());
             String[] pageMax = strPageMax.split(",");
 
@@ -870,7 +871,7 @@ public class LineBotController {
             LOG.info("Top Rated tvs code {} message {}", discoverTvs.code(), discoverTvs.message());
 
             buildMessageTvs(discoverTvs, aSource.groupId(), findMovies);
-          } else if (text.toLowerCase().startsWith(KW_TV_AIRING_TODAY.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_TV_AIRING_TODAY.toLowerCase())) {
             String strPageMax = text.substring(KW_TV_AIRING_TODAY.length(), text.length());
             String[] pageMax = strPageMax.split(",");
 
@@ -889,7 +890,7 @@ public class LineBotController {
             LOG.info("Airing Today tvs code {} message {}", discoverTvs.code(), discoverTvs.message());
 
             buildMessageTvs(discoverTvs, aSource.groupId(), findMovies);
-          } else if (text.toLowerCase().startsWith(KW_TV_ON_AIR.toLowerCase())) {
+          } else if (text.toLowerCase().contains(KW_TV_ON_AIR.toLowerCase())) {
             String strPageMax = text.substring(KW_TV_ON_AIR.length(), text.length());
             String[] pageMax = strPageMax.split(",");
 
@@ -909,8 +910,8 @@ public class LineBotController {
 
             buildMessageTvs(discoverTvs, aSource.groupId(), findMovies);
           } else {
-            stickerMessage(fChannelAccessToken, aSource.groupId(), "1", "407");
-            unrecognizedMessage(fChannelAccessToken, aSource.groupId());
+            // stickerMessage(fChannelAccessToken, aSource.groupId(), "1", "407");
+            // unrecognizedMessage(fChannelAccessToken, aSource.groupId());
           }
           break;
       }
