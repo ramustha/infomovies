@@ -18,10 +18,13 @@ import com.linecorp.bot.model.profile.UserProfileResponse;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.ramusthastudio.infomovies.controller.TheMovieDbService;
 import com.ramusthastudio.infomovies.model.DiscoverMovies;
+import com.ramusthastudio.infomovies.model.DiscoverTvs;
 import com.ramusthastudio.infomovies.model.FindMovies;
 import com.ramusthastudio.infomovies.model.Genre;
 import com.ramusthastudio.infomovies.model.ResultMovieDetail;
 import com.ramusthastudio.infomovies.model.ResultMovies;
+import com.ramusthastudio.infomovies.model.ResultTvDetail;
+import com.ramusthastudio.infomovies.model.ResultTvs;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,13 +61,18 @@ public final class BotHelper {
 
   public static final String KW_FIND = "Find";
   public static final String KW_DETAIL = "Detail";
+  public static final String KW_TV_DETAIL = "Tv Detail";
   public static final String KW_STAR = "Star";
   public static final String KW_DETAIL_OVERVIEW = "Overview";
+  public static final String KW_TV_DETAIL_OVERVIEW = "Tv Overview";
+  public static final String KW_TV_DETAIL_SEASON_OVERVIEW = "Tv Season Overview";
+  public static final String KW_TV_DETAIL_TRAILER_OVERVIEW = "Tv Trailer Overview";
   public static final String KW_NOW_PLAYING = "Now Playing";
   public static final String KW_LATEST = "Latest";
   public static final String KW_POPULAR = "Popular";
+  public static final String KW_TV_POPULAR = "Tv Popular";
   public static final String KW_TOP_RATED = "Top Rated";
-  public static final String KW_UPCOMING = "Comming Soon";
+  public static final String KW_UPCOMING = "Coming Soon";
   public static final String KW_RECOMMEND = "Recommend";
   public static final String KW_SIMILAR = "Similar";
   public static final String KW_VIDEOS = "Video";
@@ -119,6 +127,13 @@ public final class BotHelper {
     return templateMessage(aChannelAccessToken, aUserId, template);
   }
 
+  public static Response<BotApiResponse> carouselMessageTv(String aChannelAccessToken, String aUserId,
+      String aBaseImgUrl, List<ResultTvs> aResultTvs, int aMax) throws IOException {
+    List<CarouselColumn> carouselColumn = buildCarouselColumnTv(aBaseImgUrl, aResultTvs, aMax);
+    CarouselTemplate template = new CarouselTemplate(carouselColumn);
+    return templateMessage(aChannelAccessToken, aUserId, template);
+  }
+
   public static Response<BotApiResponse> confirmMessage(String aChannelAccessToken, String aUserId,
       FindMovies aFindMovies) throws IOException {
     int page = (aFindMovies.getMax() == 15 ? aFindMovies.getPage() + 1 : aFindMovies.getPage());
@@ -150,6 +165,34 @@ public final class BotHelper {
         Arrays.asList(
             new PostbackAction("Overview", KW_DETAIL_OVERVIEW + " " + aMovieDetail.getId()),
             new URIAction("IMDB", aBaseImdbUrl + aMovieDetail.getImdbId()),
+            new URIAction("Homepage", homepage)
+        ));
+
+    return templateMessage(aChannelAccessToken, aUserId, template);
+  }
+
+  public static Response<BotApiResponse> buttonMessageTv(String aChannelAccessToken, String aBaseImdbUrl,
+      String aBaseImgUrl, String aUserId, ResultTvDetail aTvDetail) throws IOException {
+    String title = createTitle(aTvDetail.getName());
+    String tagline = createTagline(
+        "Current Season " + aTvDetail.getNumberOfSeasons() + "\n" +
+            "First air date " + aTvDetail.getFirstAirDate() + "\n" +
+            "Last air date " + aTvDetail.getLastAirDate() + "\n"
+
+    );
+    String homepage = createHomepage(aBaseImdbUrl, aTvDetail.getHomepage(), "");
+    String backDropPath = createBackDropPath(aBaseImgUrl, aTvDetail.getBackdropPath(), aTvDetail.getPosterPath());
+    String posterPath = createPosterPath(aBaseImgUrl, aTvDetail.getBackdropPath(), aTvDetail.getPosterPath());
+
+    LOG.info("ResultTvs poster {}\n backdrop {}\n title {}\n genre {}\n homepage {}\n",
+        posterPath, backDropPath, title + " (" + aTvDetail.getVoteAverage() + ")", tagline, homepage);
+
+    ButtonsTemplate template = new ButtonsTemplate(
+        backDropPath, title + " (" + aTvDetail.getVoteAverage() + ")", tagline,
+        Arrays.asList(
+            new PostbackAction("Trailer", KW_TV_DETAIL_TRAILER_OVERVIEW + " " + aTvDetail.getId()),
+            new PostbackAction("Overview", KW_TV_DETAIL_OVERVIEW + " " + aTvDetail.getId()),
+            new PostbackAction("Season", KW_TV_DETAIL_SEASON_OVERVIEW + " " + aTvDetail.getId()),
             new URIAction("Homepage", homepage)
         ));
 
@@ -189,12 +232,47 @@ public final class BotHelper {
     return carouselColumn;
   }
 
+  public static List<CarouselColumn> buildCarouselColumnTv(String aBaseImgUrl, List<ResultTvs> aResultTvs,
+      int aMin) {
+    List<CarouselColumn> carouselColumn = new ArrayList<>();
+    List<ResultTvs> resultMovies;
+    if (aResultTvs.size() > 5) {
+      int max = aMin + 5;
+      max = max > aResultTvs.size() ? aResultTvs.size() : max;
+      resultMovies = aResultTvs.subList(aMin, max);
+    } else {
+      resultMovies = aResultTvs;
+    }
+
+    for (ResultTvs tv : resultMovies) {
+      String filterTitle = createTitle(tv.getName());
+      String filterTagLine = createTagline(createFromGenreId(tv.getGenreIds()));
+      String backDropPath = createBackDropPath(aBaseImgUrl, tv.getBackdropPath(), tv.getPosterPath());
+      String posterPath = createPosterPath(aBaseImgUrl, tv.getBackdropPath(), tv.getPosterPath());
+
+      LOG.info("ResultTvs poster {}\n backdrop {}\n title {}\n genre {}\n id {}\n",
+          posterPath, backDropPath, filterTitle + " (" + tv.getVoteAverage() + ")", filterTagLine,
+          KW_DETAIL + " " + tv.getId());
+
+      carouselColumn.add(
+          new CarouselColumn(
+              backDropPath, filterTitle + " (" + tv.getVoteAverage() + ")", filterTagLine,
+              Arrays.asList(
+                  new URIAction("Poster", posterPath),
+                  new PostbackAction("Detail", KW_TV_DETAIL + " " + tv.getId()))));
+    }
+
+    return carouselColumn;
+  }
+
   public static void greetingMessage(String aChannelAccessToken, String aUserId) throws IOException {
     stickerMessage(aChannelAccessToken, aUserId, "1", "125");
     UserProfileResponse userProfile = getUserProfile(aChannelAccessToken, aUserId).body();
     String greeting = "Hi " + userProfile.getDisplayName() + ", selamat datang di Info Movies\n";
     greeting += "Terima kasih telah menambahkan saya sebagai teman! \n\n";
+    greeting += "Disini kamu bisa meminta saya untuk memberikan informasi seputar movie maupun series...";
     pushMessage(aChannelAccessToken, aUserId, greeting);
+    unrecognizedMessage(aChannelAccessToken, aUserId);
   }
 
   public static void errorMessage(String aChannelAccessToken, String aUserId) throws IOException {
@@ -206,15 +284,14 @@ public final class BotHelper {
   }
 
   public static void unrecognizedMessage(String aChannelAccessToken, String aUserId) throws IOException {
-    UserProfileResponse userProfile = getUserProfile(aChannelAccessToken, aUserId).body();
-    String greeting = "Hi " + userProfile.getDisplayName() + ", apakah kamu kesulitan ?\n\n";
-    greeting += "Panduan Info Movies:\n";
-    greeting += "~ Now Playing : '" + KW_NOW_PLAYING + " *region(ID)' \n";
-    greeting += "~ Popular : '" + KW_POPULAR + " *region(ID)' \n";
-    greeting += "~ Find Movie :";
-    greeting += "\n 1. '" + KW_FIND + " Judul, *tahun(2014)'";
-    greeting += "\n 2. '" + KW_FIND + " Judul, *region(ID)'";
-    greeting += "\n 3. '" + KW_FIND + " Judul, *tahun(2014), *region(ID)'";
+    String greeting = "Panduan Info Movies:\n\n";
+    greeting += KW_NOW_PLAYING + " *region(ID)\n";
+    greeting += KW_POPULAR + " *region(ID)\n";
+    greeting += KW_TOP_RATED + " *region(ID)\n";
+    greeting += KW_UPCOMING + " *region(ID)\n";
+    greeting += KW_POPULAR + " *region(ID)\n";
+    greeting += KW_FIND + " Judul, *tahun(2014)\n";
+    greeting += KW_FIND + " Judul, *region(ID)\n";
     // greeting += "Daftar Movie bulan ini : '" + KW_MOVIE_BULAN_INI + "' \n";
     // greeting += "On Air Series : '" + KW_ON_THE_AIR + "'! \n";
     greeting += "\n\n*Opsional";
@@ -300,28 +377,51 @@ public final class BotHelper {
     return service.detailMovies(aMovieId, aApiKey).execute();
   }
 
-  public static Response<DiscoverMovies> getTopRatedMovies(String aBaseUrl, String aApiKey, int aPage) throws IOException {
-    return getTopRatedMovies(aBaseUrl, aApiKey, aPage, DFL_REGION);
+  public static Response<ResultTvDetail> getDetailTv(String aBaseUrl, int aTvId, String aApiKey) throws IOException {
+    Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
+        .addConverterFactory(GsonConverterFactory.create()).build();
+    TheMovieDbService service = retrofit.create(TheMovieDbService.class);
+
+    return service.detailTvs(aTvId, aApiKey).execute();
   }
 
-  public static Response<DiscoverMovies> getTopRatedMovies(String aBaseUrl, String aApiKey, int aPage, String aRegion) throws IOException {
-    String region = aRegion != null ? aRegion : "";
-    int page = aPage != 0 ? aPage : 0;
-    return getTopRatedMovies(aBaseUrl, aApiKey, page, region);
-  }
+  // public static Response<DiscoverMovies> getTopRatedMovies(String aBaseUrl, String aApiKey, int aPage) throws IOException {
+  //   return getTopRatedMovies(aBaseUrl, aApiKey, aPage, DFL_REGION);
+  // }
 
-  public static Response<DiscoverMovies> getTopRatedMovies(String aBaseUrl, String aApiKey, String aLanguage, int aPage, String aRegion) throws IOException {
+  // public static Response<DiscoverMovies> getTopRatedMovies(String aBaseUrl, String aApiKey, int aPage, String aRegion) throws IOException {
+  //   String region = aRegion != null ? aRegion : "";
+  //   int page = aPage != 0 ? aPage : 0;
+  //   return getTopRatedMovies(aBaseUrl, aApiKey, page, region);
+  // }
+  //
+  // public static Response<DiscoverMovies> getTopRatedMovies(String aBaseUrl, String aApiKey, String aLanguage, int aPage, String aRegion) throws IOException {
+  //   TheMovieDbService service = createdService(aBaseUrl);
+  //
+  //   int page = aPage != 0 ? aPage : 0;
+  //   String region = aRegion != null ? aRegion : "";
+  //
+  //   return service.topRatedMovies(aApiKey, page, region).execute();
+  // }
+
+  public static Response<DiscoverMovies> gettopRatedMovies(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
     TheMovieDbService service = createdService(aBaseUrl);
+    return service.topRatedMovies(aApiKey, aFindMovies.getPage(), aFindMovies.getRegion()).execute();
+  }
 
-    int page = aPage != 0 ? aPage : 0;
-    String region = aRegion != null ? aRegion : "";
-
-    return service.topRatedMovies(aApiKey, page, region).execute();
+  public static Response<DiscoverMovies> getUpcomingMoviesMovies(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
+    TheMovieDbService service = createdService(aBaseUrl);
+    return service.upcomingMovies(aApiKey, aFindMovies.getPage(), aFindMovies.getRegion()).execute();
   }
 
   public static Response<DiscoverMovies> getPopularMovies(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
     TheMovieDbService service = createdService(aBaseUrl);
     return service.popularMovies(aApiKey, aFindMovies.getPage(), aFindMovies.getRegion()).execute();
+  }
+
+  public static Response<DiscoverTvs> getPopularTvs(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
+    TheMovieDbService service = createdService(aBaseUrl);
+    return service.popularTvs(aApiKey, aFindMovies.getPage(), aFindMovies.getRegion()).execute();
   }
 
   public static Response<DiscoverMovies> getNowPlayingMovies(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {

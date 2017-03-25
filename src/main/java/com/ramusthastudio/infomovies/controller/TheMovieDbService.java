@@ -1,8 +1,10 @@
 package com.ramusthastudio.infomovies.controller;
 
 import com.ramusthastudio.infomovies.model.DiscoverMovies;
+import com.ramusthastudio.infomovies.model.DiscoverTvs;
 import com.ramusthastudio.infomovies.model.DiscoverVideosMovies;
 import com.ramusthastudio.infomovies.model.ResultMovieDetail;
+import com.ramusthastudio.infomovies.model.ResultTvDetail;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
@@ -42,6 +44,12 @@ public interface TheMovieDbService {
 
   @GET("search/movie")
   Call<DiscoverMovies> searchMovies(@Query("api_key") String aApi, @Query("query") String aQuery, @Query("page") int aPage, @Query("region") String aRegion, @Query("primary_release_year") int aReleaseYear);
+
+  @GET("tv/popular")
+  Call<DiscoverTvs> popularTvs(@Query("api_key") String aApi, @Query("page") int aPage, @Query("region") String aRegion);
+
+  @GET("tv/{tv_id}")
+  Call<ResultTvDetail> detailTvs(@Path("tv_id") int aMovieId, @Query("api_key") String aApi);
 
   // @GET("discover/movie")
   // Call<DiscoverMovies> discoverMovies(@Query("api_key") String aApi, @Query("primary_release_year") int aYear);
