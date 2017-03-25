@@ -12,8 +12,10 @@ import com.ramusthastudio.infomovies.model.Payload;
 import com.ramusthastudio.infomovies.model.Postback;
 import com.ramusthastudio.infomovies.model.ResultMovieDetail;
 import com.ramusthastudio.infomovies.model.ResultMovies;
-import com.ramusthastudio.infomovies.model.ResultTvDetail;
 import com.ramusthastudio.infomovies.model.ResultTvs;
+import com.ramusthastudio.infomovies.model.ResultTvsDetail;
+import com.ramusthastudio.infomovies.model.ResultTvsVideo;
+import com.ramusthastudio.infomovies.model.ResultVideo;
 import com.ramusthastudio.infomovies.model.Source;
 import java.io.IOException;
 import java.util.List;
@@ -40,6 +42,7 @@ import static com.ramusthastudio.infomovies.util.BotHelper.KW_PANDUAN;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_POPULAR;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TOP_RATED;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_DETAIL;
+import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_DETAIL_TRAILER_OVERVIEW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_POPULAR;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_UPCOMING;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE;
@@ -55,7 +58,8 @@ import static com.ramusthastudio.infomovies.util.BotHelper.carouselMessageTv;
 import static com.ramusthastudio.infomovies.util.BotHelper.confirmMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.createDetailOverview;
 import static com.ramusthastudio.infomovies.util.BotHelper.getDetailMovie;
-import static com.ramusthastudio.infomovies.util.BotHelper.getDetailTv;
+import static com.ramusthastudio.infomovies.util.BotHelper.getDetailTvs;
+import static com.ramusthastudio.infomovies.util.BotHelper.getDetailTvsVideo;
 import static com.ramusthastudio.infomovies.util.BotHelper.getNowPlayingMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getPopularMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getPopularTvs;
@@ -66,6 +70,7 @@ import static com.ramusthastudio.infomovies.util.BotHelper.greetingMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.pushMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.stickerMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.unrecognizedMessage;
+import static com.ramusthastudio.infomovies.util.BotHelper.videoMessage;
 
 @RestController
 @RequestMapping(value = "/linebot")
@@ -260,11 +265,11 @@ public class LineBotController {
             String strId = text.substring(KW_TV_DETAIL.length(), text.length());
             LOG.info("Tv id {}", strId.trim());
             int id = Integer.parseInt(strId.trim());
-            Response<ResultTvDetail> detailTvResp = getDetailTv(fBaseUrl, id, fApiKey);
+            Response<ResultTvsDetail> detailTvResp = getDetailTvs(fBaseUrl, id, fApiKey);
             LOG.info("Message code {} message {}", detailTvResp.code(), detailTvResp.message());
 
             if (detailTvResp.isSuccessful()) {
-              ResultTvDetail tv = detailTvResp.body();
+              ResultTvsDetail tv = detailTvResp.body();
               Response<BotApiResponse> detail = buttonMessageTv(fChannelAccessToken, fBaseImdbUrl, fBaseImgUrl, aUserId, tv);
               LOG.info("Message code {} message {}", detail.code(), detail.message());
             }
@@ -281,6 +286,24 @@ public class LineBotController {
               String overview = createDetailOverview(movie, fBaseImdbUrl);
               Response<BotApiResponse> detail = pushMessage(fChannelAccessToken, aUserId, overview);
               LOG.info("Postback code {} message {}", detail.code(), detail.message());
+            }
+
+          } else if (text.toLowerCase().startsWith(KW_TV_DETAIL_TRAILER_OVERVIEW.toLowerCase())) {
+            String strId = text.substring(KW_TV_DETAIL_TRAILER_OVERVIEW.length(), text.length());
+            LOG.info("Tv id {}", strId.trim());
+            int id = Integer.parseInt(strId.trim());
+            Response<ResultTvsVideo> detailTvVideoResp = getDetailTvsVideo(fBaseUrl, id, fApiKey);
+            LOG.info("Postback code {} message {}", detailTvVideoResp.code(), detailTvVideoResp.message());
+
+            if (detailTvVideoResp.isSuccessful()) {
+              ResultTvsVideo tvVideo = detailTvVideoResp.body();
+              int videoId = tvVideo.getId();
+              List<ResultVideo> resultVideo = tvVideo.getResultVideo();
+              for (ResultVideo video : resultVideo) {
+                pushMessage(fChannelAccessToken, aUserId, video.getName());
+                Response<BotApiResponse> detail = videoMessage(fChannelAccessToken, aUserId, "", fBaseVideoUrl + video.getKey());
+                LOG.info("Postback code {} message {}", detail.code(), detail.message());
+              }
             }
 
           } else if (text.toLowerCase().startsWith(KW_NOW_PLAYING.toLowerCase())) {

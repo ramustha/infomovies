@@ -3,7 +3,7 @@ package com.ramusthastudio.infomovies.model;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
-public class ResultTvDetail {
+public class ResultTvsDetail {
   @SerializedName("backdrop_path")
   private String backdropPath;
   @SerializedName("created_by")
@@ -87,95 +87,95 @@ public class ResultTvDetail {
   public double getVoteAverage() { return voteAverage; }
   public int getVoteCount() { return voteCount; }
 
-  public ResultTvDetail setBackdropPath(String aBackdropPath) {
+  public ResultTvsDetail setBackdropPath(String aBackdropPath) {
     backdropPath = aBackdropPath;
     return this;
   }
-  public ResultTvDetail setCreatedBy(List<CreatedBy> aCreatedBy) {
+  public ResultTvsDetail setCreatedBy(List<CreatedBy> aCreatedBy) {
     createdBy = aCreatedBy;
     return this;
   }
-  public ResultTvDetail setEpisodeRunTimes(List<Integer> aEpisodeRunTimes) {
+  public ResultTvsDetail setEpisodeRunTimes(List<Integer> aEpisodeRunTimes) {
     episodeRunTimes = aEpisodeRunTimes;
     return this;
   }
-  public ResultTvDetail setFirstAirDate(String aFirstAirDate) {
+  public ResultTvsDetail setFirstAirDate(String aFirstAirDate) {
     firstAirDate = aFirstAirDate;
     return this;
   }
-  public ResultTvDetail setHomepage(String aHomepage) {
+  public ResultTvsDetail setHomepage(String aHomepage) {
     homepage = aHomepage;
     return this;
   }
-  public ResultTvDetail setId(int aId) {
+  public ResultTvsDetail setId(int aId) {
     id = aId;
     return this;
   }
-  public ResultTvDetail setInProduction(boolean aInProduction) {
+  public ResultTvsDetail setInProduction(boolean aInProduction) {
     inProduction = aInProduction;
     return this;
   }
-  public ResultTvDetail setLanguages(List<String> aLanguages) {
+  public ResultTvsDetail setLanguages(List<String> aLanguages) {
     languages = aLanguages;
     return this;
   }
-  public ResultTvDetail setLastAirDate(String aLastAirDate) {
+  public ResultTvsDetail setLastAirDate(String aLastAirDate) {
     lastAirDate = aLastAirDate;
     return this;
   }
-  public ResultTvDetail setName(String aName) {
+  public ResultTvsDetail setName(String aName) {
     name = aName;
     return this;
   }
-  public ResultTvDetail setNetworks(List<Networks> aNetworks) {
+  public ResultTvsDetail setNetworks(List<Networks> aNetworks) {
     networks = aNetworks;
     return this;
   }
-  public ResultTvDetail setNumberOfEpisodes(int aNumberOfEpisodes) {
+  public ResultTvsDetail setNumberOfEpisodes(int aNumberOfEpisodes) {
     numberOfEpisodes = aNumberOfEpisodes;
     return this;
   }
-  public ResultTvDetail setNumberOfSeasons(int aNumberOfSeasons) {
+  public ResultTvsDetail setNumberOfSeasons(int aNumberOfSeasons) {
     numberOfSeasons = aNumberOfSeasons;
     return this;
   }
-  public ResultTvDetail setOriginCountry(List<String> aOriginCountry) {
+  public ResultTvsDetail setOriginCountry(List<String> aOriginCountry) {
     originCountry = aOriginCountry;
     return this;
   }
-  public ResultTvDetail setOriginalLanguage(String aOriginalLanguage) {
+  public ResultTvsDetail setOriginalLanguage(String aOriginalLanguage) {
     originalLanguage = aOriginalLanguage;
     return this;
   }
-  public ResultTvDetail setOriginalName(String aOriginalName) {
+  public ResultTvsDetail setOriginalName(String aOriginalName) {
     originalName = aOriginalName;
     return this;
   }
-  public ResultTvDetail setOverview(String aOverview) {
+  public ResultTvsDetail setOverview(String aOverview) {
     overview = aOverview;
     return this;
   }
-  public ResultTvDetail setPopularity(double aPopularity) {
+  public ResultTvsDetail setPopularity(double aPopularity) {
     popularity = aPopularity;
     return this;
   }
-  public ResultTvDetail setPosterPath(String aPosterPath) {
+  public ResultTvsDetail setPosterPath(String aPosterPath) {
     posterPath = aPosterPath;
     return this;
   }
-  public ResultTvDetail setStatus(String aStatus) {
+  public ResultTvsDetail setStatus(String aStatus) {
     status = aStatus;
     return this;
   }
-  public ResultTvDetail setType(String aType) {
+  public ResultTvsDetail setType(String aType) {
     type = aType;
     return this;
   }
-  public ResultTvDetail setVoteAverage(double aVoteAverage) {
+  public ResultTvsDetail setVoteAverage(double aVoteAverage) {
     voteAverage = aVoteAverage;
     return this;
   }
-  public ResultTvDetail setVoteCount(int aVoteCount) {
+  public ResultTvsDetail setVoteCount(int aVoteCount) {
     voteCount = aVoteCount;
     return this;
   }

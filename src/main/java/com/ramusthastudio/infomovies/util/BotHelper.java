@@ -9,6 +9,7 @@ import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.message.StickerMessage;
 import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.TextMessage;
+import com.linecorp.bot.model.message.VideoMessage;
 import com.linecorp.bot.model.message.template.ButtonsTemplate;
 import com.linecorp.bot.model.message.template.CarouselColumn;
 import com.linecorp.bot.model.message.template.CarouselTemplate;
@@ -23,8 +24,9 @@ import com.ramusthastudio.infomovies.model.FindMovies;
 import com.ramusthastudio.infomovies.model.Genre;
 import com.ramusthastudio.infomovies.model.ResultMovieDetail;
 import com.ramusthastudio.infomovies.model.ResultMovies;
-import com.ramusthastudio.infomovies.model.ResultTvDetail;
+import com.ramusthastudio.infomovies.model.ResultTvsDetail;
 import com.ramusthastudio.infomovies.model.ResultTvs;
+import com.ramusthastudio.infomovies.model.ResultTvsVideo;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -120,6 +122,13 @@ public final class BotHelper {
     return LineMessagingServiceBuilder.create(aChannelAccessToken).build().pushMessage(pushMessage).execute();
   }
 
+  public static Response<BotApiResponse> videoMessage(String aChannelAccessToken, String aUserId,
+      String aImageHolderUrl, String aVideoUrl) throws IOException {
+    VideoMessage message = new VideoMessage(aVideoUrl, aImageHolderUrl);
+    PushMessage pushMessage = new PushMessage(aUserId, message);
+    return LineMessagingServiceBuilder.create(aChannelAccessToken).build().pushMessage(pushMessage).execute();
+  }
+
   public static Response<BotApiResponse> carouselMessage(String aChannelAccessToken, String aUserId,
       String aBaseImgUrl, List<ResultMovies> aResultMovies, int aMax) throws IOException {
     List<CarouselColumn> carouselColumn = buildCarouselColumn(aBaseImgUrl, aResultMovies, aMax);
@@ -172,7 +181,7 @@ public final class BotHelper {
   }
 
   public static Response<BotApiResponse> buttonMessageTv(String aChannelAccessToken, String aBaseImdbUrl,
-      String aBaseImgUrl, String aUserId, ResultTvDetail aTvDetail) throws IOException {
+      String aBaseImgUrl, String aUserId, ResultTvsDetail aTvDetail) throws IOException {
     String title = createTitle(aTvDetail.getName());
     String tagline = createTagline(
         "Current " + aTvDetail.getNumberOfSeasons() + " S\n" +
@@ -285,13 +294,15 @@ public final class BotHelper {
 
   public static void unrecognizedMessage(String aChannelAccessToken, String aUserId) throws IOException {
     String greeting = "Panduan Info Movies:\n\n";
-    greeting += KW_NOW_PLAYING + " *region(ID)\n";
-    greeting += KW_POPULAR + " *region(ID)\n";
-    greeting += KW_TOP_RATED + " *region(ID)\n";
-    greeting += KW_UPCOMING + " *region(ID)\n";
-    greeting += KW_POPULAR + " *region(ID)\n";
-    greeting += KW_FIND + " Judul, *tahun(2014)\n";
-    greeting += KW_FIND + " Judul, *region(ID)\n";
+    greeting += "1. "+KW_NOW_PLAYING + " *region(ID)\n";
+    greeting += "2. "+KW_POPULAR + " *region(ID)\n";
+    greeting += "3. "+KW_TOP_RATED + " *region(ID)\n";
+    greeting += "4. "+KW_UPCOMING + " *region(ID)\n";
+    greeting += "5. "+KW_POPULAR + " *region(ID)\n";
+    greeting += "6. "+KW_FIND + " Judul, *tahun(2014)\n";
+    greeting += "7. "+KW_FIND + " Judul, *region(ID)\n\n";
+
+    greeting += "1. "+KW_TV_POPULAR + "\n";
     // greeting += "Daftar Movie bulan ini : '" + KW_MOVIE_BULAN_INI + "' \n";
     // greeting += "On Air Series : '" + KW_ON_THE_AIR + "'! \n";
     greeting += "\n\n*Opsional";
@@ -377,12 +388,20 @@ public final class BotHelper {
     return service.detailMovies(aMovieId, aApiKey).execute();
   }
 
-  public static Response<ResultTvDetail> getDetailTv(String aBaseUrl, int aTvId, String aApiKey) throws IOException {
+  public static Response<ResultTvsDetail> getDetailTvs(String aBaseUrl, int aTvId, String aApiKey) throws IOException {
     Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
         .addConverterFactory(GsonConverterFactory.create()).build();
     TheMovieDbService service = retrofit.create(TheMovieDbService.class);
 
     return service.detailTvs(aTvId, aApiKey).execute();
+  }
+
+  public static Response<ResultTvsVideo> getDetailTvsVideo(String aBaseUrl, int aTvId, String aApiKey) throws IOException {
+    Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
+        .addConverterFactory(GsonConverterFactory.create()).build();
+    TheMovieDbService service = retrofit.create(TheMovieDbService.class);
+
+    return service.detailTvsVideo(aTvId, aApiKey).execute();
   }
 
   // public static Response<DiscoverMovies> getTopRatedMovies(String aBaseUrl, String aApiKey, int aPage) throws IOException {

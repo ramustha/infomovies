@@ -4,7 +4,8 @@ import com.ramusthastudio.infomovies.model.DiscoverMovies;
 import com.ramusthastudio.infomovies.model.DiscoverTvs;
 import com.ramusthastudio.infomovies.model.DiscoverVideosMovies;
 import com.ramusthastudio.infomovies.model.ResultMovieDetail;
-import com.ramusthastudio.infomovies.model.ResultTvDetail;
+import com.ramusthastudio.infomovies.model.ResultTvsDetail;
+import com.ramusthastudio.infomovies.model.ResultTvsVideo;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
@@ -49,7 +50,11 @@ public interface TheMovieDbService {
   Call<DiscoverTvs> popularTvs(@Query("api_key") String aApi, @Query("page") int aPage, @Query("region") String aRegion);
 
   @GET("tv/{tv_id}")
-  Call<ResultTvDetail> detailTvs(@Path("tv_id") int aMovieId, @Query("api_key") String aApi);
+  Call<ResultTvsDetail> detailTvs(@Path("tv_id") int aMovieId, @Query("api_key") String aApi);
+
+  @GET("tv/{tv_id}/videos")
+  Call<ResultTvsVideo> detailTvsVideo(@Path("tv_id") int aMovieId, @Query("api_key") String aApi);
+
 
   // @GET("discover/movie")
   // Call<DiscoverMovies> discoverMovies(@Query("api_key") String aApi, @Query("primary_release_year") int aYear);
