@@ -21,13 +21,16 @@ public class Config {
   @Bean public String getApiKey() {
     return System.getenv("com.themoviedb.api_key");
   }
+
   @Bean(name = "com.themoviedb.base_url")
   public String getBaseUrl() {
     return mEnv.getProperty("com.themoviedb.base_url");
   }
 
   @Bean(name = "com.themoviedb.base_imdb_url")
-  public String getBaseImdbUrl() { return mEnv.getProperty("com.themoviedb.base_imdb_url"); }
+  public String getBaseImdbUrl() {
+    return mEnv.getProperty("com.themoviedb.base_imdb_url");
+  }
 
   @Bean(name = "com.themoviedb.base_video_url")
   public String getBaseVideoUrl() {
