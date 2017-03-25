@@ -47,6 +47,7 @@ import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_DETAIL_OVERVIEW
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_DETAIL_TRAILER_OVERVIEW;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_FIND;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_POPULAR;
+import static com.ramusthastudio.infomovies.util.BotHelper.KW_TV_TOP_RATED;
 import static com.ramusthastudio.infomovies.util.BotHelper.KW_UPCOMING;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE;
 import static com.ramusthastudio.infomovies.util.BotHelper.MESSAGE_TEXT;
@@ -69,8 +70,9 @@ import static com.ramusthastudio.infomovies.util.BotHelper.getPopularMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getPopularTvs;
 import static com.ramusthastudio.infomovies.util.BotHelper.getSearchMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.getSearchTvs;
+import static com.ramusthastudio.infomovies.util.BotHelper.getTopRatedTvs;
 import static com.ramusthastudio.infomovies.util.BotHelper.getUpcomingMoviesMovies;
-import static com.ramusthastudio.infomovies.util.BotHelper.gettopRatedMovies;
+import static com.ramusthastudio.infomovies.util.BotHelper.getTopRatedMovies;
 import static com.ramusthastudio.infomovies.util.BotHelper.greetingMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.pushMessage;
 import static com.ramusthastudio.infomovies.util.BotHelper.stickerMessage;
@@ -222,10 +224,19 @@ public class LineBotController {
               findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_TOP_RATED);
               LOG.info("findMovies findMovies {}", findMovies);
 
-              discoverMovies = gettopRatedMovies(fBaseUrl, fApiKey, findMovies);
+              discoverMovies = getTopRatedMovies(fBaseUrl, fApiKey, findMovies);
               LOG.info("TopRatedMovies code {} message {}", discoverMovies.code(), discoverMovies.message());
 
               buildMessage(discoverMovies, aUserId, findMovies);
+            } else if (text.toLowerCase().startsWith(KW_TV_TOP_RATED.toLowerCase())) {
+              String region = text.substring(KW_TV_TOP_RATED.length(), text.length()).trim();
+              findMovies = newFindMovies().withPage(1).withMax(0).withRegion(region).withFlag(KW_TV_TOP_RATED);
+              LOG.info("findTvs findTvs {}", findMovies);
+
+              discoverTvs = getTopRatedTvs(fBaseUrl, fApiKey, findMovies);
+              LOG.info("TopRatedTvs code {} message {}", discoverTvs.code(), discoverTvs.message());
+
+              buildMessageTvs(discoverTvs, aUserId, findMovies);
             } else if (text.toLowerCase().startsWith(KW_FIND.toLowerCase())) {
               String keyword = text.substring(KW_FIND.length(), text.length());
               String[] data = keyword.split(",");

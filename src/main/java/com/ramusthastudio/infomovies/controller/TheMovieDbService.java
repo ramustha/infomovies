@@ -49,6 +49,15 @@ public interface TheMovieDbService {
   @GET("tv/popular")
   Call<DiscoverTvs> popularTvs(@Query("api_key") String aApi, @Query("page") int aPage, @Query("region") String aRegion);
 
+  @GET("tv/airing_today")
+  Call<DiscoverTvs> airingTodayTvs(@Query("api_key") String aApi, @Query("page") int aPage, @Query("region") String aRegion);
+
+  @GET("tv/on_the_air")
+  Call<DiscoverTvs> onAirTvs(@Query("api_key") String aApi, @Query("page") int aPage, @Query("region") String aRegion);
+
+  @GET("tv/top_rated")
+  Call<DiscoverTvs> topRatedTvs(@Query("api_key") String aApi, @Query("page") int aPage, @Query("region") String aRegion);
+
   @GET("tv/{tv_id}")
   Call<ResultTvsDetail> detailTvs(@Path("tv_id") int aMovieId, @Query("api_key") String aApi);
 

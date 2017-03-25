@@ -72,8 +72,12 @@ public final class BotHelper {
   public static final String KW_TV_DETAIL_TRAILER_OVERVIEW = "Tv Trailer Overview";
   public static final String KW_NOW_PLAYING = "Now Playing";
   public static final String KW_LATEST = "Latest";
+  public static final String KW_TV_LATEST = "Tv Latest";
   public static final String KW_POPULAR = "Popular";
   public static final String KW_TV_POPULAR = "Tv Popular";
+  public static final String KW_TV_AIRING_TODAY = "Tv Airing Today";
+  public static final String KW_TV_ON_AIR = "Tv On Air";
+  public static final String KW_TV_TOP_RATED = "Tv Top Rated";
   public static final String KW_TOP_RATED = "Top Rated";
   public static final String KW_UPCOMING = "Coming Soon";
   public static final String KW_RECOMMEND = "Recommend";
@@ -295,6 +299,7 @@ public final class BotHelper {
 
   public static void unrecognizedMessage(String aChannelAccessToken, String aUserId) throws IOException {
     String greeting = "Panduan Info Movies:\n\n";
+    greeting += "Movies...\n\n";
     greeting += "1. " + KW_NOW_PLAYING + " *(ID)\n";
     greeting += "2. " + KW_POPULAR + " *(ID)\n";
     greeting += "3. " + KW_TOP_RATED + " *(ID)\n";
@@ -303,6 +308,7 @@ public final class BotHelper {
     greeting += "6. " + KW_FIND + " Judul, *(2014)\n";
     greeting += "7. " + KW_FIND + " Judul, *(ID)\n\n";
 
+    greeting += "Tv Series...\n\n";
     greeting += "1. " + KW_TV_POPULAR + "\n";
     greeting += "2. " + KW_TV_FIND + " Judul, *(2014)\n";
     // greeting += "Daftar Movie bulan ini : '" + KW_MOVIE_BULAN_INI + "' \n";
@@ -440,9 +446,14 @@ public final class BotHelper {
   //   return service.topRatedMovies(aApiKey, page, region).execute();
   // }
 
-  public static Response<DiscoverMovies> gettopRatedMovies(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
+  public static Response<DiscoverMovies> getTopRatedMovies(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
     TheMovieDbService service = createdService(aBaseUrl);
     return service.topRatedMovies(aApiKey, aFindMovies.getPage(), aFindMovies.getRegion()).execute();
+  }
+
+  public static Response<DiscoverTvs> getTopRatedTvs(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
+    TheMovieDbService service = createdService(aBaseUrl);
+    return service.topRatedTvs(aApiKey, aFindMovies.getPage(), aFindMovies.getRegion()).execute();
   }
 
   public static Response<DiscoverMovies> getUpcomingMoviesMovies(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
