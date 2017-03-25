@@ -85,7 +85,7 @@ public final class BotHelper {
   public static final String KW_VIDEOS = "Video";
   public static final String KW_PANDUAN = "Panduan";
 
-  public static final String IMG_HOLDER = "https://www.themoviedb.org/assets/static_cache/41bdcf10bbf6f84c0fc73f27b2180b95/images/v4/logos/91x81.png";
+  public static final String IMG_HOLDER = "https://lh6.googleusercontent.com/E0VKf6AlrQ7LK3TA8Pcqyoh8c74icxKl64HohlBrLKeSW5XBsdfVyFy8ssAg4FNQY67wROqDBNPHZfc=w1920-h905";
 
   public static Response<UserProfileResponse> getUserProfile(String aChannelAccessToken,
       String aUserId) throws IOException {
@@ -284,14 +284,16 @@ public final class BotHelper {
     UserProfileResponse userProfile = getUserProfile(aChannelAccessToken, aUserId).body();
     String greeting = "Hi " + userProfile.getDisplayName() + ", selamat datang di Info Movies\n";
     greeting += "Terima kasih telah menambahkan aku sebagai teman! \n\n";
-    greeting += "Disini kamu bisa meminta aku untuk memberikan informasi seputar movie maupun series...";
+    greeting += "Disini kamu bisa meminta aku untuk memberikan informasi seputar movie maupun series...\n\n";
+    greeting += "Kalau kamu suka dengan aku tolong invite teman kamu yah supaya add line aku di @wix3579a";
     pushMessage(aChannelAccessToken, aUserId, greeting);
     unrecognizedMessage(aChannelAccessToken, aUserId);
   }
 
   public static void greetingMessageGroup(String aChannelAccessToken, String aUserId) throws IOException {
     String greeting = "Hi Manteman, makasih yah udah invite aku disini\n";
-    greeting += "kalian bisa meminta aku untuk memberikan informasi seputar movie maupun series...";
+    greeting += "kalian bisa meminta aku untuk memberikan informasi seputar movie maupun series...\n\n";
+    greeting += "Kalau kamu suka dengan aku tolong invite teman kamu yah supaya add line aku di @wix3579a";
     pushMessage(aChannelAccessToken, aUserId, greeting);
     unrecognizedMessage(aChannelAccessToken, aUserId);
   }
