@@ -13,18 +13,13 @@ public class Config {
   Environment mEnv;
 
   @Bean(name = "com.linecorp.channel_secret")
-  public String getChannelSecret() {
-    return mEnv.getProperty("com.linecorp.channel_secret");
-  }
+  public String getChannelSecret() { return System.getenv("com.linecorp.channel_secret"); }
 
   @Bean(name = "com.linecorp.channel_access_token")
-  public String getChannelAccessToken() {
-    return mEnv.getProperty("com.linecorp.channel_access_token");
-  }
+  public String getChannelAccessToken() { return System.getenv("com.linecorp.channel_access_token"); }
 
-  @Bean(name = "com.themoviedb.api_key")
-  public String getApiKey() {
-    return mEnv.getProperty("com.themoviedb.api_key");
+  @Bean public String getApiKey() {
+    return System.getenv("com.themoviedb.api_key");
   }
 
   @Bean(name = "com.themoviedb.base_url")
@@ -33,7 +28,9 @@ public class Config {
   }
 
   @Bean(name = "com.themoviedb.base_imdb_url")
-  public String getBaseImdbUrl() {    return mEnv.getProperty("com.themoviedb.base_imdb_url");  }
+  public String getBaseImdbUrl() {
+    return mEnv.getProperty("com.themoviedb.base_imdb_url");
+  }
 
   @Bean(name = "com.themoviedb.base_video_url")
   public String getBaseVideoUrl() {

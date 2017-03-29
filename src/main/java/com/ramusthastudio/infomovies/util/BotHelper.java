@@ -9,6 +9,7 @@ import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.message.StickerMessage;
 import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.TextMessage;
+import com.linecorp.bot.model.message.VideoMessage;
 import com.linecorp.bot.model.message.template.ButtonsTemplate;
 import com.linecorp.bot.model.message.template.CarouselColumn;
 import com.linecorp.bot.model.message.template.CarouselTemplate;
@@ -24,6 +25,9 @@ import com.ramusthastudio.infomovies.model.Genre;
 import com.ramusthastudio.infomovies.model.ResultMovieDetail;
 import com.ramusthastudio.infomovies.model.ResultMovies;
 import com.ramusthastudio.infomovies.model.ResultTvs;
+import com.ramusthastudio.infomovies.model.ResultTvsDetail;
+import com.ramusthastudio.infomovies.model.ResultTvsVideo;
+import com.ramusthastudio.infomovies.model.Seasons;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,13 +63,21 @@ public final class BotHelper {
   public static final String MESSAGE_STICKER = "sticker";
 
   public static final String KW_FIND = "Find";
+  public static final String KW_TV_FIND = "Tv Find";
   public static final String KW_DETAIL = "Detail";
+  public static final String KW_TV_DETAIL = "Tv Detail";
   public static final String KW_STAR = "Star";
   public static final String KW_DETAIL_OVERVIEW = "Overview";
+  public static final String KW_TV_DETAIL_OVERVIEW = "Tv Overview";
+  public static final String KW_TV_DETAIL_TRAILER_OVERVIEW = "Tv Trailer Overview";
   public static final String KW_NOW_PLAYING = "Now Playing";
   public static final String KW_LATEST = "Latest";
+  public static final String KW_TV_LATEST = "Tv Latest";
   public static final String KW_POPULAR = "Popular";
-  public static final String KW_POPULAR_TV = "Tv Popular";
+  public static final String KW_TV_POPULAR = "Tv Popular";
+  public static final String KW_TV_AIRING_TODAY = "Tv Airing Today";
+  public static final String KW_TV_ON_AIR = "Tv On Air";
+  public static final String KW_TV_TOP_RATED = "Tv Top Rated";
   public static final String KW_TOP_RATED = "Top Rated";
   public static final String KW_UPCOMING = "Coming Soon";
   public static final String KW_RECOMMEND = "Recommend";
@@ -73,7 +85,7 @@ public final class BotHelper {
   public static final String KW_VIDEOS = "Video";
   public static final String KW_PANDUAN = "Panduan";
 
-  public static final String IMG_HOLDER = "https://www.themoviedb.org/assets/static_cache/41bdcf10bbf6f84c0fc73f27b2180b95/images/v4/logos/91x81.png";
+  public static final String IMG_HOLDER = "https://lh6.googleusercontent.com/E0VKf6AlrQ7LK3TA8Pcqyoh8c74icxKl64HohlBrLKeSW5XBsdfVyFy8ssAg4FNQY67wROqDBNPHZfc=w1920-h905";
 
   public static Response<UserProfileResponse> getUserProfile(String aChannelAccessToken,
       String aUserId) throws IOException {
@@ -111,6 +123,13 @@ public final class BotHelper {
   public static Response<BotApiResponse> stickerMessage(String aChannelAccessToken, String aUserId,
       String aPackageId, String stickerId) throws IOException {
     StickerMessage message = new StickerMessage(aPackageId, stickerId);
+    PushMessage pushMessage = new PushMessage(aUserId, message);
+    return LineMessagingServiceBuilder.create(aChannelAccessToken).build().pushMessage(pushMessage).execute();
+  }
+
+  public static Response<BotApiResponse> videoMessage(String aChannelAccessToken, String aUserId,
+      String aImageHolderUrl, String aVideoUrl) throws IOException {
+    VideoMessage message = new VideoMessage(aVideoUrl, aImageHolderUrl);
     PushMessage pushMessage = new PushMessage(aUserId, message);
     return LineMessagingServiceBuilder.create(aChannelAccessToken).build().pushMessage(pushMessage).execute();
   }
@@ -160,6 +179,34 @@ public final class BotHelper {
         Arrays.asList(
             new PostbackAction("Overview", KW_DETAIL_OVERVIEW + " " + aMovieDetail.getId()),
             new URIAction("IMDB", aBaseImdbUrl + aMovieDetail.getImdbId()),
+            new URIAction("Homepage", homepage)
+        ));
+
+    return templateMessage(aChannelAccessToken, aUserId, template);
+  }
+
+  public static Response<BotApiResponse> buttonMessageTv(String aChannelAccessToken, String aBaseImdbUrl,
+      String aBaseImgUrl, String aUserId, ResultTvsDetail aTvDetail) throws IOException {
+    String title = createTitle(aTvDetail.getName());
+    List<Seasons> seasons = aTvDetail.getSeasons();
+    String tagline = createTagline(
+        "Current Season: " + aTvDetail.getNumberOfSeasons() + "\n" +
+            "Current episode: " + seasons.get(seasons.size() - 1).getEpisodeCount() + "\n" +
+            "Duration: " + aTvDetail.getEpisodeRunTimes().get(0) + " M\n"
+
+    );
+    String homepage = createHomepage(aBaseImdbUrl, aTvDetail.getHomepage(), "");
+    String backDropPath = createBackDropPath(aBaseImgUrl, aTvDetail.getBackdropPath(), aTvDetail.getPosterPath());
+    String posterPath = createPosterPath(aBaseImgUrl, aTvDetail.getBackdropPath(), aTvDetail.getPosterPath());
+
+    LOG.info("ResultTvs poster {}\n backdrop {}\n title {}\n genre {}\n homepage {}\n",
+        posterPath, backDropPath, title + " (" + aTvDetail.getVoteAverage() + ")", tagline, homepage);
+
+    ButtonsTemplate template = new ButtonsTemplate(
+        backDropPath, title + " (" + aTvDetail.getVoteAverage() + ")", tagline,
+        Arrays.asList(
+            new PostbackAction("Trailer", KW_TV_DETAIL_TRAILER_OVERVIEW + " " + aTvDetail.getId()),
+            new PostbackAction("Overview", KW_TV_DETAIL_OVERVIEW + " " + aTvDetail.getId()),
             new URIAction("Homepage", homepage)
         ));
 
@@ -226,7 +273,7 @@ public final class BotHelper {
               backDropPath, filterTitle + " (" + tv.getVoteAverage() + ")", filterTagLine,
               Arrays.asList(
                   new URIAction("Poster", posterPath),
-                  new PostbackAction("Detail", KW_DETAIL + " " + tv.getId()))));
+                  new PostbackAction("Detail", KW_TV_DETAIL + " " + tv.getId()))));
     }
 
     return carouselColumn;
@@ -236,8 +283,17 @@ public final class BotHelper {
     stickerMessage(aChannelAccessToken, aUserId, "1", "125");
     UserProfileResponse userProfile = getUserProfile(aChannelAccessToken, aUserId).body();
     String greeting = "Hi " + userProfile.getDisplayName() + ", selamat datang di Info Movies\n";
-    greeting += "Terima kasih telah menambahkan saya sebagai teman! \n\n";
-    greeting += "Disini kamu bisa meminta saya untuk memberikan informasi seputar movie maupun series...";
+    greeting += "Terima kasih telah menambahkan aku sebagai teman! \n\n";
+    greeting += "Disini kamu bisa meminta aku untuk memberikan informasi seputar movie maupun series...\n\n";
+    greeting += "Kalau kamu suka dengan aku tolong invite teman kamu yah supaya add line aku di @wix3579a";
+    pushMessage(aChannelAccessToken, aUserId, greeting);
+    unrecognizedMessage(aChannelAccessToken, aUserId);
+  }
+
+  public static void greetingMessageGroup(String aChannelAccessToken, String aUserId) throws IOException {
+    String greeting = "Hi Manteman, makasih yah udah invite aku disini\n";
+    greeting += "kalian bisa meminta aku untuk memberikan informasi seputar movie maupun series...\n\n";
+    greeting += "Kalau kamu suka dengan aku tolong invite teman kamu yah supaya add line aku di @wix3579a";
     pushMessage(aChannelAccessToken, aUserId, greeting);
     unrecognizedMessage(aChannelAccessToken, aUserId);
   }
@@ -252,13 +308,23 @@ public final class BotHelper {
 
   public static void unrecognizedMessage(String aChannelAccessToken, String aUserId) throws IOException {
     String greeting = "Panduan Info Movies:\n\n";
-    greeting += KW_NOW_PLAYING + " *region(ID)\n";
-    greeting += KW_POPULAR + " *region(ID)\n";
-    greeting += KW_TOP_RATED + " *region(ID)\n";
-    greeting += KW_UPCOMING + " *region(ID)\n";
-    greeting += KW_POPULAR + " *region(ID)\n";
-    greeting += KW_FIND + " Judul, *tahun(2014)\n";
-    greeting += KW_FIND + " Judul, *region(ID)\n";
+    greeting += "Movies...\n\n";
+    greeting += "1. " + KW_NOW_PLAYING + " *(ID)\n";
+    greeting += "2. " + KW_POPULAR + " *(ID)\n";
+    greeting += "3. " + KW_TOP_RATED + " *(ID)\n";
+    greeting += "4. " + KW_UPCOMING + " *(ID)\n";
+    greeting += "5. " + KW_POPULAR + " *(ID)\n\n";
+
+    greeting += "6. " + KW_FIND + " Judul, *(2014)\n";
+    greeting += "7. " + KW_FIND + " Judul, *(ID)\n\n";
+
+    greeting += "Tv Series...\n\n";
+    greeting += "1. " + KW_TV_POPULAR + "\n";
+    greeting += "2. " + KW_TV_TOP_RATED + "\n";
+    greeting += "3. " + KW_TV_AIRING_TODAY + "\n";
+    greeting += "4. " + KW_TV_ON_AIR + "\n\n";
+
+    greeting += "5. " + KW_TV_FIND + " Judul, *(2014)\n";
     // greeting += "Daftar Movie bulan ini : '" + KW_MOVIE_BULAN_INI + "' \n";
     // greeting += "On Air Series : '" + KW_ON_THE_AIR + "'! \n";
     greeting += "\n\n*Opsional";
@@ -271,6 +337,21 @@ public final class BotHelper {
     overview += "Release date: " + aMovieDetail.getReleaseDate() + "\n";
     overview += "IMDB: " + aImdbUrl + aMovieDetail.getImdbId() + "\n";
     overview += "Overview: \n" + aMovieDetail.getOverview() + "\n";
+    return overview;
+  }
+
+  public static String createDetailOverviewTv(ResultTvsDetail aTvDetail) {
+    String overview = "Title: " + aTvDetail.getName() + "\n";
+    overview += "Genre: " + createFromGenre(aTvDetail.getGenres()) + "\n";
+    overview += "Rating: " + aTvDetail.getVoteAverage() + " (" + aTvDetail.getVoteCount() + ")\n";
+    overview += "First air date: " + aTvDetail.getFirstAirDate() + "\n";
+    overview += "Last air date: " + aTvDetail.getLastAirDate() + "\n";
+    overview += "Seasons: " + aTvDetail.getNumberOfSeasons() + "\n";
+    overview += "Episodes: " + aTvDetail.getNumberOfEpisodes() + "\n";
+    overview += "Duration: " + aTvDetail.getEpisodeRunTimes() + " Minutes\n";
+    overview += "Status: " + aTvDetail.getStatus() + "\n";
+    overview += "Homepage: " + aTvDetail.getHomepage() + "\n";
+    overview += "Overview: \n" + aTvDetail.getOverview();
     return overview;
   }
 
@@ -344,6 +425,22 @@ public final class BotHelper {
     return service.detailMovies(aMovieId, aApiKey).execute();
   }
 
+  public static Response<ResultTvsDetail> getDetailTvs(String aBaseUrl, int aTvId, String aApiKey) throws IOException {
+    Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
+        .addConverterFactory(GsonConverterFactory.create()).build();
+    TheMovieDbService service = retrofit.create(TheMovieDbService.class);
+
+    return service.detailTvs(aTvId, aApiKey).execute();
+  }
+
+  public static Response<ResultTvsVideo> getDetailTvsVideo(String aBaseUrl, int aTvId, String aApiKey) throws IOException {
+    Retrofit retrofit = new Retrofit.Builder().baseUrl(aBaseUrl)
+        .addConverterFactory(GsonConverterFactory.create()).build();
+    TheMovieDbService service = retrofit.create(TheMovieDbService.class);
+
+    return service.detailTvsVideo(aTvId, aApiKey).execute();
+  }
+
   // public static Response<DiscoverMovies> getTopRatedMovies(String aBaseUrl, String aApiKey, int aPage) throws IOException {
   //   return getTopRatedMovies(aBaseUrl, aApiKey, aPage, DFL_REGION);
   // }
@@ -363,9 +460,24 @@ public final class BotHelper {
   //   return service.topRatedMovies(aApiKey, page, region).execute();
   // }
 
-  public static Response<DiscoverMovies> gettopRatedMovies(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
+  public static Response<DiscoverMovies> getTopRatedMovies(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
     TheMovieDbService service = createdService(aBaseUrl);
     return service.topRatedMovies(aApiKey, aFindMovies.getPage(), aFindMovies.getRegion()).execute();
+  }
+
+  public static Response<DiscoverTvs> getTopRatedTvs(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
+    TheMovieDbService service = createdService(aBaseUrl);
+    return service.topRatedTvs(aApiKey, aFindMovies.getPage(), aFindMovies.getRegion()).execute();
+  }
+
+  public static Response<DiscoverTvs> getAiringTodayTvs(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
+    TheMovieDbService service = createdService(aBaseUrl);
+    return service.airingTodayTvs(aApiKey, aFindMovies.getPage(), aFindMovies.getRegion()).execute();
+  }
+
+  public static Response<DiscoverTvs> getOnAirTvs(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
+    TheMovieDbService service = createdService(aBaseUrl);
+    return service.onAirTvs(aApiKey, aFindMovies.getPage(), aFindMovies.getRegion()).execute();
   }
 
   public static Response<DiscoverMovies> getUpcomingMoviesMovies(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
@@ -394,5 +506,13 @@ public final class BotHelper {
       return service.searchMovies(aApiKey, aFindMovies.getTitle(), aFindMovies.getPage(), aFindMovies.getRegion()).execute();
     }
     return service.searchMovies(aApiKey, aFindMovies.getTitle(), aFindMovies.getPage(), aFindMovies.getRegion(), aFindMovies.getYear()).execute();
+  }
+
+  public static Response<DiscoverTvs> getSearchTvs(String aBaseUrl, String aApiKey, FindMovies aFindMovies) throws IOException {
+    TheMovieDbService service = createdService(aBaseUrl);
+    if (aFindMovies.getYear() == 0) {
+      return service.searchTvs(aApiKey, aFindMovies.getTitle(), aFindMovies.getPage()).execute();
+    }
+    return service.searchTvs(aApiKey, aFindMovies.getTitle(), aFindMovies.getPage(), aFindMovies.getYear()).execute();
   }
 }

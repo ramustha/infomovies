@@ -4,6 +4,8 @@ import com.ramusthastudio.infomovies.model.DiscoverMovies;
 import com.ramusthastudio.infomovies.model.DiscoverTvs;
 import com.ramusthastudio.infomovies.model.DiscoverVideosMovies;
 import com.ramusthastudio.infomovies.model.ResultMovieDetail;
+import com.ramusthastudio.infomovies.model.ResultTvsDetail;
+import com.ramusthastudio.infomovies.model.ResultTvsVideo;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
@@ -46,6 +48,27 @@ public interface TheMovieDbService {
 
   @GET("tv/popular")
   Call<DiscoverTvs> popularTvs(@Query("api_key") String aApi, @Query("page") int aPage, @Query("region") String aRegion);
+
+  @GET("tv/airing_today")
+  Call<DiscoverTvs> airingTodayTvs(@Query("api_key") String aApi, @Query("page") int aPage, @Query("region") String aRegion);
+
+  @GET("tv/on_the_air")
+  Call<DiscoverTvs> onAirTvs(@Query("api_key") String aApi, @Query("page") int aPage, @Query("region") String aRegion);
+
+  @GET("tv/top_rated")
+  Call<DiscoverTvs> topRatedTvs(@Query("api_key") String aApi, @Query("page") int aPage, @Query("region") String aRegion);
+
+  @GET("tv/{tv_id}")
+  Call<ResultTvsDetail> detailTvs(@Path("tv_id") int aMovieId, @Query("api_key") String aApi);
+
+  @GET("tv/{tv_id}/videos")
+  Call<ResultTvsVideo> detailTvsVideo(@Path("tv_id") int aMovieId, @Query("api_key") String aApi);
+
+  @GET("search/tv")
+  Call<DiscoverTvs> searchTvs(@Query("api_key") String aApi, @Query("query") String aQuery, @Query("page") int aPage);
+
+  @GET("search/tv")
+  Call<DiscoverTvs> searchTvs(@Query("api_key") String aApi, @Query("query") String aQuery, @Query("page") int aPage, @Query("first_air_date_year") int aFirstAirDateYear);
 
 
   // @GET("discover/movie")
