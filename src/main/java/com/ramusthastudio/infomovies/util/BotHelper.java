@@ -85,7 +85,7 @@ public final class BotHelper {
   public static final String KW_VIDEOS = "Video";
   public static final String KW_PANDUAN = "Panduan";
 
-  public static final String IMG_HOLDER = "http://i1181.photobucket.com/albums/x435/Ramustha/Info%20movies_1.png";
+  public static final String IMG_HOLDER = "https://docs.google.com/uc?id=0B-F-b_ahxeRqcXBiMFVvQ1dwYlE";
 
   public static Response<UserProfileResponse> getUserProfile(String aChannelAccessToken,
       String aUserId) throws IOException {
