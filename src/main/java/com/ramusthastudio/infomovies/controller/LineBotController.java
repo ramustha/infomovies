@@ -305,7 +305,7 @@ public class LineBotController {
             } else if (text.toLowerCase().startsWith(KW_PANDUAN.toLowerCase())) {
               unrecognizedMessage(fChannelAccessToken, aUserId);
             } else {
-              // unrecognizedMessage(fChannelAccessToken, aUserId);
+              unrecognizedMessage(fChannelAccessToken, aUserId);
             }
           }
           break;
