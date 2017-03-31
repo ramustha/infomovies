@@ -295,7 +295,7 @@ public class LineBotController {
                 region = data[1].length() == 2 ? data[1] : "";
               }
               findMovies = newFindMovies()
-                  .withTitle(data[0]).withYear(year).withPage(1).withFlag(KW_FIND);
+                  .withTitle(data[0]).withYear(year).withPage(1).withRegion(region).withFlag(KW_FIND);
               LOG.info("findTvs findTv {}", findMovies);
 
               discoverTvs = getSearchTvs(fBaseUrl, fApiKey, findMovies);
@@ -538,8 +538,8 @@ public class LineBotController {
 
             buildMessageTvs(discoverTvs, aUserId, findMovies);
           } else {
-            // stickerMessage(fChannelAccessToken, aUserId, "1", "407");
-            // unrecognizedMessage(fChannelAccessToken, aUserId);
+            stickerMessage(fChannelAccessToken, aUserId, "1", "407");
+            unrecognizedMessage(fChannelAccessToken, aUserId);
           }
           break;
       }
@@ -672,7 +672,7 @@ public class LineBotController {
                 region = data[1].length() == 2 ? data[1] : "";
               }
               findMovies = newFindMovies()
-                  .withTitle(data[0]).withYear(year).withPage(1).withFlag(KW_FIND);
+                  .withTitle(data[0]).withYear(year).withPage(1).withRegion(region).withFlag(KW_FIND);
               LOG.info("findTvs findTv {}", findMovies);
 
               discoverTvs = getSearchTvs(fBaseUrl, fApiKey, findMovies);
@@ -915,8 +915,8 @@ public class LineBotController {
 
             buildMessageTvs(discoverTvs, aSource.groupId(), findMovies);
           } else {
-            // stickerMessage(fChannelAccessToken, aSource.groupId(), "1", "407");
-            // unrecognizedMessage(fChannelAccessToken, aSource.groupId());
+            stickerMessage(fChannelAccessToken, aSource.groupId(), "1", "407");
+            unrecognizedMessage(fChannelAccessToken, aSource.groupId());
           }
           break;
       }
