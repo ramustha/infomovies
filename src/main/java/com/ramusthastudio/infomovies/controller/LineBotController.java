@@ -305,7 +305,7 @@ public class LineBotController {
             } else if (text.toLowerCase().startsWith(KW_PANDUAN.toLowerCase())) {
               unrecognizedMessage(fChannelAccessToken, aUserId);
             } else {
-              // unrecognizedMessage(fChannelAccessToken, aUserId);
+              unrecognizedMessage(fChannelAccessToken, aUserId);
             }
           }
           break;
@@ -928,12 +928,16 @@ public class LineBotController {
     if (aDiscoverMovies.isSuccessful()) {
       int size = aDiscoverMovies.body().getTotalResults();
       int max = aFindMovies.getMax() + 5;
-      List<ResultMovies> movies = aDiscoverMovies.body().getResultMovies();
-      carouselMessage(fChannelAccessToken, aUserId, fBaseImgUrl, movies, aFindMovies.getMax());
+      if (size != 0) {
+        List<ResultMovies> movies = aDiscoverMovies.body().getResultMovies();
+        carouselMessage(fChannelAccessToken, aUserId, fBaseImgUrl, movies, aFindMovies.getMax());
 
-      LOG.info("buildMessage size {} max {}", size, max);
-      if (max < size || !aFindMovies.getFlag().equalsIgnoreCase(KW_FIND)) {
-        confirmMessage(fChannelAccessToken, aUserId, aFindMovies);
+        LOG.info("buildMessage size {} max {}", size, max);
+        if (max < size || !aFindMovies.getFlag().equalsIgnoreCase(KW_FIND)) {
+          confirmMessage(fChannelAccessToken, aUserId, aFindMovies);
+        }
+      } else {
+        pushMessage(fChannelAccessToken, aUserId, "Kayak nya movie yang kamu cari gak ada, coba judul yang lain...");
       }
     } else {
       stickerMessage(fChannelAccessToken, aUserId, "1", "407");
@@ -945,12 +949,16 @@ public class LineBotController {
     if (aDiscoverTvs.isSuccessful()) {
       int size = aDiscoverTvs.body().getTotalResults();
       int max = aFindMovies.getMax() + 5;
-      List<ResultTvs> tvs = aDiscoverTvs.body().getResultTvs();
-      carouselMessageTv(fChannelAccessToken, aUserId, fBaseImgUrl, tvs, aFindMovies.getMax());
+      if (size != 0) {
+        List<ResultTvs> tvs = aDiscoverTvs.body().getResultTvs();
+        carouselMessageTv(fChannelAccessToken, aUserId, fBaseImgUrl, tvs, aFindMovies.getMax());
 
-      LOG.info("buildMessage size {} max {}", size, max);
-      if (max < size || !aFindMovies.getFlag().equalsIgnoreCase(KW_FIND)) {
-        confirmMessage(fChannelAccessToken, aUserId, aFindMovies);
+        LOG.info("buildMessage size {} max {}", size, max);
+        if (max < size || !aFindMovies.getFlag().equalsIgnoreCase(KW_FIND)) {
+          confirmMessage(fChannelAccessToken, aUserId, aFindMovies);
+        }
+      } else {
+        pushMessage(fChannelAccessToken, aUserId, "Kayak nya movie yang kamu cari gak ada, coba judul yang lain...");
       }
     } else {
       stickerMessage(fChannelAccessToken, aUserId, "1", "407");
